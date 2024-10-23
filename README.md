@@ -235,6 +235,96 @@
 <br>
 <br>
 
+## Jenkins script
+<details>
+<summary>동료 평가 확인하기</summary>
+<div markdown="1">
+
+  ```groovy
+  pipeline {
+      agent any
+  
+      tools {
+          gradle 'gradle'
+          jdk 'openJDK17'
+      }
+  
+      environment {
+          DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB_PASSWORD')
+          DOCKERHUB_USERNAME = 'rlfgks'
+          GITHUB_URL = 'https://github.com/variety-crew/bangflix-backend.git'
+      }
+  
+      stages {
+          stage('Preparation') {
+              steps {
+                  script {
+                      if (isUnix()) {
+                          sh 'docker --version'
+                      } else {
+                          bat 'docker --version'
+                      }
+                  }
+              }
+          }
+          stage('Source Build') {
+              steps {
+                  git branch: 'main', url: "${env.GITHUB_URL}"
+                  script {
+                      if (isUnix()) {
+                          // 로컬 환경에서 사용할 application-local.yml을 application.yml로 복사
+                          sh 'cp /Users/yong-gilhan/Desktop/project/veriety-crew/bangflix/backend/src/main/resources/application-local.yml src/main/resources/application.yml'
+                          sh "chmod +x ./gradlew"
+                          sh "./gradlew clean build"
+                      } else {
+                          bat "gradlew.bat clean build"
+                      }
+                  }
+              }
+          }
+          stage('Container Build and Push') {
+              steps {    
+                  script {
+                      withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                          if (isUnix()) {
+                              sh "cp ./build/libs/*.jar ."
+                              sh "docker build -t ${DOCKERHUB_USERNAME}/bangflix-springboot:latest . --platform linux/x86_64"
+                              sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
+                              sh "docker push ${DOCKERHUB_USERNAME}/bangflix-springboot:latest"
+                          } else {
+                              bat "copy .\\build\\libs\\*.jar ."
+                              bat "docker build -t ${DOCKERHUB_USERNAME}/bangflix-springboot:latest ."
+                              bat "docker login -u %DOCKER_USER% -p %DOCKER_PASS%"
+                              bat "docker push ${DOCKERHUB_USERNAME}/bangflix-springboot:latest"
+                          }
+                      }
+                  }
+              }
+          }
+      }
+  
+      post {
+          always {
+              script {
+                  if (isUnix()) {
+                      sh 'docker logout'
+                  } else {
+                      bat 'docker logout'
+                  }
+              }
+          }
+          success {
+              echo 'Pipeline succeeded!'
+          }
+          failure {
+              echo 'Pipeline failed!'
+          }
+      }
+  }
+  ```
+
+</details>
+
 ## 동료 평가
 
 <details>
