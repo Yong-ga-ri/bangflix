@@ -237,7 +237,7 @@
 
 ## Jenkins script
 <details>
-<summary>동료 평가 확인하기</summary>
+<summary>Jenkins script 펼쳐보기</summary>
 <div markdown="1">
 
   ```groovy
