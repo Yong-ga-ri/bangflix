@@ -70,17 +70,18 @@ public class WebSecurityConfig {
 
 		http.authorizeHttpRequests(authorize ->
 				authorize
-						.requestMatchers("/api/v1/auth/**").permitAll()
+						.requestMatchers("/api/v1/**").permitAll()
+//						.requestMatchers("/api/v1/auth/**").permitAll()
 						.requestMatchers("/swagger-ui/**", "/v3/**").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/v1/themes/week").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/v1/themes").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/v1/community/**").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/v1/event/**").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/v1/notice/**").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/v1/themes/recommend").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/v1/themes/genres").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/v1/community-like/**").permitAll()
-						.requestMatchers("/uploadFiles/**").permitAll()
+//						.requestMatchers(HttpMethod.GET, "/api/v1/themes/week").permitAll()
+//						.requestMatchers(HttpMethod.GET, "/api/v1/themes").permitAll()
+//						.requestMatchers(HttpMethod.GET, "/api/v1/community/**").permitAll()
+//						.requestMatchers(HttpMethod.GET, "/api/v1/event/**").permitAll()
+//						.requestMatchers(HttpMethod.GET, "/api/v1/notice/**").permitAll()
+//						.requestMatchers(HttpMethod.GET, "/api/v1/themes/recommend").permitAll()
+//						.requestMatchers(HttpMethod.GET, "/api/v1/themes/genres").permitAll()
+//						.requestMatchers(HttpMethod.GET, "/api/v1/community-like/**").permitAll()
+//						.requestMatchers("/uploadFiles/**").permitAll()
 						.anyRequest().authenticated()
 		);
 
