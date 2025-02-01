@@ -6,10 +6,14 @@ services:
       context: ./frontend
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - backend
     networks:
       - mynetwork
+    volumes:
+      - /home/ec2-user/app/bangflix/frontend/ssl/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - /home/ec2-user/app/bangflix/frontend/ssl/privkey.pem:/etc/ssl/private/privkey.pem:ro
 
   backend:
     build:
