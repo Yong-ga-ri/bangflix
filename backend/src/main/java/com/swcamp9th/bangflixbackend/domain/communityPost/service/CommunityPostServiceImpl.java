@@ -176,7 +176,7 @@ public class CommunityPostServiceImpl implements CommunityPostService {
         List<CommunityPost> allPosts = communityPostRepository.findByActiveTrue(
                                                                 Sort.by("createdAt").descending());
 
-        Member loginMember = userRepository.findById(loginId)
+        Member loginMember = userRepository.findById("user1")
                 .orElseThrow(() -> new InvalidUserException("회원가입이 필요합니다."));
 
         List<CommunityPostDTO> postList = allPosts.stream()
