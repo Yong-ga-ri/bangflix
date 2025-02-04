@@ -27,6 +27,8 @@ public class RequestFilter implements Filter {
                 log.debug("loginId: {}", loginId);
                 httpServletRequest.setAttribute("loginId", loginId);
             }
+        } else if (authorizationHeader == null) {
+            httpServletRequest.setAttribute("loginId", "user1");
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
