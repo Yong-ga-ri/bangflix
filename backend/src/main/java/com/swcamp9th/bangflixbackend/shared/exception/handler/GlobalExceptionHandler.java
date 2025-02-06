@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(new ResponseMessage<>(400, e.getMessage(), null));
+            .body(new ResponseMessage<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null));
     }
 
     // 401: 지정한 리소스에 대한 권한이 없다
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ResponseMessage<Object>> handleInvalidUserException(Exception e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(new ResponseMessage<>(401, e.getMessage(), null));
+            .body(new ResponseMessage<>(HttpStatus.UNAUTHORIZED.value(), e.getMessage(), null));
     }
 
 //    // 500: 내부 서버 에러
@@ -53,6 +53,6 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ResponseMessage<Object>> handleInternalServerErrorException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ResponseMessage<>(500, e.getMessage(), null));
+                .body(new ResponseMessage<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
     }
 }

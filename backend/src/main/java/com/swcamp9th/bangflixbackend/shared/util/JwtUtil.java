@@ -33,7 +33,7 @@ public class JwtUtil {
 
 	private Key accessTokenKey;
 	private Key refreshTokenKey;
-	private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+	private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
 	@PostConstruct
 	public void init() {
@@ -126,9 +126,8 @@ public class JwtUtil {
 
 	public String getTokenFromRequest(HttpServletRequest req) {
 		String bearerToken = req.getHeader(AUTHORIZATION_HEADER);
-		log.debug("bearerToken in getTokenFromRequest: {}", bearerToken);
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-			return bearerToken.substring(7);
+			return bearerToken.substring(BEARER_PREFIX.length());
 		}
 		return null;
 	}

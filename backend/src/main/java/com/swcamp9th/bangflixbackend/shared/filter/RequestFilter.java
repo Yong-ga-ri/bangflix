@@ -9,6 +9,8 @@ import java.io.IOException;
 
 @Slf4j
 public class RequestFilter implements Filter {
+    private static final String SERVLET_REQUEST_ATTRIBUTE_KEY = "loginId";
+
     private final JwtUtil jwtUtil;
     public RequestFilter(JwtUtil jwtutil) {
         this.jwtUtil = jwtutil;
@@ -17,14 +19,12 @@ public class RequestFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = ((HttpServletRequest) servletRequest);
-        String authorizationHeader = httpServletRequest.getHeader("Authorization");
-        log.debug("authorizationHeader: {}", authorizationHeader);
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String token = authorizationHeader.replace("Bearer ", "");
+        String authorizationHeader = httpServletRequest.getHeader(JwtUtil.AUTHORIZATION_HEADER);
+        if (authorizationHeader != null && authorizationHeader.startsWith(JwtUtil.BEARER_PREFIX)) {
+            String token = authorizationHeader.replace(JwtUtil.BEARER_PREFIX, "");
             String loginId = jwtUtil.getSubjectFromToken(token);
             if (loginId != null) {
-                log.debug("loginId: {}", loginId);
-                httpServletRequest.setAttribute("loginId", loginId);
+                httpServletRequest.setAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY, loginId);
             }
         }
 
