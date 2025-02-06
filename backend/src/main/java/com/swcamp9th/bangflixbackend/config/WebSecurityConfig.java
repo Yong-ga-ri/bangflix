@@ -1,7 +1,6 @@
 package com.swcamp9th.bangflixbackend.config;
 
 import com.swcamp9th.bangflixbackend.common.filter.JwtExceptionFilter;
-import com.swcamp9th.bangflixbackend.security.config.CorsConfig;
 import com.swcamp9th.bangflixbackend.security.jwt.JwtAuthorizationFilter;
 import com.swcamp9th.bangflixbackend.common.util.JwtUtil;
 import com.swcamp9th.bangflixbackend.security.user.UserDetailsServiceImpl;
@@ -26,16 +25,12 @@ public class WebSecurityConfig {
 
 	private final JwtUtil jwtUtil;
 	private final UserDetailsServiceImpl userDetailsService;
-	private final AuthenticationConfiguration authenticationConfiguration;
-	private final CorsConfig corsConfig;
 
 
-	public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, CorsConfig corsConfig) {
+    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
 		this.jwtUtil = jwtUtil;
 		this.userDetailsService = userDetailsService;
-		this.authenticationConfiguration = authenticationConfiguration;
-		this.corsConfig = corsConfig;
-	}
+    }
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
