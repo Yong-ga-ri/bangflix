@@ -8,8 +8,8 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
-    info = @Info(title = "Bang-flix API 명세서",
-                 description = "Bang-flix API 명세서",
+    info = @Info(title = "Bangflix API 명세서",
+                 description = "Bangflix API 명세서",
                  version = "v1"))
 @SecurityScheme(
         name = "Authorization",
