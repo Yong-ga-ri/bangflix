@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
+
 @RestController("communityLikeController")
 @Slf4j
 @RequestMapping("api/v1/community-like")
@@ -27,7 +29,7 @@ public class CommunityLikeController {
     @PostMapping("")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 좋아요 / 좋아요 취소 API")
-    public ResponseEntity<ResponseMessage<Object>> addLike(@RequestAttribute("loginId") String loginId,
+    public ResponseEntity<ResponseMessage<Object>> addLike(@RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
                                                                      @RequestBody CommunityLikeCreateDTO newLike) {
 
         communityLikeService.addLike(loginId, newLike);

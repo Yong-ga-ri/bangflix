@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
 
-@RestController("tempCommentController")
+
 @Slf4j
+@RestController
 @RequestMapping("api/v1/comments")
 public class CommentController {
 
@@ -30,7 +32,7 @@ public class CommentController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "특정 사용자가 작성한 댓글 리스트 조회")
     public ResponseEntity<ResponseMessage<List<CommentDTO>>> getCommentsByMe(
-            @RequestAttribute("loginId") String loginId
+            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         List<CommentDTO> foundComments = commentService.getCommentsById(loginId);
 

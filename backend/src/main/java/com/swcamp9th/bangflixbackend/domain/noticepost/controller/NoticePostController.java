@@ -21,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
+
 @RestController("noticePostController")
 @Slf4j
 @RequestMapping("api/v1/notice")
@@ -38,7 +40,7 @@ public class NoticePostController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "공지사항 게시글 등록 API")
     public ResponseEntity<ResponseMessage<Object>> createNoticePost(
-            @RequestAttribute("loginId") String loginId,
+            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @Valid @RequestPart NoticePostCreateDTO newNotice,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
@@ -51,7 +53,7 @@ public class NoticePostController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "공지사항 게시글 수정 API")
     public ResponseEntity<ResponseMessage<Object>> updateNoticePost(
-            @RequestAttribute("loginId") String loginId,
+            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int noticePostCode,
             @Valid @RequestPart NoticePostUpdateDTO updatedNotice,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
@@ -65,7 +67,7 @@ public class NoticePostController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "공지사항 게시글 삭제 API")
     public ResponseEntity<ResponseMessage<Object>> deleteNoticePost(@PathVariable int noticePostCode,
-                                                                    @RequestAttribute("loginId") String loginId) {
+                                                                    @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
         noticePostService.deleteNoticePost(noticePostCode, loginId);
         return ResponseEntity.ok(new ResponseMessage<>(200, "게시글 삭제 성공", null));

@@ -9,7 +9,7 @@ import java.io.IOException;
 
 @Slf4j
 public class RequestFilter implements Filter {
-    private static final String SERVLET_REQUEST_ATTRIBUTE_KEY = "loginId";
+    public static final String SERVLET_REQUEST_ATTRIBUTE_KEY = "loginId";
 
     private final JwtUtil jwtUtil;
     public RequestFilter(JwtUtil jwtutil) {

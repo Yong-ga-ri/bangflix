@@ -29,10 +29,12 @@ public class CommentServiceImpl implements CommentService {
     private final CommunityPostRepository communityPostRepository;
 
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository,
-                              ModelMapper modelMapper,
-                              UserRepository userRepository,
-                              CommunityPostRepository communityPostRepository) {
+    public CommentServiceImpl(
+            CommentRepository commentRepository,
+            ModelMapper modelMapper,
+            UserRepository userRepository,
+            CommunityPostRepository communityPostRepository)
+    {
         this.commentRepository = commentRepository;
         this.modelMapper = modelMapper;
         this.userRepository = userRepository;

@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
+
 @RestController
 @Slf4j
 @RequestMapping("api/v1/reviews")
@@ -50,7 +52,7 @@ public class ReviewController {
     public ResponseEntity<ResponseMessage<Object>> createReview(
         @RequestPart("review") CreateReviewDTO newReview,
         @RequestPart(value = "images", required = false) List<MultipartFile> images,
-        @RequestAttribute("loginId") String loginId)
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId)
         throws IOException, URISyntaxException {
 
         reviewService.createReview(newReview, images, loginId);
@@ -62,7 +64,7 @@ public class ReviewController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "리뷰 업데이트 API. request 값 중 null이 아닌 값들만 체크해 기존 리뷰를 수정합니다")
     public ResponseEntity<ResponseMessage<Object>> updateReview(@RequestBody UpdateReviewDTO updateReview,
-        @RequestAttribute("loginId") String loginId) {
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
         
         reviewService.updateReview(updateReview, loginId);
 
@@ -73,7 +75,7 @@ public class ReviewController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "리뷰 삭제 API.")
     public ResponseEntity<ResponseMessage<Object>> deleteReview(@RequestBody ReviewCodeDTO reviewCodeDTO,
-        @RequestAttribute("loginId") String loginId) {
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
         reviewService.deleteReview(reviewCodeDTO, loginId);
 
@@ -87,7 +89,7 @@ public class ReviewController {
         @PathVariable("themeCode") Integer themeCode,
         @PageableDefault(size = 10, page = 0) Pageable pageable,
         @RequestParam(required = false) String filter,
-        @RequestAttribute("loginId") String loginId) {
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
         /*
             필터 값은 필수 X.
             필터 값이 없다면 기본 최신순 리뷰 정렬
@@ -120,7 +122,7 @@ public class ReviewController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "리뷰 별 좋아요 APi.")
     public ResponseEntity<ResponseMessage<Object>> likeReview(@RequestBody ReviewCodeDTO reviewCodeDTO,
-        @RequestAttribute("loginId") String loginId) {
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
         reviewService.likeReview(reviewCodeDTO, loginId);
 
@@ -131,7 +133,7 @@ public class ReviewController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "리뷰 별 좋아요 취소 API.")
     public ResponseEntity<ResponseMessage<Object>> deleteLikeReview(@RequestBody ReviewCodeDTO reviewCodeDTO,
-        @RequestAttribute("loginId") String loginId) {
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
         reviewService.deleteLikeReview(reviewCodeDTO, loginId);
 
@@ -142,7 +144,7 @@ public class ReviewController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "유저 별 review의 report를 생성하는 API.")
     public ResponseEntity<ResponseMessage<ReviewReportDTO>> findReviewReport(
-        @RequestAttribute("loginId") String loginId
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
 
         // 서비스에서 필터를 사용해 조회
@@ -155,7 +157,7 @@ public class ReviewController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "유저 별 작성한 리뷰를 반환하는 API. 최근 작성한 리뷰순으로 정렬해서 보내줍니다")
     public ResponseEntity<ResponseMessage<List<ReviewDTO>>> findReviewByMember(
-        @RequestAttribute("loginId") String loginId,
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
         @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
 
@@ -169,7 +171,7 @@ public class ReviewController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "하나의 리뷰에 대해 조회하는 API.")
     public ResponseEntity<ResponseMessage<ReviewDTO>> findReviewDetail(
-        @RequestAttribute("loginId") String loginId,
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
         @RequestParam Integer reviewCode
     ) {
 

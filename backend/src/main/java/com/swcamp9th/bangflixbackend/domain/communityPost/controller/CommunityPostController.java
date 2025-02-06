@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
+
 @Slf4j
-@RestController("commentController")
+@RestController
 @RequestMapping("api/v1/community/post/{communityPostCode}/comments")
 public class CommunityPostController {
 
@@ -32,7 +34,7 @@ public class CommunityPostController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글의 댓글 등록 API")
     public ResponseEntity<ResponseMessage<Object>> createComment(
-                                            @RequestAttribute("loginId") String loginId,
+                                            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
                                             @PathVariable("communityPostCode") Integer communityPostCode,
                                             @RequestBody CommentCreateDTO newComment) {
 
@@ -45,7 +47,7 @@ public class CommunityPostController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글의 댓글 수정 API")
     public ResponseEntity<ResponseMessage<Object>> updateComment(
-                                            @RequestAttribute("loginId") String loginId,
+                                            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
                                             @PathVariable("communityPostCode") Integer communityPostCode,
                                             @PathVariable("commentCode") Integer commentCode,
                                             @RequestBody CommentUpdateDTO modifiedComment) {
@@ -59,7 +61,7 @@ public class CommunityPostController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글의 댓글 삭제 API")
     public ResponseEntity<ResponseMessage<Object>> deleteComment(
-                                            @RequestAttribute("loginId") String loginId,
+                                            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
                                             @PathVariable("communityPostCode") Integer communityPostCode,
                                             @PathVariable("commentCode") Integer commentCode) {
 

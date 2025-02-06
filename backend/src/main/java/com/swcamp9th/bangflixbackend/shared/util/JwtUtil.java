@@ -64,10 +64,6 @@ public class JwtUtil {
 			.compact();
 	}
 
-	public void addJwtToHeader(String token, HttpServletResponse response) {
-		response.setHeader(AUTHORIZATION_HEADER, token);
-	}
-
 	public boolean validateAccessToken(String token) {
 		try {
 			Jwts.parserBuilder().setSigningKey(accessTokenKey).build().parseClaimsJws(token);
