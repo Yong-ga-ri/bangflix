@@ -37,9 +37,9 @@ public class JwtUtil {
 
 	@PostConstruct
 	public void init() {
-		byte[] acessBytes = Base64.getDecoder().decode(accessTokenSecret);
+		byte[] accessBytes = Base64.getDecoder().decode(accessTokenSecret);
 		byte[] refreshBytes = Base64.getDecoder().decode(refreshTokenSecret);
-		accessTokenKey = Keys.hmacShaKeyFor(acessBytes);
+		accessTokenKey = Keys.hmacShaKeyFor(accessBytes);
 		refreshTokenKey = Keys.hmacShaKeyFor(refreshBytes);
 	}
 
@@ -68,7 +68,7 @@ public class JwtUtil {
 		response.setHeader(AUTHORIZATION_HEADER, token);
 	}
 
-	public boolean validateAcessToken(String token) {
+	public boolean validateAccessToken(String token) {
 		try {
 			Jwts.parserBuilder().setSigningKey(accessTokenKey).build().parseClaimsJws(token);
 			return true;
