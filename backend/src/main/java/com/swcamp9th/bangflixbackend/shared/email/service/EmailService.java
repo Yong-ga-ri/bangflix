@@ -1,4 +1,4 @@
-package com.swcamp9th.bangflixbackend.email.service;
+package com.swcamp9th.bangflixbackend.shared.email.service;
 
 import com.swcamp9th.bangflixbackend.domain.user.dto.EmailCodeRequestDto;
 import com.swcamp9th.bangflixbackend.shared.exception.InvalidEmailCodeException;
