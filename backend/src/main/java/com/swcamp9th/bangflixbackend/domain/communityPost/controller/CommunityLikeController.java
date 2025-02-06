@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.communityPost.controller;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.communityPost.dto.CommunityLikeCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.communityPost.dto.CommunityLikeCountDTO;
 import com.swcamp9th.bangflixbackend.domain.communityPost.service.CommunityLikeService;

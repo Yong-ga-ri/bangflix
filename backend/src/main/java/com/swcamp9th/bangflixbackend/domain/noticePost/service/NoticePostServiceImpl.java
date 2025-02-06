@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.noticePost.service;
 
-import com.swcamp9th.bangflixbackend.common.NoticePageResponse;
+import com.swcamp9th.bangflixbackend.shared.response.NoticePageResponse;
 import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostDTO;
 import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostUpdateDTO;
@@ -10,7 +10,7 @@ import com.swcamp9th.bangflixbackend.domain.noticePost.repository.NoticeFileRepo
 import com.swcamp9th.bangflixbackend.domain.noticePost.repository.NoticePostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.exception.InvalidUserException;
+import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

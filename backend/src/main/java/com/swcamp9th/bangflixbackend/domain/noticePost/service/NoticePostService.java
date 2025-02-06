@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.noticePost.service;
 
-import com.swcamp9th.bangflixbackend.common.NoticePageResponse;
+import com.swcamp9th.bangflixbackend.shared.response.NoticePageResponse;
 import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostDTO;
 import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostUpdateDTO;

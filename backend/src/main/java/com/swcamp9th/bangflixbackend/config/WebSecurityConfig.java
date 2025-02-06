@@ -1,8 +1,8 @@
 package com.swcamp9th.bangflixbackend.config;
 
-import com.swcamp9th.bangflixbackend.common.filter.JwtExceptionFilter;
+import com.swcamp9th.bangflixbackend.shared.filter.JwtExceptionFilter;
 import com.swcamp9th.bangflixbackend.security.jwt.JwtAuthorizationFilter;
-import com.swcamp9th.bangflixbackend.common.util.JwtUtil;
+import com.swcamp9th.bangflixbackend.shared.util.JwtUtil;
 import com.swcamp9th.bangflixbackend.security.user.UserDetailsServiceImpl;
 import jakarta.servlet.Filter;
 import org.springframework.context.annotation.Bean;

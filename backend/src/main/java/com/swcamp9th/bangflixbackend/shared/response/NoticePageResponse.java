@@ -1,4 +1,4 @@
-package com.swcamp9th.bangflixbackend.common;
+package com.swcamp9th.bangflixbackend.shared.response;
 
 import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostDTO;
 import lombok.*;

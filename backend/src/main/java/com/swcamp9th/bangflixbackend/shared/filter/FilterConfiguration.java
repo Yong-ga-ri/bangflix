@@ -1,7 +1,6 @@
-package com.swcamp9th.bangflixbackend.security.config;
+package com.swcamp9th.bangflixbackend.shared.filter;
 
-import com.swcamp9th.bangflixbackend.common.filter.RequestFilter;
-import com.swcamp9th.bangflixbackend.common.util.JwtUtil;
+import com.swcamp9th.bangflixbackend.shared.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

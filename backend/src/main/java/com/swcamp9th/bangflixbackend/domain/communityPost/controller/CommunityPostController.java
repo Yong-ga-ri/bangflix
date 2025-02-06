@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.communityPost.controller;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.communityPost.service.CommunityPostService;
 import com.swcamp9th.bangflixbackend.domain.communityPost.dto.CommunityPostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.communityPost.dto.CommunityPostDTO;

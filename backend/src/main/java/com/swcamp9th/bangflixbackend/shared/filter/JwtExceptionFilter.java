@@ -1,4 +1,4 @@
-package com.swcamp9th.bangflixbackend.common.filter;
+package com.swcamp9th.bangflixbackend.shared.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;

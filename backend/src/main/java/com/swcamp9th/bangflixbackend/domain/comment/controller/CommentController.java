@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.comment.controller;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentCountDTO;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentDTO;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentCreateDTO;

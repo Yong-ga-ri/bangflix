@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.eventPost.controller;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.eventPost.dto.EventListDTO;
 import com.swcamp9th.bangflixbackend.domain.eventPost.dto.EventPostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.eventPost.dto.EventPostDTO;
@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @RestController("eventPostController")
 @Slf4j

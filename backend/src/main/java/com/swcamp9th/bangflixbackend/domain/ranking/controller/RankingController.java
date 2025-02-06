@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.ranking.controller;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.ranking.dto.MemberRankingDTO;
 import com.swcamp9th.bangflixbackend.domain.ranking.dto.ReviewRankingDTO;
 import com.swcamp9th.bangflixbackend.domain.ranking.dto.ReviewRankingDateDTO;
@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;

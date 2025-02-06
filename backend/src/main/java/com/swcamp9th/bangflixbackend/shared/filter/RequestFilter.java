@@ -1,10 +1,9 @@
-package com.swcamp9th.bangflixbackend.common.filter;
+package com.swcamp9th.bangflixbackend.shared.filter;
 
-import com.swcamp9th.bangflixbackend.common.util.JwtUtil;
+import com.swcamp9th.bangflixbackend.shared.util.JwtUtil;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 
 import java.io.IOException;
 

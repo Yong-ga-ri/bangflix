@@ -1,8 +1,8 @@
 package com.swcamp9th.bangflixbackend.email.service;
 
 import com.swcamp9th.bangflixbackend.domain.user.dto.EmailCodeRequestDto;
-import com.swcamp9th.bangflixbackend.exception.InvalidEmailCodeException;
-import com.swcamp9th.bangflixbackend.redis.RedisService;
+import com.swcamp9th.bangflixbackend.shared.exception.InvalidEmailCodeException;
+import com.swcamp9th.bangflixbackend.security.service.RedisService;
 import io.lettuce.core.RedisException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -14,7 +14,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
 import java.util.Random;
 
 @Service

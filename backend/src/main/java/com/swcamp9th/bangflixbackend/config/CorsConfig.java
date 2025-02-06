@@ -1,4 +1,4 @@
-package com.swcamp9th.bangflixbackend.security.config;
+package com.swcamp9th.bangflixbackend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

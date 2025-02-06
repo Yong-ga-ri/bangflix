@@ -1,7 +1,7 @@
-package com.swcamp9th.bangflixbackend.config;
+package com.swcamp9th.bangflixbackend.shared.exception.handler;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
-import com.swcamp9th.bangflixbackend.exception.*;
+import com.swcamp9th.bangflixbackend.shared.exception.*;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import io.jsonwebtoken.JwtException;
 import io.lettuce.core.RedisException;
 import org.springframework.http.HttpStatus;
@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
 import java.io.IOException;
 
 @ControllerAdvice
@@ -39,19 +40,19 @@ public class GlobalExceptionHandler {
     }
 
 //    // 500: 내부 서버 에러
-//    @ExceptionHandler({
-//        MailSendException.class,
-//        RedisException.class,
-//        IOException.class,
-//        NullPointerException.class,
-//        IllegalArgumentException.class,
-//        IndexOutOfBoundsException.class,
-//        UnsupportedOperationException.class,
-//        IllegalStateException.class,
-//        ArithmeticException.class
-//    })
-//    public ResponseEntity<ResponseMessage<Object>> handleInternalServerErrorException(Exception e) {
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                .body(new ResponseMessage<>(500, e.getMessage(), null));
-//    }
+    @ExceptionHandler({
+        MailSendException.class,
+        RedisException.class,
+        IOException.class,
+        NullPointerException.class,
+        IllegalArgumentException.class,
+        IndexOutOfBoundsException.class,
+        UnsupportedOperationException.class,
+        IllegalStateException.class,
+        ArithmeticException.class
+    })
+    public ResponseEntity<ResponseMessage<Object>> handleInternalServerErrorException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ResponseMessage<>(500, e.getMessage(), null));
+    }
 }

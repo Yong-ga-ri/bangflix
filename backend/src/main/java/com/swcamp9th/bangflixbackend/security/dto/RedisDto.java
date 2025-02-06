@@ -1,4 +1,4 @@
-package com.swcamp9th.bangflixbackend.redis.dto;
+package com.swcamp9th.bangflixbackend.security.dto;
 
 import lombok.Builder;
 import lombok.Getter;

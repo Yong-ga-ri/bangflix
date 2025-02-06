@@ -1,7 +1,7 @@
 package com.swcamp9th.bangflixbackend.domain.noticePost.controller;
 
-import com.swcamp9th.bangflixbackend.common.NoticePageResponse;
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.NoticePageResponse;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostDTO;
 import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostUpdateDTO;
@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;

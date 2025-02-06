@@ -1,7 +1,6 @@
-package com.swcamp9th.bangflixbackend.common.util;
+package com.swcamp9th.bangflixbackend.shared.util;
 
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
-import com.swcamp9th.bangflixbackend.exception.ExpiredTokenExcepiton;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;

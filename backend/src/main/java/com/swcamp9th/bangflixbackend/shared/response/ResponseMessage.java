@@ -1,4 +1,4 @@
-package com.swcamp9th.bangflixbackend.common;
+package com.swcamp9th.bangflixbackend.shared.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,4 @@ public class ResponseMessage<T> {
     private int status;
     private String msg;
     private T result;
-
-
-
 }
