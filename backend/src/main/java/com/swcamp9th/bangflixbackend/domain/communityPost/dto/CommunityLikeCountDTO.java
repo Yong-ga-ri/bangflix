@@ -1,4 +1,4 @@
-package com.swcamp9th.bangflixbackend.domain.communityPost.dto;
+package com.swcamp9th.bangflixbackend.domain.communitypost.dto;
 
 import lombok.*;
 

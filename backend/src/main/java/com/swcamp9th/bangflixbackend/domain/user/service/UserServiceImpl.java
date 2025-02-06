@@ -46,12 +46,6 @@ public class UserServiceImpl implements UserService {
             throw new DuplicateException("이미 존재하는 이메일입니다.");
         }
 
-//        String uploadsDir = "src/main/resources/static/uploadFiles/DefaultProfileFile";
-//
-//        String fileName = "default_profile_img.png";
-//        String filePath = uploadsDir + "/" + fileName;
-//        String dbFilePath = "/uploadFiles/DefaultProfileFile/" + fileName;
-
         Member user = Member.builder()
                 .id(signupRequestDto.getId())
                 .password(passwordEncoder.encode(signupRequestDto.getPassword()))

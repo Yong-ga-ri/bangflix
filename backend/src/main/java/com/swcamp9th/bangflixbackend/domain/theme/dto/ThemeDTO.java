@@ -1,6 +1,5 @@
 package com.swcamp9th.bangflixbackend.domain.theme.dto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

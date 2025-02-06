@@ -1,7 +1,7 @@
 package com.swcamp9th.bangflixbackend.domain.comment.repository;
 
 import com.swcamp9th.bangflixbackend.domain.comment.entity.Comment;
-import com.swcamp9th.bangflixbackend.domain.communityPost.entity.CommunityPost;
+import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityPost;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 

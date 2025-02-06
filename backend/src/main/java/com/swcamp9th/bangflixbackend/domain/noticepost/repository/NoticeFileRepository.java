@@ -1,7 +1,7 @@
-package com.swcamp9th.bangflixbackend.domain.noticePost.repository;
+package com.swcamp9th.bangflixbackend.domain.noticepost.repository;
 
-import com.swcamp9th.bangflixbackend.domain.noticePost.entity.NoticeFile;
-import com.swcamp9th.bangflixbackend.domain.noticePost.entity.NoticePost;
+import com.swcamp9th.bangflixbackend.domain.noticepost.entity.NoticeFile;
+import com.swcamp9th.bangflixbackend.domain.noticepost.entity.NoticePost;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,8 +1,7 @@
-package com.swcamp9th.bangflixbackend.domain.noticePost.dto;
+package com.swcamp9th.bangflixbackend.domain.noticepost.dto;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor

@@ -2,7 +2,6 @@ package com.swcamp9th.bangflixbackend.domain.eventPost.dto;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor

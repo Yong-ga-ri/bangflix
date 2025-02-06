@@ -1,6 +1,5 @@
 package com.swcamp9th.bangflixbackend.domain.review.dto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

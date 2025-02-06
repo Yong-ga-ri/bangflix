@@ -1,11 +1,11 @@
-package com.swcamp9th.bangflixbackend.domain.noticePost.controller;
+package com.swcamp9th.bangflixbackend.domain.noticepost.controller;
 
 import com.swcamp9th.bangflixbackend.shared.response.NoticePageResponse;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostCreateDTO;
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostDTO;
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostUpdateDTO;
-import com.swcamp9th.bangflixbackend.domain.noticePost.service.NoticePostService;
+import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostCreateDTO;
+import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostDTO;
+import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostUpdateDTO;
+import com.swcamp9th.bangflixbackend.domain.noticepost.service.NoticePostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;

@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.shared.response;
 
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostDTO;
+import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostDTO;
 import lombok.*;
 
 import java.util.List;

@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -31,20 +30,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class RankingServiceImpl implements RankingService {
 
-    private ReviewRepository reviewRepository;
-    private ReviewLikeRepository reviewLikeRepository;
-    private ReviewRankingRepository reviewRankingRepository;
-    private ModelMapper modelMapper;
-    private ReviewService reviewService;
-    private UserRepository userRepository;
+    private final ReviewRepository reviewRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
+    private final ReviewRankingRepository reviewRankingRepository;
+    private final ModelMapper modelMapper;
+    private final ReviewService reviewService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public RankingServiceImpl(ReviewRepository reviewRepository
-                            , ReviewLikeRepository reviewLikeRepository
-                            , ReviewRankingRepository reviewRankingRepository
-                            , ModelMapper modelMapper
-                            , ReviewService reviewService
-                            , UserRepository userRepository) {
+    public RankingServiceImpl(
+            ReviewRepository reviewRepository,
+            ReviewLikeRepository reviewLikeRepository,
+            ReviewRankingRepository reviewRankingRepository,
+            ModelMapper modelMapper,
+            ReviewService reviewService,
+            UserRepository userRepository
+    ) {
         this.reviewRepository = reviewRepository;
         this.reviewLikeRepository = reviewLikeRepository;
         this.reviewRankingRepository = reviewRankingRepository;

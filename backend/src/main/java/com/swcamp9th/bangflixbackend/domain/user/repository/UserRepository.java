@@ -2,8 +2,6 @@ package com.swcamp9th.bangflixbackend.domain.user.repository;
 
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -16,7 +14,4 @@ public interface UserRepository extends JpaRepository<Member, Long> {
     boolean existsByNickname(String nickname);
     boolean existsByEmail(String email);
     Optional<Member> findByIdAndIsAdminTrue(String userId);
-
-//    @Query("SELECT m FROM Member m WHERE m.id = :id")
-//    boolean existsByUserId(@Param("id") String id);
 }

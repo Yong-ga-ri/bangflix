@@ -62,8 +62,7 @@ public class ReviewController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "리뷰 업데이트 API. request 값 중 null이 아닌 값들만 체크해 기존 리뷰를 수정합니다")
     public ResponseEntity<ResponseMessage<Object>> updateReview(@RequestBody UpdateReviewDTO updateReview,
-        @RequestAttribute("loginId") String loginId)
-        throws IOException {
+        @RequestAttribute("loginId") String loginId) {
         
         reviewService.updateReview(updateReview, loginId);
 

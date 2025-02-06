@@ -1,7 +1,6 @@
-package com.swcamp9th.bangflixbackend.domain.noticePost.repository;
+package com.swcamp9th.bangflixbackend.domain.noticepost.repository;
 
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostDTO;
-import com.swcamp9th.bangflixbackend.domain.noticePost.entity.NoticePost;
+import com.swcamp9th.bangflixbackend.domain.noticepost.entity.NoticePost;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

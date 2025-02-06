@@ -1,6 +1,6 @@
-package com.swcamp9th.bangflixbackend.domain.communityPost.repository;
+package com.swcamp9th.bangflixbackend.domain.communitypost.repository;
 
-import com.swcamp9th.bangflixbackend.domain.communityPost.entity.CommunityPost;
+import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityPost;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

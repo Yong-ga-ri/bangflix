@@ -1,9 +1,9 @@
-package com.swcamp9th.bangflixbackend.domain.noticePost.service;
+package com.swcamp9th.bangflixbackend.domain.noticepost.service;
 
 import com.swcamp9th.bangflixbackend.shared.response.NoticePageResponse;
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostCreateDTO;
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostDTO;
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostUpdateDTO;
+import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostCreateDTO;
+import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostDTO;
+import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostUpdateDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 

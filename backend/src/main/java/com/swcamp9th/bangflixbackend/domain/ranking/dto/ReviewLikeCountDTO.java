@@ -1,6 +1,5 @@
 package com.swcamp9th.bangflixbackend.domain.ranking.dto;
 
-import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,13 +1,13 @@
-package com.swcamp9th.bangflixbackend.domain.noticePost.service;
+package com.swcamp9th.bangflixbackend.domain.noticepost.service;
 
 import com.swcamp9th.bangflixbackend.shared.response.NoticePageResponse;
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostCreateDTO;
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostDTO;
-import com.swcamp9th.bangflixbackend.domain.noticePost.dto.NoticePostUpdateDTO;
-import com.swcamp9th.bangflixbackend.domain.noticePost.entity.NoticeFile;
-import com.swcamp9th.bangflixbackend.domain.noticePost.entity.NoticePost;
-import com.swcamp9th.bangflixbackend.domain.noticePost.repository.NoticeFileRepository;
-import com.swcamp9th.bangflixbackend.domain.noticePost.repository.NoticePostRepository;
+import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostCreateDTO;
+import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostDTO;
+import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostUpdateDTO;
+import com.swcamp9th.bangflixbackend.domain.noticepost.entity.NoticeFile;
+import com.swcamp9th.bangflixbackend.domain.noticepost.entity.NoticePost;
+import com.swcamp9th.bangflixbackend.domain.noticepost.repository.NoticeFileRepository;
+import com.swcamp9th.bangflixbackend.domain.noticepost.repository.NoticePostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
 import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;

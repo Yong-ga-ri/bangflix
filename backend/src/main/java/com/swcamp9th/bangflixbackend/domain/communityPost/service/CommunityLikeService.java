@@ -1,7 +1,7 @@
-package com.swcamp9th.bangflixbackend.domain.communityPost.service;
+package com.swcamp9th.bangflixbackend.domain.communitypost.service;
 
-import com.swcamp9th.bangflixbackend.domain.communityPost.dto.CommunityLikeCountDTO;
-import com.swcamp9th.bangflixbackend.domain.communityPost.dto.CommunityLikeCreateDTO;
+import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityLikeCountDTO;
+import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityLikeCreateDTO;
 
 public interface CommunityLikeService {
 
