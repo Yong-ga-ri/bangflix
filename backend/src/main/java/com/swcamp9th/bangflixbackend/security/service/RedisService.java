@@ -1,6 +1,5 @@
 package com.swcamp9th.bangflixbackend.security.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -9,12 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class RedisService {
-
-    private final RedisTemplate<String, String> redisTemplate;
-
     private static final String EMAIL_PREFIX = "REGISTER:";
     private static final String TOKEN_PREFIX = "TOKEN:";
 
@@ -23,6 +18,12 @@ public class RedisService {
 
     @Value("${mail.expiration_time}")
     private Long emailCodeExpireTime;
+
+    private final RedisTemplate<String, String> redisTemplate;
+
+    public RedisService(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     public void saveRefreshToken(String id, String refreshToken) {
         redisTemplate.opsForValue().set(TOKEN_PREFIX + id, refreshToken, refreshTokenExpireTime, TimeUnit.MILLISECONDS);

@@ -6,7 +6,6 @@ import com.swcamp9th.bangflixbackend.security.service.RedisService;
 import io.lettuce.core.RedisException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -16,16 +15,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
-@Service
-@RequiredArgsConstructor
 @Slf4j
+@Service
 public class EmailService {
+    @Value("${mail.username}")
+    private static String senderEmail;
 
     private final JavaMailSender javaMailSender;
     private final RedisService redisService;
 
-    @Value("${mail.username}")
-    private static String senderEmail;
+    public EmailService(JavaMailSender javaMailSender, RedisService redisService) {
+        this.javaMailSender = javaMailSender;
+        this.redisService = redisService;
+    }
 
     @Transactional
     public String createNumber() {
