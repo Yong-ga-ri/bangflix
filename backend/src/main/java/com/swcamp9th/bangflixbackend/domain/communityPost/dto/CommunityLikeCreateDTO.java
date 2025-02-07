@@ -8,6 +8,5 @@ import lombok.*;
 @Setter
 @ToString
 public class CommunityLikeCreateDTO {
-
     private Integer communityPostCode;      // 게시글 코드
 }

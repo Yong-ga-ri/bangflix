@@ -26,12 +26,13 @@ public class CommunityLikeController {
     }
 
     /* 좋아요 등록 및 취소 */
-    @PostMapping("")
+    @PostMapping
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 좋아요 / 좋아요 취소 API")
-    public ResponseEntity<ResponseMessage<Object>> addLike(@RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
-                                                                     @RequestBody CommunityLikeCreateDTO newLike) {
-
+    public ResponseEntity<ResponseMessage<Object>> addLike(
+            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
+            @RequestBody CommunityLikeCreateDTO newLike
+    ) {
         communityLikeService.addLike(loginId, newLike);
         return ResponseEntity.ok(new ResponseMessage<>(200, "좋아요 또는 좋아요 취소 성공", null));
     }
@@ -40,7 +41,6 @@ public class CommunityLikeController {
     @GetMapping("/{communityPostCode}")
     @Operation(summary = "좋아요 개수 조회 API")
     public ResponseEntity<ResponseMessage<CommunityLikeCountDTO>> countLike(@PathVariable int communityPostCode) {
-
         CommunityLikeCountDTO count = communityLikeService.countLike(communityPostCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "좋아요 개수 조회 성공", count));
     }

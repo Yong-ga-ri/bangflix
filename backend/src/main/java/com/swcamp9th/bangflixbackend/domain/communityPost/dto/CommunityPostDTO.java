@@ -10,7 +10,6 @@ import java.util.List;
 @Setter
 @ToString
 public class CommunityPostDTO {
-
     private Integer communityPostCode;      // 게시글 코드
     private String title;                   // 제목
     private String content;                 // 내용

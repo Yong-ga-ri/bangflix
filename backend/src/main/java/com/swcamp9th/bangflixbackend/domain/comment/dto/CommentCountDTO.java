@@ -9,7 +9,6 @@ import lombok.*;
 @Setter
 @ToString
 public class CommentCountDTO {
-
     private Integer communityPostCode;      // 게시글 코드
     private Long commentCount;              // 댓글 개수
 }
