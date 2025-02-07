@@ -1,4 +1,4 @@
-package com.swcamp9th.bangflixbackend.domain.communityPost.entity;
+package com.swcamp9th.bangflixbackend.domain.communitypost.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

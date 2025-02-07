@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.ranking.controller;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.ranking.dto.MemberRankingDTO;
 import com.swcamp9th.bangflixbackend.domain.ranking.dto.ReviewRankingDTO;
 import com.swcamp9th.bangflixbackend.domain.ranking.dto.ReviewRankingDateDTO;
@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
 
 @RestController
 @RequestMapping("api/v1/rankings")
@@ -59,7 +60,7 @@ public class RankingController {
     @Operation(summary = "선정일 입력하면 해당 일에 해당하는 베스트 리뷰 반환 API. 최대 5개의 리뷰가 반환됨. (만약 date값이 없다면 가장 최신 선정된 베스트 리뷰를 반환합니다)")
     public ResponseEntity<ResponseMessage<List<ReviewRankingDTO>>> findReviewRanking(
         @RequestParam(required = false) String date,
-        @RequestAttribute("loginId") String loginId) {
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
         List<ReviewRankingDTO> reviews = rankingService.findReviewRanking(date, loginId);
 
@@ -74,7 +75,7 @@ public class RankingController {
     @Operation(summary = "좋아요가 많은 순으로 리뷰를 정렬해 반환하는 API.")
     public ResponseEntity<ResponseMessage<List<ReviewDTO>>> findReviewRanking(
         @PageableDefault(size = 10, page = 0) Pageable pageable,
-        @RequestAttribute("loginId") String loginId
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
 
         List<ReviewDTO> reviews = rankingService.findAllReviewRanking(pageable, loginId);

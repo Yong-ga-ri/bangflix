@@ -1,8 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.theme.repository;
 
-import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
-import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReaction;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReactionId;
 import java.util.List;

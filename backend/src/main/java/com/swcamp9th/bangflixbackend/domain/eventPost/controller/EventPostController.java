@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.eventPost.controller;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.eventPost.dto.EventListDTO;
 import com.swcamp9th.bangflixbackend.domain.eventPost.dto.EventPostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.eventPost.dto.EventPostDTO;
@@ -18,7 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
+
+import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
 
 @RestController("eventPostController")
 @Slf4j
@@ -37,7 +38,7 @@ public class EventPostController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "이벤트 게시글 등록 API")
     public ResponseEntity<ResponseMessage<Object>> createEventPost(
-            @RequestAttribute("loginId") String loginId,
+            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @Valid @RequestPart EventPostCreateDTO newEvent,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
@@ -51,7 +52,7 @@ public class EventPostController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "이벤트 게시글 수정 API")
     public ResponseEntity<ResponseMessage<Object>> updateEventPost(
-            @RequestAttribute("loginId") String loginId,
+            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int eventPostCode,
             @Valid @RequestPart EventPostUpdateDTO modifiedEvent,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
@@ -64,7 +65,7 @@ public class EventPostController {
     @DeleteMapping("/post/{eventPostCode}")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "이벤트 게시글 삭제 API")
-    public ResponseEntity<ResponseMessage<Object>> deleteEventPost(@RequestAttribute("loginId") String loginId,
+    public ResponseEntity<ResponseMessage<Object>> deleteEventPost(@RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
                                                                    @PathVariable int eventPostCode) {
 
         eventPostService.deleteEventPost(loginId, eventPostCode);

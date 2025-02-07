@@ -1,4 +1,4 @@
-package com.swcamp9th.bangflixbackend.domain.communityPost.entity;
+package com.swcamp9th.bangflixbackend.domain.communitypost.entity;
 
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import jakarta.persistence.*;
@@ -43,8 +43,4 @@ public class CommunityPost {
     // 첨부파일과의 관계 설정
     @OneToMany(mappedBy = "communityPost", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<CommunityFile> communityFiles = new ArrayList<>();
-
-//    // 댓글과의 관계 설정
-//    @OneToMany(mappedBy = "communityPost", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-//    private List<Comment> comments = new ArrayList<>();
 }

@@ -1,16 +1,14 @@
 package com.swcamp9th.bangflixbackend.domain.user.controller;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.user.dto.*;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserServiceImpl;
-import com.swcamp9th.bangflixbackend.exception.ExpiredTokenExcepiton;
+import com.swcamp9th.bangflixbackend.shared.exception.ExpiredTokenExcepiton;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -18,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+
+import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,7 +42,7 @@ public class UserController {
     @GetMapping("/info")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "회원 정보 조회(아이디, 닉네임, 이메일, 프로필 이미지) API")
-    public ResponseEntity<ResponseMessage<UserInfoResponseDto>> findUserInfoById(@RequestAttribute("loginId") String userId) {
+    public ResponseEntity<ResponseMessage<UserInfoResponseDto>> findUserInfoById(@RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String userId) {
         UserInfoResponseDto userInfo = userService.findUserInfoById(userId);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "회원 정보 조회 성공", userInfo));
@@ -53,7 +53,7 @@ public class UserController {
     @Operation(summary = "회원 정보 수정(닉네임, 이메일, 프로필 이미지) API")
     public ResponseEntity<ResponseMessage<Object>> updateUserInfo(@Valid @RequestPart UpdateUserInfoRequestDto updateUserInfoRequestDto,
                                                                   @RequestPart(value = "imgFile", required = false) MultipartFile imgFile,
-                                                                  @RequestAttribute("loginId") String userId)  throws IOException {
+                                                                  @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String userId)  throws IOException {
         userService.updateUserInfo(userId, updateUserInfoRequestDto, imgFile);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 수정 성공", null));
@@ -62,7 +62,7 @@ public class UserController {
     @GetMapping("mypage")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "마이페이지 회원 정보 조회(닉네임, 포인트, 프로필 이미지) API")
-    public ResponseEntity<ResponseMessage<MyPageResponseDto>> findMyPageInfoById(@RequestAttribute("loginId") String userId) {
+    public ResponseEntity<ResponseMessage<MyPageResponseDto>> findMyPageInfoById(@RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String userId) {
         return ResponseEntity.ok(new ResponseMessage<>(200, "회원 정보 조회 성공", userService.findMyPageInfoById(userId)));
     }
 }

@@ -1,6 +1,5 @@
 package com.swcamp9th.bangflixbackend.domain.review.repository;
 
-import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewTendencyGenre;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewTendencyGenreId;
 import java.util.List;

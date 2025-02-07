@@ -6,11 +6,11 @@ import com.swcamp9th.bangflixbackend.domain.comment.entity.Comment;
 import com.swcamp9th.bangflixbackend.domain.comment.repository.CommentRepository;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentUpdateDTO;
-import com.swcamp9th.bangflixbackend.domain.communityPost.entity.CommunityPost;
-import com.swcamp9th.bangflixbackend.domain.communityPost.repository.CommunityPostRepository;
+import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityPost;
+import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityPostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.exception.InvalidUserException;
+import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +29,12 @@ public class CommentServiceImpl implements CommentService {
     private final CommunityPostRepository communityPostRepository;
 
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository,
-                              ModelMapper modelMapper,
-                              UserRepository userRepository,
-                              CommunityPostRepository communityPostRepository) {
+    public CommentServiceImpl(
+            CommentRepository commentRepository,
+            ModelMapper modelMapper,
+            UserRepository userRepository,
+            CommunityPostRepository communityPostRepository)
+    {
         this.commentRepository = commentRepository;
         this.modelMapper = modelMapper;
         this.userRepository = userRepository;

@@ -1,7 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.review.repository;
 
 import com.swcamp9th.bangflixbackend.domain.ranking.dto.ReviewLikeCountDTO;
-import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewFile;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewLike;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewLikeId;
 import java.time.LocalDateTime;

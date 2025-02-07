@@ -1,14 +1,14 @@
-package com.swcamp9th.bangflixbackend.domain.communityPost.service;
+package com.swcamp9th.bangflixbackend.domain.communitypost.service;
 
-import com.swcamp9th.bangflixbackend.domain.communityPost.dto.CommunityLikeCountDTO;
-import com.swcamp9th.bangflixbackend.domain.communityPost.dto.CommunityLikeCreateDTO;
-import com.swcamp9th.bangflixbackend.domain.communityPost.entity.CommunityLike;
-import com.swcamp9th.bangflixbackend.domain.communityPost.entity.CommunityPost;
-import com.swcamp9th.bangflixbackend.domain.communityPost.repository.CommunityLikeRepository;
-import com.swcamp9th.bangflixbackend.domain.communityPost.repository.CommunityPostRepository;
+import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityLikeCountDTO;
+import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityLikeCreateDTO;
+import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityLike;
+import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityPost;
+import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityLikeRepository;
+import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityPostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.exception.InvalidUserException;
+import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,16 +1,15 @@
 package com.swcamp9th.bangflixbackend.domain.user.controller;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.user.dto.*;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserServiceImpl;
-import com.swcamp9th.bangflixbackend.email.service.EmailService;
-import com.swcamp9th.bangflixbackend.exception.DuplicateException;
-import com.swcamp9th.bangflixbackend.exception.ExpiredTokenExcepiton;
-import com.swcamp9th.bangflixbackend.exception.InvalidEmailCodeException;
-import com.swcamp9th.bangflixbackend.exception.LoginException;
+import com.swcamp9th.bangflixbackend.shared.email.service.EmailService;
+import com.swcamp9th.bangflixbackend.shared.exception.DuplicateException;
+import com.swcamp9th.bangflixbackend.shared.exception.ExpiredTokenExcepiton;
+import com.swcamp9th.bangflixbackend.shared.exception.InvalidEmailCodeException;
+import com.swcamp9th.bangflixbackend.shared.exception.LoginException;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.mail.MessagingException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSendException;

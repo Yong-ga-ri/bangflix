@@ -2,7 +2,6 @@ package com.swcamp9th.bangflixbackend.domain.comment.dto;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor

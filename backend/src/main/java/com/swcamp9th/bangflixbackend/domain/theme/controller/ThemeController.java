@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.theme.controller;
 
-import com.swcamp9th.bangflixbackend.common.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
+
 @RestController
 @RequestMapping("/api/v1/themes")
 @Slf4j
@@ -41,7 +43,7 @@ public class ThemeController {
     @Operation(summary = "특정 테마를 조회하는 API.")
     public ResponseEntity<ResponseMessage<ThemeDTO>> findTheme(
         @PathVariable("themeCode") Integer themeCode,
-        @RequestAttribute(value = "loginId", required = false) String loginId) {
+        @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId) {
 
         ThemeDTO theme = themeService.findTheme(themeCode, loginId);
 
@@ -68,7 +70,7 @@ public class ThemeController {
         @RequestParam(required = false) String filter,
         @RequestParam(required = false) List<String> genres,
         @RequestParam(required = false) String content,
-        @RequestAttribute(value = "loginId", required = false) String loginId
+        @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
 
         List<ThemeDTO> themes = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content, loginId);
@@ -83,7 +85,7 @@ public class ThemeController {
         @PathVariable("storeCode") Integer storeCode,
         @PageableDefault(size = 10) Pageable pageable,
         @RequestParam(required = false) String filter,
-        @RequestAttribute("loginId") String loginId
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         List<ThemeDTO> themes = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode,loginId);
 
@@ -95,7 +97,7 @@ public class ThemeController {
     @Operation(summary = "테마 별로 스크랩이나 좋아요를 할 수 있는 API. 해당 API로 좋아요, 스크랩을 동시에 지원합니다. reaction 값으로는 String으로 like or scrap 입력해주시면 됩니다. ")
     public ResponseEntity<ResponseMessage<Object>> createThemeReaction(
         @RequestBody ThemeReactionDTO themeReactionDTO,
-        @RequestAttribute("loginId") String loginId
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
 
         themeService.createThemeReaction(loginId, themeReactionDTO);
@@ -109,7 +111,7 @@ public class ThemeController {
     @Operation(summary = "테마 별로 유저가 한 스크랩이나 좋아요를 취소 할 수 있는 API. 해당 API로 좋아요 취소, 스크랩 취소 동시에 지원합니다. reaction 값으로는 String으로 like or scrap 입력해주시면 됩니다. ")
     public ResponseEntity<ResponseMessage<Object>> deleteThemeReaction(
         @RequestBody ThemeReactionDTO themeReactionDTO,
-        @RequestAttribute("loginId") String loginId
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
 
         themeService.deleteThemeReaction(loginId, themeReactionDTO);
@@ -124,7 +126,7 @@ public class ThemeController {
     public ResponseEntity<ResponseMessage<Object>> findThemeByMemberReaction(
         @RequestParam String reaction,
         @PageableDefault(size = 10) Pageable pageable,
-        @RequestAttribute("loginId") String loginId
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
 
         List<FindThemeByReactionDTO> themes = themeService.findThemeByMemberReaction(pageable, loginId, reaction);
@@ -137,7 +139,7 @@ public class ThemeController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "사용자가 조회한 날 부터 과거 1주일 전 데이터를 확인해 좋아요 수가 가장 많은 theme 5개 반환하는 API.")
     public ResponseEntity<ResponseMessage<List<ThemeDTO>>> findThemeByWeek(
-        @RequestAttribute(value = "loginId", required = false) String loginId) {
+        @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId) {
 
         List<ThemeDTO> themes = themeService.findThemeByWeek(loginId);
 
@@ -158,7 +160,7 @@ public class ThemeController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "사용자가 스크랩한 테마 목록")
     public ResponseEntity<ResponseMessage<List<ThemeDTO>>> scrapTheme(
-            @RequestAttribute("loginId") String loginId
+            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         List<ThemeDTO> themeDTOs = themeService.getScrapedTheme(loginId);
 
