@@ -20,30 +20,36 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Service("commentService")
+@Service
 public class CommentServiceImpl implements CommentService {
 
     private final ModelMapper modelMapper;
+
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final CommunityPostRepository communityPostRepository;
+
+    private final UserRepository userRepository;
 
     @Autowired
     public CommentServiceImpl(
-            CommentRepository commentRepository,
             ModelMapper modelMapper,
-            UserRepository userRepository,
-            CommunityPostRepository communityPostRepository)
-    {
-        this.commentRepository = commentRepository;
+            CommunityPostRepository communityPostRepository,
+            CommentRepository commentRepository,
+            UserRepository userRepository
+    ) {
         this.modelMapper = modelMapper;
-        this.userRepository = userRepository;
         this.communityPostRepository = communityPostRepository;
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
     @Override
-    public void createComment(String loginId, Integer communityPostCode, CommentCreateDTO newComment) {
+    public void createComment(
+            String loginId,
+            Integer communityPostCode,
+            CommentCreateDTO newComment
+    ) {
         Comment comment = new Comment();
 
         // 회원이 아니면 예외 발생
@@ -65,9 +71,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public void updateComment(String loginId, Integer communityPostCode,
-                              Integer commentCode, CommentUpdateDTO modifiedComment) {
-
+    public void updateComment(
+            String loginId,
+            Integer communityPostCode,
+            Integer commentCode,
+            CommentUpdateDTO modifiedComment
+    ) {
         Comment originalComment = commentRepository.findById(commentCode)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
 
@@ -93,8 +102,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public void deleteComment(String loginId, Integer communityPostCode, Integer commentCode) {
-
+    public void deleteComment(
+            String loginId,
+            Integer communityPostCode,
+            Integer commentCode
+    ) {
         Comment foundComment = commentRepository.findById(commentCode)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
 
@@ -159,8 +171,8 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."));
 
         return commentRepository.findByMemberAndActiveTrue(member).stream()
-                .map(
-                        comment -> modelMapper.map(comment, CommentDTO.class)
+                .map(comment ->
+                        modelMapper.map(comment, CommentDTO.class)
                 ).toList();
     }
 

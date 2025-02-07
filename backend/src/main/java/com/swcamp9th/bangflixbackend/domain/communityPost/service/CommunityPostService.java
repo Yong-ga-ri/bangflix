@@ -17,8 +17,6 @@ public interface CommunityPostService {
 
     void deletePost(String loginId, int communityPostCode);
 
-//    Page<CommunityPostDTO> findPostList(Pageable pageable);
-
     CommunityPostDTO findPostByCode(String loginId, int communityPostCode);
 
     List<CommunityPostDTO> getAllPosts(String loginId);

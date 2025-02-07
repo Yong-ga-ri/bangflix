@@ -8,7 +8,6 @@ import lombok.*;
 @Setter
 @ToString
 public class CommunityFileDTO {
-
     private Integer communityFileCode;
     private String url;
     private String createdAt;

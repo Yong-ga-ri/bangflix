@@ -18,23 +18,25 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Service("communityLikeService")
+@Service
 public class CommunityLikeServiceImpl implements CommunityLikeService {
-
     private final ModelMapper modelMapper;
-    private final CommunityLikeRepository communityLikeRepository;
     private final UserRepository userRepository;
     private final CommunityPostRepository communityPostRepository;
 
+    private final CommunityLikeRepository communityLikeRepository;
+
     @Autowired
-    public CommunityLikeServiceImpl(ModelMapper modelMapper,
-                                    CommunityLikeRepository communityLikeRepository,
-                                    UserRepository userRepository,
-                                    CommunityPostRepository communityPostRepository) {
+    public CommunityLikeServiceImpl(
+            ModelMapper modelMapper,
+            UserRepository userRepository,
+            CommunityPostRepository communityPostRepository,
+            CommunityLikeRepository communityLikeRepository
+    ) {
         this.modelMapper = modelMapper;
-        this.communityLikeRepository = communityLikeRepository;
         this.userRepository = userRepository;
         this.communityPostRepository = communityPostRepository;
+        this.communityLikeRepository = communityLikeRepository;
     }
 
     @Transactional
@@ -43,8 +45,8 @@ public class CommunityLikeServiceImpl implements CommunityLikeService {
         CommunityLike addedLike = modelMapper.map(newLike, CommunityLike.class);
 
         // 회원이 아니라면 예외 발생
-        Member likeMember = userRepository.findById(loginId).orElseThrow(
-                () -> new InvalidUserException("회원가입이 필요합니다."));
+        Member likeMember = userRepository.findById(loginId)
+                .orElseThrow(() -> new InvalidUserException("회원가입이 필요합니다."));
 
         CommunityPost likePost = communityPostRepository.findById(newLike.getCommunityPostCode())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
@@ -55,8 +57,9 @@ public class CommunityLikeServiceImpl implements CommunityLikeService {
 
         // 이미 좋아요가 존재하는지 체크 후 존재하면 좋아요 취소(비활성화)
         if (communityLikeRepository.existsByMemberCodeAndCommunityPostCodeAndActiveTrue(
-                                                                            likeMember.getMemberCode(),
-                                                                            likePost.getCommunityPostCode())) {
+                        likeMember.getMemberCode(),
+                        likePost.getCommunityPostCode()))
+        {
             addedLike.setActive(false);
         } else {
             addedLike.setActive(true);
@@ -73,8 +76,8 @@ public class CommunityLikeServiceImpl implements CommunityLikeService {
 
         CommunityLikeCountDTO count = new CommunityLikeCountDTO();
         Long likeCount = 0L;
-        List<CommunityLike> likes = communityLikeRepository
-                                    .findByCommunityPostCodeAndActiveTrue(communityPostCode);
+        List<CommunityLike> likes =
+                communityLikeRepository.findByCommunityPostCodeAndActiveTrue(communityPostCode);
 
         for (int i = 0; i < likes.size(); i++) {
             likeCount++;

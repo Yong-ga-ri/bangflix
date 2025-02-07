@@ -8,7 +8,6 @@ import lombok.*;
 @Setter
 @ToString
 public class CommunityPostCreateDTO {
-
     private String title;                   // 제목
     private String content;                 // 게시글 내용
 }
