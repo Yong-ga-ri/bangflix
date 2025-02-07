@@ -21,7 +21,6 @@ import com.swcamp9th.bangflixbackend.shared.exception.AlreadyLikedException;
 import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
 import com.swcamp9th.bangflixbackend.shared.exception.LikeNotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,34 +42,39 @@ import org.springframework.web.multipart.MultipartFile;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ModelMapper modelMapper;
-    private final ReviewRepository reviewRepository;
-    private final ReviewFileRepository reviewFileRepository;
     private final ThemeRepository themeRepository;
     private final UserRepository userRepository;
+    private final ReviewRepository reviewRepository;
+    private final ReviewFileRepository reviewFileRepository;
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewTendencyGenreRepository reviewTendencyGenreRepository;
 
     @Autowired
-    public ReviewServiceImpl(ModelMapper modelMapper
-                           , ReviewRepository reviewRepository
-                           , ReviewFileRepository reviewFileRepository
-                           , ThemeRepository themeRepository
-                           , UserRepository userRepository
-                           , ReviewLikeRepository reviewLikeRepository
-                           , ReviewTendencyGenreRepository reviewTendencyGenreRepository) {
+    public ReviewServiceImpl(
+            ModelMapper modelMapper,
+            ThemeRepository themeRepository,
+            UserRepository userRepository,
+            ReviewRepository reviewRepository,
+            ReviewFileRepository reviewFileRepository,
+            ReviewLikeRepository reviewLikeRepository,
+            ReviewTendencyGenreRepository reviewTendencyGenreRepository
+    ) {
         this.modelMapper = modelMapper;
-        this.reviewRepository = reviewRepository;
-        this.reviewFileRepository = reviewFileRepository;
         this.themeRepository = themeRepository;
         this.userRepository = userRepository;
+        this.reviewRepository = reviewRepository;
+        this.reviewFileRepository = reviewFileRepository;
         this.reviewLikeRepository = reviewLikeRepository;
         this.reviewTendencyGenreRepository = reviewTendencyGenreRepository;
     }
 
-    @Override
     @Transactional
-    public void createReview(CreateReviewDTO newReview, List<MultipartFile> images, String loginId)
-        throws IOException, URISyntaxException {
+    @Override
+    public void createReview(
+            CreateReviewDTO newReview,
+            List<MultipartFile> images,
+            String loginId
+    ) throws IOException {
 
         // 리뷰 저장
         Review review = modelMapper.map(newReview, Review.class);
@@ -92,8 +96,8 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
-    @Override
     @Transactional
+    @Override
     public void updateReview(UpdateReviewDTO updateReview, String loginId) {
 
         // 기존 리뷰 조회
@@ -136,14 +140,15 @@ public class ReviewServiceImpl implements ReviewService {
                 existingReview.setContent(updateReview.getContent());
             }
         }
-        else
+        else {
             throw new InvalidUserException("리뷰 수정 권한이 없습니다");
+        }
 
         reviewRepository.save(existingReview);
     }
 
-    @Override
     @Transactional
+    @Override
     public void deleteReview(ReviewCodeDTO reviewCodeDTO, String loginId) {
 
         // 기존 리뷰 조회
@@ -156,17 +161,24 @@ public class ReviewServiceImpl implements ReviewService {
             existingReview.setActive(false);
             reviewRepository.save(existingReview);
         }
-        else
+        else {
             throw new InvalidUserException("리뷰 삭제 권한이 없습니다");
+        }
     }
 
-    @Override
     @Transactional
-    public List<ReviewDTO> findReviewsWithFilters(Integer themeCode, String filter, Pageable pageable, String loginId) {
+    @Override
+    public List<ReviewDTO> findReviewsWithFilters(
+            Integer themeCode,
+            String filter,
+            Pageable pageable,
+            String loginId
+    ) {
 
         // 테마 코드로 리뷰를 모두 조회
         List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(themeCode, pageable);
         Member member = userRepository.findById(loginId).orElse(null);
+
         // 필터가 있을 경우 해당 조건에 맞게 정렬
         if (filter != null) {
             switch (filter) {
@@ -200,8 +212,8 @@ public class ReviewServiceImpl implements ReviewService {
             return getReviewDTOS(reviews, null);
     }
 
-    @Override
     @Transactional
+    @Override
     public List<ReviewDTO> getReviewDTOS(List<Review> sublist, Integer memberCode) {
         List<ReviewDTO> result = sublist.stream()
             .map(review -> {
@@ -234,8 +246,8 @@ public class ReviewServiceImpl implements ReviewService {
         return result;
     }
 
-    @Override
     @Transactional
+    @Override
     public ReviewDTO getReviewDTO(Review review, Integer memberCode) {
 
         ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
@@ -265,9 +277,9 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewDTO;
     }
 
-    @Override
     @Transactional
-    public ReviewReportDTO findReviewReposrt(String loginId) {
+    @Override
+    public ReviewReportDTO findReviewReport(String loginId) {
         Member member = userRepository.findById(loginId).orElseThrow();
         Integer avgScore = reviewRepository.findAvgScoreByMemberCode(member.getMemberCode());
 
@@ -280,8 +292,8 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewReportDTO;
     }
 
-    @Override
     @Transactional
+    @Override
     public List<ReviewDTO> findReviewByMember(String loginId, Pageable pageable) {
         Member member = userRepository.findById(loginId).orElseThrow();
         List<Review> review = reviewRepository.findByMemberCode(member.getMemberCode(), pageable);
@@ -291,8 +303,8 @@ public class ReviewServiceImpl implements ReviewService {
         return getReviewDTOS(review, member.getMemberCode());
     }
 
-    @Override
     @Transactional
+    @Override
     public ReviewDTO findReviewDetail(String loginId, Integer reviewCode) {
         Member member = userRepository.findById(loginId).orElseThrow();
         Review review = reviewRepository.findById(reviewCode).orElseThrow();
@@ -303,11 +315,12 @@ public class ReviewServiceImpl implements ReviewService {
         return getReviewDTO(review, member.getMemberCode());
     }
 
-    @Override
     @Transactional
+    @Override
     public StatisticsReviewDTO findReviewStatistics(Integer themeCode) {
 
-        StatisticsReviewDTO statisticsReviewDTO = reviewRepository.findStatisticsByThemeCode(themeCode).orElse(null);
+        StatisticsReviewDTO statisticsReviewDTO = reviewRepository.findStatisticsByThemeCode(themeCode)
+                .orElse(null);
 
         if (statisticsReviewDTO == null || statisticsReviewDTO.getAvgTotalScore() == null)
             return null;
@@ -315,21 +328,20 @@ public class ReviewServiceImpl implements ReviewService {
         return statisticsReviewDTO;
     }
 
-    @Override
     @Transactional
+    @Override
     public void likeReview(ReviewCodeDTO reviewCodeDTO, String loginId) {
         Member member = userRepository.findById(loginId).orElseThrow();
         ReviewLike reviewLike = reviewLikeRepository.findByMemberCodeAndReviewCode(
-            member.getMemberCode(), reviewCodeDTO.getReviewCode());
+            member.getMemberCode(), reviewCodeDTO.getReviewCode()
+        );
 
         if (reviewLike == null) {
-
             ReviewLike newReviewLike = new ReviewLike();
             newReviewLike.setMemberCode(member.getMemberCode());
             newReviewLike.setReviewCode(reviewCodeDTO.getReviewCode());
             newReviewLike.setCreatedAt(LocalDateTime.now());
             newReviewLike.setActive(true);
-
             reviewLikeRepository.save(newReviewLike);
         } else {
             if(reviewLike.getActive()) {
@@ -341,12 +353,13 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    @Override
     @Transactional
+    @Override
     public void deleteLikeReview(ReviewCodeDTO reviewCodeDTO, String loginId) {
         Member member = userRepository.findById(loginId).orElseThrow();
         ReviewLike reviewLike = reviewLikeRepository.findByMemberCodeAndReviewCode(
-            member.getMemberCode(), reviewCodeDTO.getReviewCode());
+            member.getMemberCode(), reviewCodeDTO.getReviewCode()
+        );
 
         if (reviewLike == null) {
             throw new LikeNotFoundException("좋아요가 존재하지 않습니다.");
@@ -359,7 +372,6 @@ public class ReviewServiceImpl implements ReviewService {
             }
         }
     }
-
 
     private void saveReviewFile(List<MultipartFile> images, Review review) throws IOException {
         String uploadsDir = "src/main/resources/static/uploadFiles/reviewFile";

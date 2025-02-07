@@ -16,12 +16,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLikeId> {
 
-    @Query("SELECT r FROM ReviewLike r JOIN FETCH r.review JOIN FETCH r.member "
-        + "WHERE r.review.reviewCode = :reviewCode AND r.member.memberCode = :memberCode AND r.active = true")
+    @Query("SELECT " +
+                "r " +
+             "FROM ReviewLike r " +
+             "JOIN FETCH r.review " +
+             "JOIN FETCH r.member " +
+            "WHERE r.review.reviewCode = :reviewCode AND r.member.memberCode = :memberCode AND r.active = true")
     ReviewLike findByMemberCodeAndReviewCode(@Param("memberCode") Integer memberCode, @Param("reviewCode") Integer reviewCode);
 
-    @Query("SELECT r FROM ReviewLike r JOIN FETCH r.review JOIN FETCH r.member "
-        + "WHERE r.review.reviewCode = :reviewCode AND r.active = true")
+    @Query("SELECT " +
+                "r " +
+             "FROM ReviewLike r " +
+             "JOIN FETCH r.review " +
+             "JOIN FETCH r.member " +
+            "WHERE r.review.reviewCode = :reviewCode AND r.active = true")
     List<ReviewLike> findByReviewCode(@Param("reviewCode")Integer reviewCode);
 
     @Query("SELECT new com.swcamp9th.bangflixbackend.domain.ranking.dto.ReviewLikeCountDTO(rl.reviewCode, COUNT(rl)) "

@@ -16,5 +16,4 @@ import lombok.ToString;
 public class ReviewTendencyGenreId {
     private Integer tendencyCode;
     private Integer genreCode;
-
 }
