@@ -43,10 +43,9 @@ public class ThemeController {
     @Operation(summary = "특정 테마를 조회하는 API.")
     public ResponseEntity<ResponseMessage<ThemeDTO>> findTheme(
         @PathVariable("themeCode") Integer themeCode,
-        @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId) {
-
+        @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
+    ) {
         ThemeDTO theme = themeService.findTheme(themeCode, loginId);
-
         return ResponseEntity.ok(new ResponseMessage<>(200, themeCode + "번 테마 조회 성공", theme));
     }
 
@@ -54,9 +53,7 @@ public class ThemeController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "현재 DB에 존재하는 모든 장르를 조회하는 API.")
     public ResponseEntity<ResponseMessage<List<GenreDTO>>> findGenres() {
-
         List<GenreDTO> genres = themeService.findGenres();
-
         return ResponseEntity.ok(new ResponseMessage<>(200, "전체 장르 조회 성공", genres));
     }
 
@@ -72,9 +69,7 @@ public class ThemeController {
         @RequestParam(required = false) String content,
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
-
         List<ThemeDTO> themes = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content, loginId);
-
         return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themes));
     }
 
@@ -139,7 +134,8 @@ public class ThemeController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "사용자가 조회한 날 부터 과거 1주일 전 데이터를 확인해 좋아요 수가 가장 많은 theme 5개 반환하는 API.")
     public ResponseEntity<ResponseMessage<List<ThemeDTO>>> findThemeByWeek(
-        @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId) {
+        @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
+    ) {
 
         List<ThemeDTO> themes = themeService.findThemeByWeek(loginId);
 
@@ -149,8 +145,9 @@ public class ThemeController {
     @GetMapping("/recommend")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "테마 추천 API.")
-    public ResponseEntity<ResponseMessage<Object>> recommendTheme(@RequestParam(required = false) List<Integer> themeCodes) {
-
+    public ResponseEntity<ResponseMessage<Object>> recommendTheme(
+            @RequestParam(required = false) List<Integer> themeCodes
+    ) {
         List<ThemeDTO> themes = themeService.recommendTheme(themeCodes);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "추천 테마 조회 성공", themes));

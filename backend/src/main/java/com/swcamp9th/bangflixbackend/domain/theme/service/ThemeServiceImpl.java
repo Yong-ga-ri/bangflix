@@ -35,26 +35,30 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ThemeServiceImpl implements ThemeService {
 
-    private final ThemeRepository themeRepository;
     private final ModelMapper modelMapper;
-    private final GenreRepository genreRepository;
-    private final ThemeReactionRepository themeReactionRepository;
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
 
+    private final GenreRepository genreRepository;
+
+    private final ThemeRepository themeRepository;
+    private final ThemeReactionRepository themeReactionRepository;
+
     @Autowired
-    public ThemeServiceImpl(ThemeRepository themeRepository
-                          , ModelMapper modelMapper
-                          , GenreRepository genreRepository
-                          , ThemeReactionRepository themeReactionRepository
-                          , UserRepository userRepository
-                          , StoreRepository storeRepository) {
-        this.themeRepository = themeRepository;
+    public ThemeServiceImpl(
+            ModelMapper modelMapper,
+            UserRepository userRepository,
+            StoreRepository storeRepository,
+            GenreRepository genreRepository,
+            ThemeRepository themeRepository,
+            ThemeReactionRepository themeReactionRepository
+    ) {
         this.modelMapper = modelMapper;
-        this.genreRepository = genreRepository;
-        this.themeReactionRepository = themeReactionRepository;
         this.userRepository = userRepository;
         this.storeRepository = storeRepository;
+        this.genreRepository = genreRepository;
+        this.themeRepository = themeRepository;
+        this.themeReactionRepository = themeReactionRepository;
     }
 
     @Override
@@ -75,16 +79,21 @@ public class ThemeServiceImpl implements ThemeService {
     public List<GenreDTO> findGenres() {
         List<Genre> genres = genreRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
 
-        return genres.stream().map(genre -> {
-            return modelMapper.map(genre, GenreDTO.class);
-        }).toList();
+        return genres.stream()
+                .map(genre -> modelMapper
+                        .map(genre, GenreDTO.class))
+                .toList();
     }
 
     @Override
     @Transactional
-    public List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter,
-        List<String> genres, String content, String loginId) {
-
+    public List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(
+            Pageable pageable,
+            String filter,
+            List<String> genres,
+            String content,
+            String loginId
+    ) {
         Member member = userRepository.findById(loginId).orElse(null);
         List<Theme> themes = new ArrayList<>();
 
@@ -141,8 +150,12 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String filter,
-        Integer storeCode, String loginId) {
+    public List<ThemeDTO> findThemeByStoreOrderBySort(
+            Pageable pageable,
+            String filter,
+            Integer storeCode,
+            String loginId
+    ) {
         List<Theme> themes = themeRepository.findByStoreCode(storeCode);
         Member member = userRepository.findById(loginId).orElseThrow();
         List<ThemeDTO> themesDTO = new ArrayList<>();
@@ -183,7 +196,10 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public void createThemeReaction(String userId, ThemeReactionDTO themeReactionDTO) {
+    public void createThemeReaction(
+            String userId,
+            ThemeReactionDTO themeReactionDTO
+    ) {
         Member member = userRepository.findById(userId).orElseThrow();
         Theme theme = themeRepository.findById(themeReactionDTO.getThemeCode()).orElseThrow();
         ThemeReaction themeReaction = themeReactionRepository.findByIds(
@@ -256,17 +272,19 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public List<FindThemeByReactionDTO> findThemeByMemberReaction(Pageable pageable, String loginId, String reaction) {
+    public List<FindThemeByReactionDTO> findThemeByMemberReaction(
+            Pageable pageable,
+            String loginId,
+            String reaction
+    ) {
         Member member = userRepository.findById(loginId).orElseThrow();
-        List<ThemeReaction> themeReactions = new ArrayList<>();
+        List<ThemeReaction> themeReactions;
 
         if(reaction.equals("like"))
-            themeReactions = themeReactionRepository.findThemeByMemberLike(
-                pageable, member.getMemberCode());
+            themeReactions = themeReactionRepository.findThemeByMemberLike(pageable, member.getMemberCode());
 
         else if(reaction.equals("scrap"))
-            themeReactions = themeReactionRepository.findThemeByMemberScrap(
-                pageable, member.getMemberCode());
+            themeReactions = themeReactionRepository.findThemeByMemberScrap(pageable, member.getMemberCode());
 
         else
             throw new RuntimeException();
@@ -283,7 +301,6 @@ public class ThemeServiceImpl implements ThemeService {
             findThemeByReaction.setIsScrap(true);
             result.add(findThemeByReaction);
         }
-
 
         return result;
     }
@@ -309,8 +326,13 @@ public class ThemeServiceImpl implements ThemeService {
         Pageable pageable = PageRequest.of(0,5);
 
         if (themeCodes == null)
-            return findThemeByGenresAndSearchOrderBySort(pageable, "like",
-                null, null, null);
+            return findThemeByGenresAndSearchOrderBySort(
+                    pageable,
+                    "like",
+                    null,
+                    null,
+                    null
+            );
 
         List<Integer> genres = new ArrayList<>(themeRepository.findGenresByThemeCode(themeCodes));
 
@@ -336,26 +358,32 @@ public class ThemeServiceImpl implements ThemeService {
 
         List<String> genreNames = genreRepository.findGenreNames(mostFrequentNumbers);
 
-        return findThemeByGenresAndSearchOrderBySort(pageable, "like",
-            genreNames, null, null);
+        return findThemeByGenresAndSearchOrderBySort(
+                pageable,
+                "like",
+                genreNames,
+                null,
+                null
+        );
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<ThemeDTO> getScrapedTheme(String loginId) {
-        Integer memberCode = userRepository.findById(loginId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."))
+        Integer memberCode = userRepository.findById(loginId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."))
                 .getMemberCode();
         List<ThemeReaction> themeReactions = themeReactionRepository.findThemeByMemberCode(memberCode);
 
-        List<Theme> themes = themeRepository.findByThemeCodes(
-                themeReactions.stream().map(
-                        ThemeReaction::getThemeCode
-                ).toList()
+        List<Theme> themes = themeRepository.findByThemeCodes(themeReactions.stream()
+                .map(ThemeReaction::getThemeCode)
+                .toList()
         );
 
-        return themes.stream().map(
-                theme -> createThemeDTO(theme, memberCode)
-        ).toList();
+        return themes.stream()
+                .map(theme ->
+                        createThemeDTO(theme, memberCode))
+                .toList();
 
     }
 
@@ -370,7 +398,8 @@ public class ThemeServiceImpl implements ThemeService {
         themeDto.setStoreName(theme.getStore().getName());
 
         if(memberCode != null){
-            ThemeReaction themeReaction = themeReactionRepository.findByIds(theme.getThemeCode(), memberCode).orElse(null);
+            ThemeReaction themeReaction = themeReactionRepository.findByIds(theme.getThemeCode(), memberCode)
+                    .orElse(null);
 
             if(themeReaction != null){
                 themeDto.setIsLike(true);
@@ -401,7 +430,8 @@ public class ThemeServiceImpl implements ThemeService {
             themeDto.setStoreName(theme.getStore().getName());
 
             if(memberCode != null){
-                ThemeReaction themeReaction = themeReactionRepository.findByIds(theme.getThemeCode(), memberCode).orElse(null);
+                ThemeReaction themeReaction = themeReactionRepository.findByIds(theme.getThemeCode(), memberCode)
+                        .orElse(null);
 
                 if(themeReaction != null){
                     themeDto.setIsLike(true);
