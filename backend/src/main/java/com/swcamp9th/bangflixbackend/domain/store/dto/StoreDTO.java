@@ -19,5 +19,4 @@ public class StoreDTO {
     private String address;
     private String pageUrl;
     private String image;
-
 }

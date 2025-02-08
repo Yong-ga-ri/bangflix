@@ -31,7 +31,8 @@ public class StoreController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "특정 업체에 대한 정보를 반환하는 API.")
     public ResponseEntity<ResponseMessage<StoreDTO>> findStore(
-        @PathVariable("storeCode") Integer storeCode) {
+        @PathVariable("storeCode") Integer storeCode
+    ) {
 
         // 서비스에서 필터를 사용해 조회
         StoreDTO store = storeService.findStore(storeCode);
@@ -44,7 +45,8 @@ public class StoreController {
     @Operation(summary = "특정 업체에서 가장 좋아요 수가 많은 리뷰를 반환하는 API.")
     public ResponseEntity<ResponseMessage<ReviewDTO>> findBestReviewByStore(
         @PathVariable("storeCode") Integer storeCode,
-        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
+        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
+    ) {
 
         // 서비스에서 필터를 사용해 조회
         ReviewDTO storeBestReview  = storeService.findBestReviewByStore(storeCode, loginId);
