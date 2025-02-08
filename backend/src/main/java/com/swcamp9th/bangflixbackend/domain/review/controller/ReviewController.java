@@ -146,7 +146,7 @@ public class ReviewController {
     ) {
 
         // 서비스에서 필터를 사용해 조회
-        ReviewReportDTO reviewReportDTO = reviewService.findReviewReposrt(loginId);
+        ReviewReportDTO reviewReportDTO = reviewService.findReviewReport(loginId);
         return ResponseEntity.ok(new ResponseMessage<>(200, "유저 리뷰 report 조회 성공", reviewReportDTO));
     }
 
