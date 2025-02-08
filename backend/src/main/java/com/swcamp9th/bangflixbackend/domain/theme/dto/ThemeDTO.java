@@ -29,6 +29,4 @@ public class ThemeDTO {
     private Integer reviewCount;
     private Boolean isLike;
     private Boolean isScrap;
-
-
 }

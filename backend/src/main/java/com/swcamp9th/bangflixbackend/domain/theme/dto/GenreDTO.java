@@ -13,7 +13,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class GenreDTO {
-
     private Integer genreCode;
     private Boolean active;
     private String createdAt;
