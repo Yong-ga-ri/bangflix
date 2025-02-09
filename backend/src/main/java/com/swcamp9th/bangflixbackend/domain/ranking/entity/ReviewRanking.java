@@ -10,8 +10,10 @@ import java.time.LocalDateTime;
 @Table(name = "review_ranking")
 @Getter
 @Builder
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ReviewRanking {
 
     @Id
