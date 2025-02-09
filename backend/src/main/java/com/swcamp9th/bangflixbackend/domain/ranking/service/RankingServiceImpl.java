@@ -30,28 +30,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class RankingServiceImpl implements RankingService {
 
+    private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewRankingRepository reviewRankingRepository;
-    private final ModelMapper modelMapper;
     private final ReviewService reviewService;
-    private final UserRepository userRepository;
 
     @Autowired
     public RankingServiceImpl(
+            ModelMapper modelMapper,
+            UserRepository userRepository,
             ReviewRepository reviewRepository,
             ReviewLikeRepository reviewLikeRepository,
             ReviewRankingRepository reviewRankingRepository,
-            ModelMapper modelMapper,
-            ReviewService reviewService,
-            UserRepository userRepository
+            ReviewService reviewService
     ) {
+        this.modelMapper = modelMapper;
+        this.userRepository = userRepository;
         this.reviewRepository = reviewRepository;
         this.reviewLikeRepository = reviewLikeRepository;
         this.reviewRankingRepository = reviewRankingRepository;
-        this.modelMapper = modelMapper;
         this.reviewService = reviewService;
-        this.userRepository = userRepository;
     }
 
     @Scheduled(cron = "0 0 1 * * SUN")
@@ -85,10 +85,9 @@ public class RankingServiceImpl implements RankingService {
     public ReviewRankingDateDTO findReviewRankingDate(Integer year) {
         List<String> dates = reviewRankingRepository.findDistinctDatesByYear(year).orElse(null);
 
-        if (dates == null || dates.isEmpty())
-            return null;
-        else
-            return ReviewRankingDateDTO.builder().ReviewRankingDates(dates).build();
+        if (dates == null || dates.isEmpty()) return null;
+
+        return ReviewRankingDateDTO.builder().ReviewRankingDates(dates).build();
 
     }
 
@@ -105,12 +104,10 @@ public class RankingServiceImpl implements RankingService {
         if(reviewRankings == null || reviewRankings.isEmpty())
             return null;
 
-        List<Review> reviews = reviewRankings.stream()
-            .map(rankingReview -> {
-                    Review review = modelMapper.map(rankingReview.getReview(), Review.class);
-                    return review;
-                }
-            ).toList();
+        List<Review> reviews = reviewRankings.stream().map(rankingReview -> {
+            Review review = modelMapper.map(rankingReview.getReview(), Review.class);
+            return review;
+        }).toList();
 
         List<ReviewDTO> reviewDTOS = reviewService.getReviewDTOS(reviews, member.getMemberCode());
 
@@ -120,7 +117,8 @@ public class RankingServiceImpl implements RankingService {
             ReviewRankingDTO reviewRankingDTO = modelMapper.map(reviewDTO, ReviewRankingDTO.class);
             reviewRankingDTO.setRankingDate(finalDate);
             return reviewRankingDTO;
-        }).sorted(Comparator.comparingInt(ReviewRankingDTO::getLikes).reversed()).toList();
+        })
+                .sorted(Comparator.comparingInt(ReviewRankingDTO::getLikes).reversed()).toList();
     }
 
     @Override
@@ -144,7 +142,8 @@ public class RankingServiceImpl implements RankingService {
     @Transactional
     public List<MemberRankingDTO> findAllMemberRanking(Pageable pageable) {
         List<Member> members = reviewRankingRepository.findTopRankingMember(pageable);
-
-        return members.stream().map(member -> modelMapper.map(member, MemberRankingDTO.class)).toList();
+        return members.stream().map(member ->
+                modelMapper.map(member, MemberRankingDTO.class)
+        ).toList();
     }
 }
