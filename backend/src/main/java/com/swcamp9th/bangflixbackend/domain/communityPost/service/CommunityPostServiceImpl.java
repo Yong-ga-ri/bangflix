@@ -60,7 +60,7 @@ public class CommunityPostServiceImpl implements CommunityPostService {
             String loginId,
             CommunityPostCreateDTO newPost,
             List<MultipartFile> images
-    ) throws IOException {
+    ) {
         CommunityPost createdPost = modelMapper.map(newPost, CommunityPost.class);
 
         // 회원이 아니라면 예외 발생
@@ -78,7 +78,12 @@ public class CommunityPostServiceImpl implements CommunityPostService {
 
         // 게시글 첨부파일 있으면 저장
         if (images != null) {
-            List<CommunityFile> addedImages = saveFiles(images, createdPost);
+            List<CommunityFile> addedImages = null;
+            try {
+                addedImages = saveFiles(images, createdPost);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
             createdPost.setCommunityFiles(addedImages);
         }
     }
