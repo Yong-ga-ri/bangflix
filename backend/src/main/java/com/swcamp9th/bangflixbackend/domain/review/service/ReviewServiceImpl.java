@@ -74,7 +74,7 @@ public class ReviewServiceImpl implements ReviewService {
             CreateReviewDTO newReview,
             List<MultipartFile> images,
             String loginId
-    ) throws IOException {
+    ) {
 
         // 리뷰 저장
         Review review = modelMapper.map(newReview, Review.class);
@@ -87,8 +87,13 @@ public class ReviewServiceImpl implements ReviewService {
         Review insertReview = reviewRepository.save(review);
 
         // 리뷰 파일 저장
-        if(images != null)
-            saveReviewFile(images, insertReview);
+        if(images != null) {
+            try {
+                saveReviewFile(images, insertReview);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
 
         // 멤버 포인트 올리기
         member.setPoint(member.getPoint()+5);
