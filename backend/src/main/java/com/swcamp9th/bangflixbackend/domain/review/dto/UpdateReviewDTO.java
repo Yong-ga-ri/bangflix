@@ -6,14 +6,12 @@ import com.swcamp9th.bangflixbackend.domain.review.enums.HorrorLevel;
 import com.swcamp9th.bangflixbackend.domain.review.enums.Interior;
 import com.swcamp9th.bangflixbackend.domain.review.enums.Level;
 import com.swcamp9th.bangflixbackend.domain.review.enums.Probability;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 @ToString
 public class UpdateReviewDTO {
     private Integer reviewCode;
