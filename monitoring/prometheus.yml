@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s  # 스크랩 주기, 필요에 따라 조정
+
+scrape_configs:
+  - job_name: 'backend'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['backend:8080']
+
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']

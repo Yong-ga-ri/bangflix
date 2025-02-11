@@ -1,0 +1,83 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+      # - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - mynetwork
+    # volumes:
+    #   - /home/ec2-user/app/bangflix/frontend/ssl/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+    #   - /home/ec2-user/app/bangflix/frontend/ssl/privkey.pem:/etc/ssl/private/privkey.pem:ro
+
+  backend:
+    build:
+      context: ./backend
+    platform: linux/amd64
+    ports:
+      - "8080:8080"
+    networks:
+      - mynetwork
+
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    networks:
+      - mynetwork
+    ports:
+      - "6379:6379"
+
+  db:
+    build:
+      context: ./db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - mynetwork
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - mynetwork
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      # 데이터 유지를 위해 볼륨을 사용합니다.
+      - grafana-data:/var/lib/grafana
+      # (옵션) 사전에 정의한 Grafana 대시보드 파일 등을 매핑할 수 있습니다.
+      #- ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - mynetwork
+
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  db-data:
+  grafana-data:
