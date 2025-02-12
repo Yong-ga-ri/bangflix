@@ -69,6 +69,16 @@ services:
 
   node-exporter:
     image: prom/node-exporter
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/host"
+      - "--no-collector.os" # macOS와 호환되지 않는 /etc/os-release 매트릭 제외
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro
+    pid: "host" # 호스트의 PID 네임스페이스 공유
     ports:
       - "9100:9100"
     networks:
