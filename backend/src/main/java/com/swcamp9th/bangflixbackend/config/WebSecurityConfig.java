@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.config;
 
-import com.swcamp9th.bangflixbackend.shared.filter.JwtExceptionFilter;
+import com.swcamp9th.bangflixbackend.security.filter.JwtExceptionFilter;
 import com.swcamp9th.bangflixbackend.security.jwt.JwtAuthorizationFilter;
 import com.swcamp9th.bangflixbackend.shared.util.JwtUtil;
 import com.swcamp9th.bangflixbackend.security.user.UserDetailsServiceImpl;
