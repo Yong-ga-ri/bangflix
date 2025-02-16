@@ -400,8 +400,6 @@ public class ThemeServiceImpl implements ThemeService {
 
     }
 
-
-
     private ThemeDTO createThemeDTO(Theme theme, Integer memberCode) {
         ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
         themeDto.setStoreCode(theme.getStore().getStoreCode());

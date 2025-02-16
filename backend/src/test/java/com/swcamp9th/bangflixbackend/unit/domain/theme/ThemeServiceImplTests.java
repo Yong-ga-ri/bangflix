@@ -16,6 +16,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
+import com.swcamp9th.bangflixbackend.shared.exception.ReactionNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -450,10 +452,11 @@ class ThemeServiceImplTests {
         member.setMemberCode(13);
         when(userRepository.findById(loginId)).thenReturn(Optional.of(member));
 
-        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(700, member.getMemberCode())).thenReturn(Optional.empty());
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(700, member.getMemberCode()))
+                .thenReturn(Optional.empty());
 
         // Act
-        themeService.deleteThemeReaction(loginId, reactionDTO);
+        assertThrows(ReactionNotFoundException.class, () -> themeService.deleteThemeReaction(loginId, reactionDTO));
 
         // Assert: delete나 save 호출 없이 아무 동작 없음.
         verify(themeReactionRepository, never()).delete(any());
