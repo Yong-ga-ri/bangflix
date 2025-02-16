@@ -20,26 +20,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StoreServiceImpl implements StoreService {
 
-    private final StoreRepository storeRepository;
     private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewService reviewService;
-    private final UserRepository userRepository;
+    private final StoreRepository storeRepository;
 
     @Autowired
-    public StoreServiceImpl(StoreRepository storeRepository
-                          , ModelMapper modelMapper
-                          , ReviewLikeRepository reviewLikeRepository
-                          , ReviewRepository reviewRepository
-                          , ReviewService reviewService
-                          , UserRepository userRepository) {
-        this.storeRepository = storeRepository;
+    public StoreServiceImpl(
+            ModelMapper modelMapper,
+            UserRepository userRepository,
+            ReviewLikeRepository reviewLikeRepository,
+            ReviewRepository reviewRepository,
+            ReviewService reviewService,
+            StoreRepository storeRepository
+    ) {
         this.modelMapper = modelMapper;
+        this.userRepository = userRepository;
         this.reviewLikeRepository = reviewLikeRepository;
         this.reviewRepository = reviewRepository;
         this.reviewService = reviewService;
-        this.userRepository = userRepository;
+        this.storeRepository = storeRepository;
     }
 
     @Override
