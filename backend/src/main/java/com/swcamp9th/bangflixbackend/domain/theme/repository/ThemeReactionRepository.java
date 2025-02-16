@@ -12,8 +12,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface ThemeReactionRepository extends JpaRepository<ThemeReaction, ThemeReactionId> {
 
-    @Query("SELECT tr FROM ThemeReaction tr JOIN FETCH tr.theme JOIN FETCH tr.member "
-        + "WHERE tr.theme.themeCode = :themeCode AND tr.member.memberCode = :memberCode AND tr.active = true")
+    @Query("SELECT tr " +
+            "FROM ThemeReaction tr " +
+            "JOIN FETCH tr.theme " +
+            "JOIN FETCH tr.member " +
+            "WHERE tr.theme.themeCode = :themeCode AND tr.member.memberCode = :memberCode AND tr.active = true")
     Optional<ThemeReaction> findByIds(int themeCode, int memberCode);
 
     @Query("SELECT tr FROM ThemeReaction tr JOIN FETCH tr.member JOIN FETCH tr.theme "
@@ -38,11 +41,10 @@ public interface ThemeReactionRepository extends JpaRepository<ThemeReaction, Th
         + "ORDER BY tr.createdAt desc")
     List<ThemeReaction> findThemeByMemberScrap(Pageable pageable, @Param("memberCode") int memberCode);
 
-
     @Query("SELECT tr FROM ThemeReaction tr JOIN FETCH tr.member JOIN FETCH tr.theme "
             + "WHERE tr.memberCode = :memberCode "
             + "AND tr.theme.active = true "
-            + "AND tr.reaction = com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType.SCRAP "
+            + "AND tr.reaction IN :reactions "
             + "ORDER BY tr.createdAt desc")
-    List<ThemeReaction> findThemeByMemberCode(@Param("memberCode") int memberCode);
+    List<ThemeReaction> findThemeReactionsByMemberCodeAndReactionType(@Param("memberCode") int memberCode, @Param("reaction") List<ReactionType> reactions);
 }

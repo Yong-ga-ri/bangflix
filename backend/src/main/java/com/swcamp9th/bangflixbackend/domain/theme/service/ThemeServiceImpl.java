@@ -373,7 +373,8 @@ public class ThemeServiceImpl implements ThemeService {
         Integer memberCode = userRepository.findById(loginId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."))
                 .getMemberCode();
-        List<ThemeReaction> themeReactions = themeReactionRepository.findThemeByMemberCode(memberCode);
+        List<ThemeReaction> themeReactions =
+                themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(memberCode, List.of(ReactionType.SCRAP, ReactionType.SCRAPLIKE));
 
         List<Theme> themes = themeRepository.findByThemeCodes(themeReactions.stream()
                 .map(ThemeReaction::getThemeCode)

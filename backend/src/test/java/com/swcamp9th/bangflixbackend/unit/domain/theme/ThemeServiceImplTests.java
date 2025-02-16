@@ -646,8 +646,10 @@ class ThemeServiceImplTests {
         ThemeReaction reaction2 = new ThemeReaction();
         reaction2.setThemeCode(2000);
         List<ThemeReaction> reactions = List.of(reaction1, reaction2);
-        when(themeReactionRepository.findThemeByMemberCode(member.getMemberCode()))
-                .thenReturn(reactions);
+        when(themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(
+                member.getMemberCode(),
+                List.of(ReactionType.SCRAP, ReactionType.SCRAPLIKE)
+        )).thenReturn(reactions);
 
         Theme theme1 = new Theme();
         theme1.setThemeCode(1000);
