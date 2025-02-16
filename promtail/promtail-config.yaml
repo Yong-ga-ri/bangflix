@@ -1,0 +1,28 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # # 시스템 로그
+  # - job_name: system
+  #   static_configs:
+  #     - targets:
+  #         - localhost
+  #       labels:
+  #         job: varlogs
+  #         __path__: /var/log/**/*.log
+
+  # Spring Boot 애플리케이션 로그
+  - job_name: springboot
+    static_configs:
+      - targets:
+          - 'backend:8080'
+        labels:
+          job: springboot
+          __path__: /logs/app.log

@@ -19,9 +19,10 @@ services:
     platform: linux/amd64
     ports:
       - "8080:8080"
+    volumes:
+      - ./logs:/app/logs
     networks:
       - mynetwork
-
     depends_on:
       - redis
 
@@ -84,6 +85,24 @@ services:
     networks:
       - mynetwork
 
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    networks:
+      - mynetwork
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - ./backend/logs:/logs
+    command:
+      - -config.file=/etc/promtail/promtail-config.yaml
+      - -config.expand-env=true
+    networks:
+      - mynetwork
+
 networks:
   mynetwork:
     driver: bridge
@@ -91,3 +110,5 @@ networks:
 volumes:
   db-data:
   grafana-data:
+  loki-data:
+  loki-wal:

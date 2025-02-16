@@ -4,6 +4,7 @@ import com.swcamp9th.bangflixbackend.shared.exception.*;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import io.jsonwebtoken.JwtException;
 import io.lettuce.core.RedisException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.io.IOException;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -24,6 +26,7 @@ public class GlobalExceptionHandler {
         LoginException.class,
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(new ResponseMessage<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null));
     }
@@ -35,6 +38,7 @@ public class GlobalExceptionHandler {
         JwtException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleInvalidUserException(Exception e) {
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(new ResponseMessage<>(HttpStatus.UNAUTHORIZED.value(), e.getMessage(), null));
     }
@@ -52,6 +56,7 @@ public class GlobalExceptionHandler {
         ArithmeticException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleInternalServerErrorException(Exception e) {
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ResponseMessage<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
     }
