@@ -202,7 +202,7 @@ public class ThemeServiceImpl implements ThemeService {
     ) {
         Member member = userRepository.findById(userId).orElseThrow();
         Theme theme = themeRepository.findById(themeReactionDTO.getThemeCode()).orElseThrow();
-        ThemeReaction themeReaction = themeReactionRepository.findReactionsByThemeCodeAndMemberCode(
+        ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(
             themeReactionDTO.getThemeCode(), member.getMemberCode()).orElse(null);
 
         if(themeReaction == null){
@@ -244,7 +244,7 @@ public class ThemeServiceImpl implements ThemeService {
     @Transactional
     public void deleteThemeReaction(String loginId, ThemeReactionDTO themeReactionDTO) {
         Member member = userRepository.findById(loginId).orElseThrow();
-        ThemeReaction themeReaction = themeReactionRepository.findReactionsByThemeCodeAndMemberCode(
+        ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(
             themeReactionDTO.getThemeCode(), member.getMemberCode()).orElse(null);
 
         if(themeReaction != null) {
@@ -399,7 +399,7 @@ public class ThemeServiceImpl implements ThemeService {
         themeDto.setStoreName(theme.getStore().getName());
 
         if(memberCode != null){
-            ThemeReaction themeReaction = themeReactionRepository.findReactionsByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
+            ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
                     .orElse(null);
 
             if(themeReaction != null){
@@ -431,7 +431,7 @@ public class ThemeServiceImpl implements ThemeService {
             themeDto.setStoreName(theme.getStore().getName());
 
             if(memberCode != null){
-                ThemeReaction themeReaction = themeReactionRepository.findReactionsByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
+                ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
                         .orElse(null);
 
                 if(themeReaction != null){
