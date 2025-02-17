@@ -24,7 +24,8 @@ public class GlobalExceptionHandler {
             LoginException.class,
             MemberNotFoundException.class,
             ThemeNotFoundException.class,
-            FileUploadException.class
+            FileUploadException.class,
+            ReviewNotFoundException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
