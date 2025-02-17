@@ -7,8 +7,6 @@ import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewReportDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.StatisticsReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.UpdateReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
@@ -17,8 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ReviewService {
 
-    void createReview(CreateReviewDTO newReview, List<MultipartFile> images, Member member)
-        throws IOException, URISyntaxException;
+    void createReview(CreateReviewDTO newReview, List<MultipartFile> images, Member member);
 
     void updateReview(UpdateReviewDTO updateReview, String loginId);
 
