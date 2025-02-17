@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.swcamp9th.bangflixbackend.shared.exception.ReactionNotFoundException;
+import com.swcamp9th.bangflixbackend.shared.exception.ThemeNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -64,16 +65,22 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public ThemeDTO findTheme(Integer themeCode, String loginId) {
-        Theme theme = themeRepository.findById(themeCode).orElseThrow();
-        Member member = userRepository.findById(loginId).orElse(null);
-
-        if(member == null)
-            return createThemeDTO(theme, null);
-        else
-            return createThemeDTO(theme, member.getMemberCode());
-
+    public ThemeDTO findTheme(Integer themeCode) {
+        Theme theme = themeRepository.findById(themeCode)
+                .orElseThrow(() -> new ThemeNotFoundException("존재하지 않는 테마입니다."));
+        log.debug("theme: {}", theme);
+        return createThemeDTO(theme);
     }
+
+    @Override
+    @Transactional
+    public ThemeDTO findTheme(Integer themeCode, int memberCode) {
+        Theme theme = themeRepository.findById(themeCode)
+                .orElseThrow(() -> new ThemeNotFoundException("존재하지 않는 테마입니다."));
+
+        return createThemeDTO(theme, memberCode);
+    }
+
 
     @Override
     @Transactional
@@ -114,7 +121,7 @@ public class ThemeServiceImpl implements ThemeService {
 
         for(Theme theme : themes) {
             if(member == null)
-                themesDTO.add(createThemeDTO(theme, null));
+                themesDTO.add(createThemeDTO(theme));
             else
                 themesDTO.add(createThemeDTO(theme, member.getMemberCode()));
         }
@@ -408,23 +415,30 @@ public class ThemeServiceImpl implements ThemeService {
         themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
         themeDto.setStoreName(theme.getStore().getName());
 
-        if(memberCode != null){
-            ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
-                    .orElse(null);
+        ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
+                .orElse(null);
 
-            if(themeReaction != null){
-                themeDto.setIsLike(true);
-                themeDto.setIsScrap(true);
-            }
-            else{
-                themeDto.setIsLike(false);
-                themeDto.setIsScrap(false);
-            }
+        if(themeReaction != null){
+            themeDto.setIsLike(true);
+            themeDto.setIsScrap(true);
         }
-        else {
+        else{
             themeDto.setIsLike(false);
             themeDto.setIsScrap(false);
         }
+        return themeDto;
+    }
+
+    private ThemeDTO createThemeDTO(Theme theme) {
+        ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
+        themeDto.setStoreCode(theme.getStore().getStoreCode());
+        themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
+        themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
+        themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
+        themeDto.setStoreName(theme.getStore().getName());
+
+        themeDto.setIsLike(false);
+        themeDto.setIsScrap(false);
         return themeDto;
     }
 

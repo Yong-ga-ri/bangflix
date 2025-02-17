@@ -1,5 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.theme.controller;
 
+import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
@@ -32,9 +33,11 @@ import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_
 public class ThemeController {
 
     private final ThemeService themeService;
+    private final UserService userService;
 
     @Autowired
-    public ThemeController(ThemeService themeService) {
+    public ThemeController(ThemeService themeService, UserService userService) {
+        this.userService = userService;
         this.themeService = themeService;
     }
 
@@ -45,8 +48,16 @@ public class ThemeController {
         @PathVariable("themeCode") Integer themeCode,
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
-        ThemeDTO theme = themeService.findTheme(themeCode, loginId);
-        return ResponseEntity.ok(new ResponseMessage<>(200, themeCode + "번 테마 조회 성공", theme));
+        ThemeDTO themeDTO;
+
+        // 게스트용
+        if (loginId == null) {
+            themeDTO = themeService.findTheme(themeCode);
+        } else {    // 회원용
+            int memberCode = userService.findMemberCodeByLoginId(loginId);
+            themeDTO = themeService.findTheme(themeCode, memberCode);
+        }
+        return ResponseEntity.ok(new ResponseMessage<>(200, themeCode + "번 테마 조회 성공", themeDTO));
     }
 
     @GetMapping("/genres")
@@ -69,7 +80,9 @@ public class ThemeController {
         @RequestParam(required = false) String content,
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
-        List<ThemeDTO> themes = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content, loginId);
+        List<ThemeDTO> themes = themeService.findThemeByGenresAndSearchOrderBySort(
+                pageable, filter, genres, content, loginId
+        );
         return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themes));
     }
 

@@ -17,7 +17,8 @@ public interface ThemeService {
 
     List<ThemeDTO> recommendTheme(List<Integer> themeCodes);
 
-    ThemeDTO findTheme(Integer themeCode, String loginId);
+    ThemeDTO findTheme(Integer themeCode, int memberCode);
+    ThemeDTO findTheme(Integer themeCode);
 
     List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content, String loginId);
 
