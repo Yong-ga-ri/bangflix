@@ -254,4 +254,10 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new MemberNotFoundException("사용자를 찾을 수 없습니다."))
                 .getMemberCode();
     }
+
+    @Override
+    public Member findMemberByLoginId(String loginId) {
+        return userRepository.findById(loginId)
+                .orElseThrow(() -> new MemberNotFoundException("사용자를 찾을 수 없습니다."));
+    }
 }
