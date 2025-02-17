@@ -6,7 +6,6 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
-import com.swcamp9th.bangflixbackend.domain.theme.entity.Genre;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReaction;
@@ -299,10 +298,9 @@ public class ThemeServiceImpl implements ThemeService {
     @Override
     @Transactional
     public void createThemeReaction(
-            String userId,
+            Member member,
             ThemeReactionDTO themeReactionDTO
     ) {
-        Member member = userRepository.findById(userId).orElseThrow();
         Theme theme = themeRepository.findById(themeReactionDTO.getThemeCode()).orElseThrow();
         ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(
             themeReactionDTO.getThemeCode(), member.getMemberCode()).orElse(null);

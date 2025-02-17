@@ -118,8 +118,10 @@ public class ThemeController {
         @RequestBody ThemeReactionDTO themeReactionDTO,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
-
-        themeService.createThemeReaction(loginId, themeReactionDTO);
+        themeService.createThemeReaction(
+                userService.findMemberByLoginId(loginId),
+                themeReactionDTO
+        );
 
         return ResponseEntity.ok(new ResponseMessage<>(200,
             "테마 " + themeReactionDTO.getReaction() + " 추가 성공", null));

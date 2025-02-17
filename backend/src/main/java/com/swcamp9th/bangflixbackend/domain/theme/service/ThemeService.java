@@ -5,11 +5,13 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
 import java.util.List;
+
+import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import org.springframework.data.domain.Pageable;
 
 public interface ThemeService {
 
-    void createThemeReaction(String userId, ThemeReactionDTO themeReactionDTO);
+    void createThemeReaction(Member member, ThemeReactionDTO themeReactionDTO);
 
     void deleteThemeReaction(String loginId, ThemeReactionDTO themeReactionDTO);
 
