@@ -144,9 +144,10 @@ public class ReviewController {
     public ResponseEntity<ResponseMessage<ReviewReportDTO>> findReviewReport(
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
+        int memberCode = userService.findMemberCodeByLoginId(loginId);
 
         // 서비스에서 필터를 사용해 조회
-        ReviewReportDTO reviewReportDTO = reviewService.findReviewReport(loginId);
+        ReviewReportDTO reviewReportDTO = reviewService.findReviewReport(memberCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "유저 리뷰 report 조회 성공", reviewReportDTO));
     }
 
@@ -157,23 +158,10 @@ public class ReviewController {
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
         @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
+        int memberCode = userService.findMemberCodeByLoginId(loginId);
 
         // 서비스에서 필터를 사용해 조회
-        List<ReviewDTO> reviews = reviewService.findReviewByMember(loginId, pageable);
+        List<ReviewDTO> reviews = reviewService.findReviewByMemberCode(memberCode, pageable);
         return ResponseEntity.ok(new ResponseMessage<>(200, "유저가 작성한 리뷰 조회 성공", reviews));
-    }
-
-    @GetMapping("/detail")
-    @SecurityRequirement(name = "Authorization")
-    @Operation(summary = "하나의 리뷰에 대해 조회하는 API.")
-    public ResponseEntity<ResponseMessage<ReviewDTO>> findReviewDetail(
-        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
-        @RequestParam Integer reviewCode
-    ) {
-
-        // 서비스에서 필터를 사용해 조회
-        ReviewDTO reviewDTO = reviewService.findReviewDetail(loginId, reviewCode);
-
-        return ResponseEntity.ok(new ResponseMessage<>(200, "하나의 리뷰에 대해 조회 성공", reviewDTO));
     }
 }

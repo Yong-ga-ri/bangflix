@@ -32,9 +32,7 @@ public interface ReviewService {
 
     ReviewDTO getReviewDTO(Review review, Integer memberCode);
 
-    ReviewReportDTO findReviewReport(String loginId);
+    ReviewReportDTO findReviewReport(int memberCode);
 
-    List<ReviewDTO> findReviewByMember(String loginId, Pageable pageable);
-
-    ReviewDTO findReviewDetail(String loginId, Integer reviewCode);
+    List<ReviewDTO> findReviewByMemberCode(int memberCode, Pageable pageable);
 }

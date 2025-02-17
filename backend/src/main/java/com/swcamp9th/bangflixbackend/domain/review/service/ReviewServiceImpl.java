@@ -274,40 +274,26 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public ReviewReportDTO findReviewReport(String loginId) {
-        Member member = userRepository.findById(loginId).orElseThrow();
-        Integer avgScore = reviewRepository.findAvgScoreByMemberCode(member.getMemberCode());
+    public ReviewReportDTO findReviewReport(int memberCode) {
+        Integer avgScore = reviewRepository.findAvgScoreByMemberCode(memberCode);
 
         if(avgScore == null)
             return null;
 
         Pageable pageable = PageRequest.of(0, 3);
-        List<String> genres = reviewRepository.findTopGenresByMemberCode(member.getMemberCode(), pageable);
+        List<String> genres = reviewRepository.findTopGenresByMemberCode(memberCode, pageable);
         ReviewReportDTO reviewReportDTO = new ReviewReportDTO(avgScore, genres);
         return reviewReportDTO;
     }
 
     @Transactional
     @Override
-    public List<ReviewDTO> findReviewByMember(String loginId, Pageable pageable) {
-        Member member = userRepository.findById(loginId).orElseThrow();
-        List<Review> review = reviewRepository.findByMemberCode(member.getMemberCode(), pageable);
+    public List<ReviewDTO> findReviewByMemberCode(int memberCode, Pageable pageable) {
+        List<Review> review = reviewRepository.findByMemberCode(memberCode, pageable);
 
         if(review == null || review.isEmpty())
             return null;
-        return getReviewDTOS(review, member.getMemberCode());
-    }
-
-    @Transactional
-    @Override
-    public ReviewDTO findReviewDetail(String loginId, Integer reviewCode) {
-        Member member = userRepository.findById(loginId).orElseThrow();
-        Review review = reviewRepository.findById(reviewCode).orElseThrow();
-
-        if(!review.getMember().getMemberCode().equals(member.getMemberCode()))
-            throw new InvalidUserException("리뷰 수정 권한이 없습니다");
-
-        return getReviewDTO(review, member.getMemberCode());
+        return getReviewDTOS(review, memberCode);
     }
 
     @Transactional

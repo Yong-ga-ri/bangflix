@@ -46,5 +46,5 @@ public interface ThemeReactionRepository extends JpaRepository<ThemeReaction, Th
             + "AND tr.theme.active = true "
             + "AND tr.reaction IN :reactions "
             + "ORDER BY tr.createdAt desc")
-    List<ThemeReaction> findThemeReactionsByMemberCodeAndReactionType(@Param("memberCode") int memberCode, @Param("reaction") List<ReactionType> reactions);
+    List<ThemeReaction> findThemeReactionsByMemberCodeAndReactionType(@Param("memberCode") int memberCode, @Param("reactions") List<ReactionType> reactions);
 }
