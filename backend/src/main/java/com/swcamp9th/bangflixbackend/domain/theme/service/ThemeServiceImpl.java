@@ -6,7 +6,6 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
-import com.swcamp9th.bangflixbackend.domain.theme.entity.Genre;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReaction;
@@ -16,12 +15,10 @@ import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import com.swcamp9th.bangflixbackend.shared.exception.ReactionNotFoundException;
+import com.swcamp9th.bangflixbackend.shared.exception.ThemeNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -64,25 +61,28 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public ThemeDTO findTheme(Integer themeCode, String loginId) {
-        Theme theme = themeRepository.findById(themeCode).orElseThrow();
-        Member member = userRepository.findById(loginId).orElse(null);
-
-        if(member == null)
-            return createThemeDTO(theme, null);
-        else
-            return createThemeDTO(theme, member.getMemberCode());
-
+    public ThemeDTO findTheme(Integer themeCode) {
+        Theme theme = themeRepository.findById(themeCode)
+                .orElseThrow(() -> new ThemeNotFoundException("존재하지 않는 테마입니다."));
+        log.debug("theme: {}", theme);
+        return createThemeDTO(theme);
     }
 
     @Override
     @Transactional
-    public List<GenreDTO> findGenres() {
-        List<Genre> genres = genreRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+    public ThemeDTO findTheme(Integer themeCode, int memberCode) {
+        Theme theme = themeRepository.findById(themeCode)
+                .orElseThrow(() -> new ThemeNotFoundException("존재하지 않는 테마입니다."));
 
-        return genres.stream()
-                .map(genre -> modelMapper
-                        .map(genre, GenreDTO.class))
+        return createThemeDTO(theme, memberCode);
+    }
+
+
+    @Override
+    @Transactional
+    public List<GenreDTO> findGenres() {
+        return genreRepository.findAll(Sort.by(Sort.Direction.ASC, "name")).stream()
+                .map(genre -> modelMapper.map(genre, GenreDTO.class))
                 .toList();
     }
 
@@ -93,10 +93,9 @@ public class ThemeServiceImpl implements ThemeService {
             String filter,
             List<String> genres,
             String content,
-            String loginId
+            int memberCode
     ) {
-        Member member = userRepository.findById(loginId).orElse(null);
-        List<Theme> themes = new ArrayList<>();
+        List<Theme> themes;
 
         if(genres != null){
             if(content != null)
@@ -113,10 +112,7 @@ public class ThemeServiceImpl implements ThemeService {
         List<ThemeDTO> themesDTO = new ArrayList<>();
 
         for(Theme theme : themes) {
-            if(member == null)
-                themesDTO.add(createThemeDTO(theme, null));
-            else
-                themesDTO.add(createThemeDTO(theme, member.getMemberCode()));
+            themesDTO.add(createThemeDTO(theme, memberCode));
         }
 
         if (filter != null) {
@@ -151,39 +147,140 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public List<ThemeDTO> findThemeByStoreOrderBySort(
+    public List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(
             Pageable pageable,
             String filter,
-            Integer storeCode,
-            String loginId
+            List<String> genres,
+            String content
     ) {
-        List<Theme> themes = themeRepository.findByStoreCode(storeCode);
-        Member member = userRepository.findById(loginId).orElseThrow();
+        List<Theme> themes;
+
+        if(genres != null){
+            if(content != null)
+                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content);
+            else
+                themes = themeRepository.findThemesByAllGenres(genres);
+        } else {
+            if(content != null)
+                themes = themeRepository.findThemesBySearch(content);
+            else
+                themes = themeRepository.findAll();
+        }
+
         List<ThemeDTO> themesDTO = new ArrayList<>();
 
-        for(Theme theme : themes)
-            themesDTO.add(createThemeDTO(theme, member.getMemberCode()));
+        for(Theme theme : themes) {
+            themesDTO.add(createThemeDTO(theme));
+        }
 
         if (filter != null) {
             switch (filter) {
                 case "like":
                     themesDTO.sort(Comparator.comparing(ThemeDTO::getLikeCount).reversed()
-                        .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
                     break;
 
                 case "scrap":
                     themesDTO.sort(Comparator.comparing(ThemeDTO::getScrapCount).reversed()
-                        .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
                     break;
 
                 case "review":
                     themesDTO.sort(Comparator.comparing(ThemeDTO::getReviewCount).reversed()
-                        .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
                     break;
 
                 default:
                     themesDTO.sort(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()
-                        .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+            }
+        } else
+            themesDTO.sort(Comparator.comparing(ThemeDTO::getCreatedAt).reversed());
+
+        int startIndex = pageable.getPageNumber() * pageable.getPageSize();
+        int lastIndex = Math.min((startIndex + pageable.getPageSize()), themes.size());
+        return themesDTO.subList(startIndex, lastIndex);
+    }
+
+    @Override
+    @Transactional
+    public List<ThemeDTO> findThemeByStoreOrderBySort(
+            Pageable pageable,
+            String filter,
+            Integer storeCode,
+            int memberCode
+    ) {
+        List<Theme> themes = themeRepository.findByStoreCode(storeCode);
+        List<ThemeDTO> themesDTO = new ArrayList<>();
+
+        for(Theme theme : themes)
+            themesDTO.add(createThemeDTO(theme, memberCode));
+
+        if (filter != null) {
+            switch (filter) {
+                case "like":
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getLikeCount).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+
+                case "scrap":
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getScrapCount).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+
+                case "review":
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getReviewCount).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+
+                default:
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+            }
+        } else
+            themesDTO.sort(Comparator.comparing(ThemeDTO::getCreatedAt).reversed());
+
+
+        int startIndex = pageable.getPageNumber() * pageable.getPageSize();
+        int lastIndex = Math.min((startIndex + pageable.getPageSize()), themes.size());
+        return themesDTO.subList(startIndex, lastIndex);
+    }
+
+    @Override
+    @Transactional
+    public List<ThemeDTO> findThemeByStoreOrderBySort(
+            Pageable pageable,
+            String filter,
+            Integer storeCode
+    ) {
+        List<Theme> themes = themeRepository.findByStoreCode(storeCode);
+        List<ThemeDTO> themesDTO = new ArrayList<>();
+
+        for(Theme theme : themes)
+            themesDTO.add(createThemeDTO(theme));
+
+        if (filter != null) {
+            switch (filter) {
+                case "like":
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getLikeCount).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+
+                case "scrap":
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getScrapCount).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+
+                case "review":
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getReviewCount).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+
+                default:
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
                     break;
             }
         } else
@@ -198,10 +295,9 @@ public class ThemeServiceImpl implements ThemeService {
     @Override
     @Transactional
     public void createThemeReaction(
-            String userId,
+            Member member,
             ThemeReactionDTO themeReactionDTO
     ) {
-        Member member = userRepository.findById(userId).orElseThrow();
         Theme theme = themeRepository.findById(themeReactionDTO.getThemeCode()).orElseThrow();
         ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(
             themeReactionDTO.getThemeCode(), member.getMemberCode()).orElse(null);
@@ -318,18 +414,25 @@ public class ThemeServiceImpl implements ThemeService {
     }
 
     @Override
-    public List<ThemeDTO> findThemeByWeek(String loginId) {
+    public List<ThemeDTO> findThemeByWeek(int memberCode) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneWeekAgo = now.minusWeeks(1);  // 현재로부터 1주일 이전
         Pageable pageable = PageRequest.of(0,5);
 
         List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable);
-        Member member = userRepository.findById(loginId).orElse(null);
 
-        if(member == null)
-            return createThemeDTOs(themes, null);
+        return createThemeDTOList(themes, memberCode);
+    }
 
-        return createThemeDTOs(themes, member.getMemberCode());
+    @Override
+    public List<ThemeDTO> findThemeByWeek() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneWeekAgo = now.minusWeeks(1);  // 현재로부터 1주일 이전
+        Pageable pageable = PageRequest.of(0,5);
+
+        List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable);
+
+        return createThemeDTOList(themes);
     }
 
     @Override
@@ -341,7 +444,6 @@ public class ThemeServiceImpl implements ThemeService {
             return findThemeByGenresAndSearchOrderBySort(
                     pageable,
                     "like",
-                    null,
                     null,
                     null
             );
@@ -374,17 +476,13 @@ public class ThemeServiceImpl implements ThemeService {
                 pageable,
                 "like",
                 genreNames,
-                null,
                 null
         );
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<ThemeDTO> getScrapedTheme(String loginId) {
-        Integer memberCode = userRepository.findById(loginId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."))
-                .getMemberCode();
+    public List<ThemeDTO> getScrapedThemeByMemberCode(int memberCode) {
         List<ThemeReaction> themeReactions =
                 themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(memberCode, List.of(ReactionType.SCRAP, ReactionType.SCRAPLIKE));
 
@@ -394,8 +492,7 @@ public class ThemeServiceImpl implements ThemeService {
         );
 
         return themes.stream()
-                .map(theme ->
-                        createThemeDTO(theme, memberCode))
+                .map(theme -> createThemeDTO(theme, memberCode))
                 .toList();
 
     }
@@ -408,29 +505,37 @@ public class ThemeServiceImpl implements ThemeService {
         themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
         themeDto.setStoreName(theme.getStore().getName());
 
-        if(memberCode != null){
-            ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
-                    .orElse(null);
+        themeDto.setIsLike(false);
+        themeDto.setIsScrap(false);
 
-            if(themeReaction != null){
+        Optional<ThemeReaction> themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode);
+
+        if (themeReaction.isPresent()) {
+            if (themeReaction.get().getReaction().equals(ReactionType.LIKE) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
                 themeDto.setIsLike(true);
+            if (themeReaction.get().getReaction().equals(ReactionType.SCRAP) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
                 themeDto.setIsScrap(true);
-            }
-            else{
-                themeDto.setIsLike(false);
-                themeDto.setIsScrap(false);
-            }
         }
-        else {
-            themeDto.setIsLike(false);
-            themeDto.setIsScrap(false);
-        }
+
         return themeDto;
     }
 
-    private List<ThemeDTO> createThemeDTOs(List<Theme> themes, Integer memberCode) {
+    private ThemeDTO createThemeDTO(Theme theme) {
+        ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
+        themeDto.setStoreCode(theme.getStore().getStoreCode());
+        themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
+        themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
+        themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
+        themeDto.setStoreName(theme.getStore().getName());
 
-        List<ThemeDTO> themeDTOs = new ArrayList<>();
+        themeDto.setIsLike(false);
+        themeDto.setIsScrap(false);
+        return themeDto;
+    }
+
+    private List<ThemeDTO> createThemeDTOList(List<Theme> themes, int memberCode) {
+
+        List<ThemeDTO> themeDTOList = new ArrayList<>();
 
         for(Theme theme : themes) {
             ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
@@ -440,27 +545,43 @@ public class ThemeServiceImpl implements ThemeService {
             themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
             themeDto.setStoreName(theme.getStore().getName());
 
-            if(memberCode != null){
-                ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
-                        .orElse(null);
+            themeDto.setIsLike(false);
+            themeDto.setIsScrap(false);
 
-                if(themeReaction != null){
+
+            Optional<ThemeReaction> themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode);
+
+            if (themeReaction.isPresent()) {
+                if (themeReaction.get().getReaction().equals(ReactionType.LIKE) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
                     themeDto.setIsLike(true);
+                if (themeReaction.get().getReaction().equals(ReactionType.SCRAP) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
                     themeDto.setIsScrap(true);
-                }
-                else{
-                    themeDto.setIsLike(false);
-                    themeDto.setIsScrap(false);
-                }
-            }
-            else {
-                themeDto.setIsLike(false);
-                themeDto.setIsScrap(false);
             }
 
-            themeDTOs.add(themeDto);
+            themeDTOList.add(themeDto);
         }
 
-        return themeDTOs;
+        return themeDTOList;
+    }
+
+    private List<ThemeDTO> createThemeDTOList(List<Theme> themes) {
+
+        List<ThemeDTO> themeDTOList = new ArrayList<>();
+
+        for(Theme theme : themes) {
+            ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
+            themeDto.setStoreCode(theme.getStore().getStoreCode());
+            themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
+            themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
+            themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
+            themeDto.setStoreName(theme.getStore().getName());
+
+            themeDto.setIsLike(false);
+            themeDto.setIsScrap(false);
+
+            themeDTOList.add(themeDto);
+        }
+
+        return themeDTOList;
     }
 }

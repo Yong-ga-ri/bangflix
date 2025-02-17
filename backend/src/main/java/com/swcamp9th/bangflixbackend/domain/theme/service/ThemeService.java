@@ -5,27 +5,33 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
 import java.util.List;
+
+import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import org.springframework.data.domain.Pageable;
 
 public interface ThemeService {
 
-    void createThemeReaction(String userId, ThemeReactionDTO themeReactionDTO);
+    void createThemeReaction(Member member, ThemeReactionDTO themeReactionDTO);
 
     void deleteThemeReaction(String loginId, ThemeReactionDTO themeReactionDTO);
 
-    List<ThemeDTO> getScrapedTheme(String loginId);
+    List<ThemeDTO> getScrapedThemeByMemberCode(int memberCode);
 
     List<ThemeDTO> recommendTheme(List<Integer> themeCodes);
 
-    ThemeDTO findTheme(Integer themeCode, String loginId);
+    ThemeDTO findTheme(Integer themeCode, int memberCode);
+    ThemeDTO findTheme(Integer themeCode);
 
-    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content, String loginId);
+    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content, int memberCode);
+    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content);
 
-    List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String filter, Integer storeCode, String loginId);
+    List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String filter, Integer storeCode, int memberCode);
+    List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String filter, Integer storeCode);
 
     List<FindThemeByReactionDTO> findThemeByMemberReaction(Pageable pageable, String loginId, String reaction);
 
-    List<ThemeDTO> findThemeByWeek(String loginId);
+    List<ThemeDTO> findThemeByWeek();
+    List<ThemeDTO> findThemeByWeek(int memberCode);
 
     List<GenreDTO> findGenres();
 

@@ -1,5 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.theme.controller;
 
+import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
@@ -32,9 +33,11 @@ import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_
 public class ThemeController {
 
     private final ThemeService themeService;
+    private final UserService userService;
 
     @Autowired
-    public ThemeController(ThemeService themeService) {
+    public ThemeController(ThemeService themeService, UserService userService) {
+        this.userService = userService;
         this.themeService = themeService;
     }
 
@@ -45,8 +48,15 @@ public class ThemeController {
         @PathVariable("themeCode") Integer themeCode,
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
-        ThemeDTO theme = themeService.findTheme(themeCode, loginId);
-        return ResponseEntity.ok(new ResponseMessage<>(200, themeCode + "번 테마 조회 성공", theme));
+        ThemeDTO themeDTO;
+
+        if (loginId == null) {  // for guests
+            themeDTO = themeService.findTheme(themeCode);
+        } else {    // for members
+            int memberCode = userService.findMemberCodeByLoginId(loginId);
+            themeDTO = themeService.findTheme(themeCode, memberCode);
+        }
+        return ResponseEntity.ok(new ResponseMessage<>(200, themeCode + "번 테마 조회 성공", themeDTO));
     }
 
     @GetMapping("/genres")
@@ -69,22 +79,36 @@ public class ThemeController {
         @RequestParam(required = false) String content,
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
-        List<ThemeDTO> themes = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content, loginId);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themes));
+        List<ThemeDTO> themeDTOList;
+
+        if (loginId == null) {  // for guests
+            themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content);
+        } else {    // for members
+            int memberCode = userService.findMemberCodeByLoginId(loginId);
+            themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content, memberCode);
+        }
+        return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themeDTOList));
     }
 
     @GetMapping("/store/{storeCode}")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "업체 별 테마 조회 API. filter 값 : (like, scrap, review, 값이 없다면 최신 순) ")
-    public ResponseEntity<ResponseMessage<List<ThemeDTO>>> findThemeByStoreOrderBySort(
+    public ResponseEntity<ResponseMessage<List<ThemeDTO>>> findThemeByStore(
         @PathVariable("storeCode") Integer storeCode,
         @PageableDefault(size = 10) Pageable pageable,
         @RequestParam(required = false) String filter,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
-        List<ThemeDTO> themes = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode,loginId);
+        List<ThemeDTO> themeDTOList;
 
-        return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themes));
+        if (loginId == null) {  // for guests
+            themeDTOList = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode);
+        } else {    // for members
+            int memberCode = userService.findMemberCodeByLoginId(loginId);
+            themeDTOList = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode, memberCode);
+        }
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themeDTOList));
     }
 
     @PostMapping("/reaction")
@@ -94,8 +118,10 @@ public class ThemeController {
         @RequestBody ThemeReactionDTO themeReactionDTO,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
-
-        themeService.createThemeReaction(loginId, themeReactionDTO);
+        themeService.createThemeReaction(
+                userService.findMemberByLoginId(loginId),
+                themeReactionDTO
+        );
 
         return ResponseEntity.ok(new ResponseMessage<>(200,
             "테마 " + themeReactionDTO.getReaction() + " 추가 성공", null));
@@ -136,8 +162,13 @@ public class ThemeController {
     public ResponseEntity<ResponseMessage<List<ThemeDTO>>> findThemeByWeek(
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
-
-        List<ThemeDTO> themes = themeService.findThemeByWeek(loginId);
+        List<ThemeDTO> themes;
+        if (loginId == null) {
+            themes = themeService.findThemeByWeek();
+        } else {
+            int memberCode = userService.findMemberCodeByLoginId(loginId);
+            themes = themeService.findThemeByWeek(memberCode);
+        }
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "이번 주 베스트 테마 조회 성공", themes));
     }
@@ -159,8 +190,15 @@ public class ThemeController {
     public ResponseEntity<ResponseMessage<List<ThemeDTO>>> scrapTheme(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
-        List<ThemeDTO> themeDTOs = themeService.getScrapedTheme(loginId);
+        List<ThemeDTO> themeDTOList = themeService.getScrapedThemeByMemberCode(
+                userService.findMemberCodeByLoginId(loginId)
+        );
 
-        return ResponseEntity.ok(new ResponseMessage<>(200, "사용자 스크랩 테마 목록 조회 성공", themeDTOs));
+        return ResponseEntity.ok(
+                new ResponseMessage<>(
+                        200,
+                        "사용자 스크랩 테마 목록 조회 성공",
+                        themeDTOList
+                        ));
     }
 }
