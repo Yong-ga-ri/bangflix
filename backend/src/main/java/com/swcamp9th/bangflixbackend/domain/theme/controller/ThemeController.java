@@ -134,8 +134,8 @@ public class ThemeController {
         @RequestBody ThemeReactionDTO themeReactionDTO,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
-
-        themeService.deleteThemeReaction(loginId, themeReactionDTO);
+        int memberCode = userService.findMemberCodeByLoginId(loginId);
+        themeService.deleteThemeReaction(memberCode, themeReactionDTO);
 
         return ResponseEntity.ok(new ResponseMessage<>(200,
             "테마 " + themeReactionDTO.getReaction() + " 삭제 성공", null));
@@ -149,8 +149,9 @@ public class ThemeController {
         @PageableDefault(size = 10) Pageable pageable,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
+        int memberCode = userService.findMemberCodeByLoginId(loginId);
 
-        List<FindThemeByReactionDTO> themes = themeService.findThemeByMemberReaction(pageable, loginId, reaction);
+        List<FindThemeByReactionDTO> themes = themeService.findThemeByMemberReaction(pageable, memberCode, reaction);
 
         return ResponseEntity.ok(new ResponseMessage<>(200,
             "유저 별 " + reaction + " 테마 조회 성공", themes));

@@ -13,7 +13,7 @@ public interface ThemeService {
 
     void createThemeReaction(Member member, ThemeReactionDTO themeReactionDTO);
 
-    void deleteThemeReaction(String loginId, ThemeReactionDTO themeReactionDTO);
+    void deleteThemeReaction(int memberCode, ThemeReactionDTO themeReactionDTO);
 
     List<ThemeDTO> getScrapedThemeByMemberCode(int memberCode);
 
@@ -28,7 +28,7 @@ public interface ThemeService {
     List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String filter, Integer storeCode, int memberCode);
     List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String filter, Integer storeCode);
 
-    List<FindThemeByReactionDTO> findThemeByMemberReaction(Pageable pageable, String loginId, String reaction);
+    List<FindThemeByReactionDTO> findThemeByMemberReaction(Pageable pageable, int loginId, String reaction);
 
     List<ThemeDTO> findThemeByWeek();
     List<ThemeDTO> findThemeByWeek(int memberCode);
