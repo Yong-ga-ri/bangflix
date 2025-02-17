@@ -21,6 +21,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -35,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ThemeServiceImpl implements ThemeService {
 
+//    private final MeterRegistry meterRegistry;
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
@@ -46,6 +49,7 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Autowired
     public ThemeServiceImpl(
+//            MeterRegistry meterRegistry,
             ModelMapper modelMapper,
             UserRepository userRepository,
             StoreRepository storeRepository,
@@ -53,6 +57,7 @@ public class ThemeServiceImpl implements ThemeService {
             ThemeRepository themeRepository,
             ThemeReactionRepository themeReactionRepository
     ) {
+//        this.meterRegistry = meterRegistry;
         this.modelMapper = modelMapper;
         this.userRepository = userRepository;
         this.storeRepository = storeRepository;
@@ -64,8 +69,8 @@ public class ThemeServiceImpl implements ThemeService {
     @Override
     @Transactional
     public ThemeDTO findTheme(Integer themeCode, String loginId) {
-        Theme theme = themeRepository.findById(themeCode).orElseThrow();
         Member member = userRepository.findById(loginId).orElse(null);
+        Theme theme = themeRepository.findById(themeCode).orElseThrow();
 
         if(member == null)
             return createThemeDTO(theme, null);
@@ -94,8 +99,10 @@ public class ThemeServiceImpl implements ThemeService {
             String content,
             String loginId
     ) {
+//        Timer.Sample sample = Timer.start(meterRegistry);
+
         Member member = userRepository.findById(loginId).orElse(null);
-        List<Theme> themes = new ArrayList<>();
+        List<Theme> themes;
 
         if(genres != null){
             if(content != null)

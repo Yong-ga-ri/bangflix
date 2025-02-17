@@ -1,0 +1,14 @@
+apiVersion: 1
+datasources:
+  - name: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    jsonData:
+      httpHeaderName1: "Authorization"
+    secureJsonData:
+      httpHeaderValue1: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMSIsImF1dGgiOiJBRE1JTiIsImlhdCI6MTczOTE3NzE3NSwiZXhwIjoxNzQyNzc3MTc1fQ.9tnqZ8y3HsGmPx3cmKunyjFlt_E8kCl2HQioEToMrbM"
+  - name: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100

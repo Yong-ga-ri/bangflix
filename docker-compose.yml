@@ -19,11 +19,13 @@ services:
     platform: linux/amd64
     ports:
       - "8080:8080"
+    volumes:
+      - ./backend/logs:/logs
     networks:
       - mynetwork
-
     depends_on:
       - redis
+      - db
 
   redis:
     image: redis:latest
@@ -51,6 +53,8 @@ services:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
+    depends_on:
+      - backend
     networks:
       - mynetwork
 
@@ -60,12 +64,17 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # 데이터 유지를 위해 볼륨을 사용합니다.
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
       - grafana-data:/var/lib/grafana
-      # (옵션) 사전에 정의한 Grafana 대시보드 파일 등을 매핑할 수 있습니다.
-      #- ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     networks:
       - mynetwork
+    depends_on:
+      - backend
+      - prometheus
+      - loki
+      - promtail
+      - node-exporter
 
   node-exporter:
     image: prom/node-exporter
@@ -81,6 +90,28 @@ services:
     pid: "host" # 호스트의 PID 네임스페이스 공유
     ports:
       - "9100:9100"
+    depends_on:
+      - backend
+    networks:
+      - mynetwork
+
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    depends_on:
+      - backend
+    networks:
+      - mynetwork
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - ./backend/logs:/logs
+    command:
+      - -config.file=/etc/promtail/promtail-config.yaml
+      - -config.expand-env=true
     networks:
       - mynetwork
 
@@ -91,3 +122,5 @@ networks:
 volumes:
   db-data:
   grafana-data:
+  loki-data:
+  loki-wal:

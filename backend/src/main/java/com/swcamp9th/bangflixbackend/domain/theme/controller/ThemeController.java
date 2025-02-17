@@ -6,6 +6,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeService;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
@@ -57,6 +58,7 @@ public class ThemeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "전체 장르 조회 성공", genres));
     }
 
+    @Timed(value = "get-theme-by-week", extraTags = {"endpoint", "/themes"})
     @GetMapping("")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "테마 필터링 & 검색해서 조회하는 API. filter 값 (like : 좋아요 수가 많은 테마, scrap : 스크랩 수가 많은 순, review: 리뷰 수가 많은 순, 값 안넣으면 테마 생성 순)"

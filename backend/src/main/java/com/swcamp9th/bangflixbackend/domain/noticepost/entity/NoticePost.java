@@ -42,5 +42,5 @@ public class NoticePost {
 
     // 첨부파일과의 관계 설정
     @OneToMany(mappedBy = "noticePost", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<NoticeFile> noticeFiles = new ArrayList<>();
+    private List<NoticeFile> noticeFiles;
 }
