@@ -68,7 +68,8 @@ public class ReviewController {
             @RequestBody ReviewCodeDTO reviewCodeDTO,
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
-        reviewService.deleteReview(reviewCodeDTO, loginId);
+        int memberCode = userService.findMemberCodeByLoginId(loginId);
+        reviewService.deleteReview(reviewCodeDTO, memberCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 삭제 성공", null));
     }
 

@@ -16,7 +16,7 @@ public interface ReviewService {
 
     void createReview(CreateReviewDTO newReview, List<MultipartFile> images, Member member);
 
-    void deleteReview(ReviewCodeDTO reviewCodeDTO, String loginId);
+    void deleteReview(ReviewCodeDTO reviewCodeDTO, int memberCode);
 
     List<ReviewDTO> findReviewsWithFilters(Integer themeCode, String filter, Pageable pageable, String loginId);
 

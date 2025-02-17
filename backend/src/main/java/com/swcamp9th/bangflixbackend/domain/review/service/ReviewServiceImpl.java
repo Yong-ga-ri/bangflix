@@ -17,10 +17,8 @@ import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewTendencyGenr
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.exception.AlreadyLikedException;
-import com.swcamp9th.bangflixbackend.shared.exception.FileUploadException;
-import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
-import com.swcamp9th.bangflixbackend.shared.exception.LikeNotFoundException;
+import com.swcamp9th.bangflixbackend.shared.exception.*;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -98,21 +96,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public void deleteReview(ReviewCodeDTO reviewCodeDTO, String loginId) {
+    public void deleteReview(ReviewCodeDTO reviewCodeDTO, int memberCode) {
 
         // 기존 리뷰 조회
-        Review existingReview = reviewRepository.findById(reviewCodeDTO.getReviewCode()).orElse(null);
+        Review existingReview = reviewRepository.findById(reviewCodeDTO.getReviewCode())
+                .orElseThrow(() -> new ReviewNotFoundException("리뷰가 존재하지 않습니다."));
 
-        if(existingReview == null)
-            throw new RuntimeException("Review not found");
-
-        if(loginId.equals(existingReview.getMember().getId())) {
-            existingReview.setActive(false);
-            reviewRepository.save(existingReview);
-        }
-        else {
-            throw new InvalidUserException("리뷰 삭제 권한이 없습니다");
-        }
+        existingReview.setActive(false);
+        reviewRepository.save(existingReview);
     }
 
     @Transactional
