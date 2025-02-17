@@ -162,8 +162,13 @@ public class ThemeController {
     public ResponseEntity<ResponseMessage<List<ThemeDTO>>> findThemeByWeek(
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
-
-        List<ThemeDTO> themes = themeService.findThemeByWeek(loginId);
+        List<ThemeDTO> themes;
+        if (loginId == null) {
+            themes = themeService.findThemeByWeek();
+        } else {
+            int memberCode = userService.findMemberCodeByLoginId(loginId);
+            themes = themeService.findThemeByWeek(memberCode);
+        }
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "이번 주 베스트 테마 조회 성공", themes));
     }

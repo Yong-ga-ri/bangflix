@@ -15,10 +15,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import com.swcamp9th.bangflixbackend.shared.exception.ReactionNotFoundException;
 import com.swcamp9th.bangflixbackend.shared.exception.ThemeNotFoundException;
@@ -417,18 +414,25 @@ public class ThemeServiceImpl implements ThemeService {
     }
 
     @Override
-    public List<ThemeDTO> findThemeByWeek(String loginId) {
+    public List<ThemeDTO> findThemeByWeek(int memberCode) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneWeekAgo = now.minusWeeks(1);  // 현재로부터 1주일 이전
         Pageable pageable = PageRequest.of(0,5);
 
         List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable);
-        Member member = userRepository.findById(loginId).orElse(null);
 
-        if(member == null)
-            return createThemeDTOs(themes, null);
+        return createThemeDTOList(themes, memberCode);
+    }
 
-        return createThemeDTOs(themes, member.getMemberCode());
+    @Override
+    public List<ThemeDTO> findThemeByWeek() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneWeekAgo = now.minusWeeks(1);  // 현재로부터 1주일 이전
+        Pageable pageable = PageRequest.of(0,5);
+
+        List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable);
+
+        return createThemeDTOList(themes);
     }
 
     @Override
@@ -505,17 +509,18 @@ public class ThemeServiceImpl implements ThemeService {
         themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
         themeDto.setStoreName(theme.getStore().getName());
 
-        ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
-                .orElse(null);
+        themeDto.setIsLike(false);
+        themeDto.setIsScrap(false);
 
-        if(themeReaction != null){
-            themeDto.setIsLike(true);
-            themeDto.setIsScrap(true);
+        Optional<ThemeReaction> themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode);
+
+        if (themeReaction.isPresent()) {
+            if (themeReaction.get().getReaction().equals(ReactionType.LIKE) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
+                themeDto.setIsLike(true);
+            if (themeReaction.get().getReaction().equals(ReactionType.SCRAP) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
+                themeDto.setIsScrap(true);
         }
-        else{
-            themeDto.setIsLike(false);
-            themeDto.setIsScrap(false);
-        }
+
         return themeDto;
     }
 
@@ -532,9 +537,9 @@ public class ThemeServiceImpl implements ThemeService {
         return themeDto;
     }
 
-    private List<ThemeDTO> createThemeDTOs(List<Theme> themes, Integer memberCode) {
+    private List<ThemeDTO> createThemeDTOList(List<Theme> themes, int memberCode) {
 
-        List<ThemeDTO> themeDTOs = new ArrayList<>();
+        List<ThemeDTO> themeDTOList = new ArrayList<>();
 
         for(Theme theme : themes) {
             ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
@@ -544,27 +549,43 @@ public class ThemeServiceImpl implements ThemeService {
             themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
             themeDto.setStoreName(theme.getStore().getName());
 
-            if(memberCode != null){
-                ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
-                        .orElse(null);
+            themeDto.setIsLike(false);
+            themeDto.setIsScrap(false);
 
-                if(themeReaction != null){
+
+            Optional<ThemeReaction> themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode);
+
+            if (themeReaction.isPresent()) {
+                if (themeReaction.get().getReaction().equals(ReactionType.LIKE) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
                     themeDto.setIsLike(true);
+                if (themeReaction.get().getReaction().equals(ReactionType.SCRAP) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
                     themeDto.setIsScrap(true);
-                }
-                else{
-                    themeDto.setIsLike(false);
-                    themeDto.setIsScrap(false);
-                }
-            }
-            else {
-                themeDto.setIsLike(false);
-                themeDto.setIsScrap(false);
             }
 
-            themeDTOs.add(themeDto);
+            themeDTOList.add(themeDto);
         }
 
-        return themeDTOs;
+        return themeDTOList;
+    }
+
+    private List<ThemeDTO> createThemeDTOList(List<Theme> themes) {
+
+        List<ThemeDTO> themeDTOList = new ArrayList<>();
+
+        for(Theme theme : themes) {
+            ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
+            themeDto.setStoreCode(theme.getStore().getStoreCode());
+            themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
+            themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
+            themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
+            themeDto.setStoreName(theme.getStore().getName());
+
+            themeDto.setIsLike(false);
+            themeDto.setIsScrap(false);
+
+            themeDTOList.add(themeDto);
+        }
+
+        return themeDTOList;
     }
 }
