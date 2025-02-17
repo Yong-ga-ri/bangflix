@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "theme_genre")
 @IdClass(ThemeGenre.class)
@@ -37,4 +39,17 @@ public class ThemeGenre {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "theme_code", insertable = false, updatable = false)
     private Theme theme;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ThemeGenre that = (ThemeGenre) o;
+        return Objects.equals(genreCode, that.genreCode) && Objects.equals(themeCode, that.themeCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(genreCode, themeCode);
+    }
 }
