@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,21 +55,10 @@ public class ReviewController {
         @RequestPart("review") CreateReviewDTO newReview,
         @RequestPart(value = "images", required = false) List<MultipartFile> images,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
-    ) throws IOException, URISyntaxException {
+    ) {
         Member member = userService.findMemberByLoginId(loginId);
         reviewService.createReview(newReview, images, member);
         return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 작성 성공", null));
-    }
-
-    @PutMapping
-    @SecurityRequirement(name = "Authorization")
-    @Operation(summary = "리뷰 업데이트 API. request 값 중 null이 아닌 값들만 체크해 기존 리뷰를 수정합니다")
-    public ResponseEntity<ResponseMessage<Object>> updateReview(
-            @RequestBody UpdateReviewDTO updateReview,
-            @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
-    ) {
-        reviewService.updateReview(updateReview, loginId);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 수정 성공", null));
     }
 
     @DeleteMapping

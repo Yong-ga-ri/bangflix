@@ -5,7 +5,6 @@ import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewCodeDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewReportDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.StatisticsReviewDTO;
-import com.swcamp9th.bangflixbackend.domain.review.dto.UpdateReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
 import java.util.List;
 
@@ -16,8 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ReviewService {
 
     void createReview(CreateReviewDTO newReview, List<MultipartFile> images, Member member);
-
-    void updateReview(UpdateReviewDTO updateReview, String loginId);
 
     void deleteReview(ReviewCodeDTO reviewCodeDTO, String loginId);
 
