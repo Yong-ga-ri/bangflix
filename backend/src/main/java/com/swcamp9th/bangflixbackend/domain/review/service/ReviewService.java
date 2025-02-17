@@ -21,7 +21,7 @@ public interface ReviewService {
     List<ReviewDTO> findReviewsWithFilters(Integer themeCode, String filter, Pageable pageable);
     List<ReviewDTO> findReviewsWithFilters(Integer themeCode, String filter, Pageable pageable, int memberCode);
 
-    void likeReview(ReviewCodeDTO reviewCodeDTO, String loginId);
+    void likeReview(ReviewCodeDTO reviewCodeDTO, int memberCode);
 
     void deleteLikeReview(ReviewCodeDTO reviewCodeDTO, String loginId);
 

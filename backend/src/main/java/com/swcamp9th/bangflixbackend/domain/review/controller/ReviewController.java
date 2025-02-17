@@ -121,7 +121,8 @@ public class ReviewController {
             @RequestBody ReviewCodeDTO reviewCodeDTO,
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
-        reviewService.likeReview(reviewCodeDTO, loginId);
+        int memberCode = userService.findMemberCodeByLoginId(loginId);
+        reviewService.likeReview(reviewCodeDTO, memberCode);
         return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 좋아요 성공", null));
     }
 

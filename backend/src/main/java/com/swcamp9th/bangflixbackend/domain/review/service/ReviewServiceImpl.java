@@ -325,15 +325,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public void likeReview(ReviewCodeDTO reviewCodeDTO, String loginId) {
-        Member member = userRepository.findById(loginId).orElseThrow();
+    public void likeReview(ReviewCodeDTO reviewCodeDTO, int memberCode) {
         ReviewLike reviewLike = reviewLikeRepository.findByMemberCodeAndReviewCode(
-            member.getMemberCode(), reviewCodeDTO.getReviewCode()
-        );
+                memberCode,
+                reviewCodeDTO.getReviewCode());
 
         if (reviewLike == null) {
             ReviewLike newReviewLike = new ReviewLike();
-            newReviewLike.setMemberCode(member.getMemberCode());
+            newReviewLike.setMemberCode(memberCode);
             newReviewLike.setReviewCode(reviewCodeDTO.getReviewCode());
             newReviewLike.setCreatedAt(LocalDateTime.now());
             newReviewLike.setActive(true);
