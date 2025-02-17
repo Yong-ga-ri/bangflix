@@ -307,13 +307,11 @@ class ReviewServiceImplTests {
 
         // given
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
-        when(reviewLikeRepository.findByReviewCodeAndMemberCode(eq(review.getReviewCode()), eq(member.getMemberCode())))
-                .thenReturn(Optional.empty());
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(eq(member.getMemberCode())))
                 .thenReturn(Collections.emptyList());
 
         // when
-        ReviewDTO result = reviewService.getReviewDTO(review, member.getMemberCode());
+        ReviewDTO result = reviewService.getReviewDTO(review);
 
         // then
         assertThat(result.getReviewCode()).isEqualTo(review.getReviewCode());
