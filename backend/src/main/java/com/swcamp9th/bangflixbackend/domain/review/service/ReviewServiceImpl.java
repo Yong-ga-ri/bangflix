@@ -15,7 +15,7 @@ import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewTendencyGenreRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
-import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
+import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
 import com.swcamp9th.bangflixbackend.shared.exception.*;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ModelMapper modelMapper;
     private final ThemeRepository themeRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ReviewRepository reviewRepository;
     private final ReviewFileRepository reviewFileRepository;
     private final ReviewLikeRepository reviewLikeRepository;
@@ -51,7 +51,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewServiceImpl(
             ModelMapper modelMapper,
             ThemeRepository themeRepository,
-            UserRepository userRepository,
+            UserService userService,
             ReviewRepository reviewRepository,
             ReviewFileRepository reviewFileRepository,
             ReviewLikeRepository reviewLikeRepository,
@@ -59,7 +59,7 @@ public class ReviewServiceImpl implements ReviewService {
     ) {
         this.modelMapper = modelMapper;
         this.themeRepository = themeRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.reviewRepository = reviewRepository;
         this.reviewFileRepository = reviewFileRepository;
         this.reviewLikeRepository = reviewLikeRepository;
@@ -89,8 +89,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         // 멤버 포인트 올리기
-        member.setPoint(member.getPoint()+5);
-        userRepository.save(member);
+        userService.memberGetPoint(member, 5);
     }
 
     @Transactional

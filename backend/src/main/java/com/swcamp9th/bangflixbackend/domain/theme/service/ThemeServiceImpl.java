@@ -13,13 +13,11 @@ import com.swcamp9th.bangflixbackend.domain.theme.repository.GenreRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeReactionRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
-import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import com.swcamp9th.bangflixbackend.shared.exception.ReactionNotFoundException;
 import com.swcamp9th.bangflixbackend.shared.exception.ThemeNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ThemeServiceImpl implements ThemeService {
 
     private final ModelMapper modelMapper;
-    private final UserRepository userRepository;
     private final StoreRepository storeRepository;
 
     private final GenreRepository genreRepository;
@@ -45,14 +42,12 @@ public class ThemeServiceImpl implements ThemeService {
     @Autowired
     public ThemeServiceImpl(
             ModelMapper modelMapper,
-            UserRepository userRepository,
             StoreRepository storeRepository,
             GenreRepository genreRepository,
             ThemeRepository themeRepository,
             ThemeReactionRepository themeReactionRepository
     ) {
         this.modelMapper = modelMapper;
-        this.userRepository = userRepository;
         this.storeRepository = storeRepository;
         this.genreRepository = genreRepository;
         this.themeRepository = themeRepository;
@@ -337,10 +332,9 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public void deleteThemeReaction(String loginId, ThemeReactionDTO themeReactionDTO) {
-        Member member = userRepository.findById(loginId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+    public void deleteThemeReaction(int memberCode, ThemeReactionDTO themeReactionDTO) {
         ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(
-            themeReactionDTO.getThemeCode(), member.getMemberCode()).orElseThrow(() -> new ReactionNotFoundException("리액션이 존재하지 않습니다."));
+            themeReactionDTO.getThemeCode(), memberCode).orElseThrow(() -> new ReactionNotFoundException("리액션이 존재하지 않습니다."));
 
         ReactionType currentReaction = themeReaction.getReaction();
         String requestedReaction = themeReactionDTO.getReaction();
@@ -381,17 +375,16 @@ public class ThemeServiceImpl implements ThemeService {
     @Transactional
     public List<FindThemeByReactionDTO> findThemeByMemberReaction(
             Pageable pageable,
-            String loginId,
+            int memberCode,
             String reaction
     ) {
-        Member member = userRepository.findById(loginId).orElseThrow();
         List<ThemeReaction> themeReactions;
 
         if(reaction.equals("like"))
-            themeReactions = themeReactionRepository.findThemeByMemberLike(pageable, member.getMemberCode());
+            themeReactions = themeReactionRepository.findThemeByMemberLike(pageable, memberCode);
 
         else if(reaction.equals("scrap"))
-            themeReactions = themeReactionRepository.findThemeByMemberScrap(pageable, member.getMemberCode());
+            themeReactions = themeReactionRepository.findThemeByMemberScrap(pageable, memberCode);
 
         else
             throw new RuntimeException();

@@ -260,4 +260,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(loginId)
                 .orElseThrow(() -> new MemberNotFoundException("사용자를 찾을 수 없습니다."));
     }
+
+    @Override
+    public void memberGetPoint(Member member, int point) {
+        member.gainPoint(point);
+        userRepository.save(member);
+    }
 }
