@@ -5,7 +5,6 @@ import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewCodeDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewReportDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.StatisticsReviewDTO;
-import com.swcamp9th.bangflixbackend.domain.review.dto.UpdateReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewFile;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewLike;
@@ -112,49 +111,72 @@ public class ReviewServiceImpl implements ReviewService {
             Integer themeCode,
             String filter,
             Pageable pageable,
-            String loginId
+            int memberCode
     ) {
 
         // 테마 코드로 리뷰를 모두 조회
         List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(themeCode, pageable);
-        Member member = userRepository.findById(loginId).orElse(null);
 
-        // 필터가 있을 경우 해당 조건에 맞게 정렬
-        if (filter != null) {
-            switch (filter) {
-                case "highScore":
+        switch (filter) {
+            case "highScore":
 
-                    // 점수 높은 순 정렬
-                    reviews.sort(Comparator.comparing(Review::getTotalScore).reversed()
+                // 점수 높은 순 정렬
+                reviews.sort(Comparator.comparing(Review::getTotalScore).reversed()
                         .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
-                    break;
-                case "lowScore":
+                break;
+            case "lowScore":
 
-                    // 점수 낮은 순 정렬
-                    reviews.sort(Comparator.comparing(Review::getTotalScore)
+                // 점수 낮은 순 정렬
+                reviews.sort(Comparator.comparing(Review::getTotalScore)
                         .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
-                    break;
-                default:
+                break;
+            default:
 
-                    // 필터가 일치하지 않으면 최신순으로 정렬 (기본값)
-                    reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
-                    break;
-            }
-        } else {
-
-            // 필터가 없으면 최신순으로 정렬 (기본값)
-            reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
+                // 필터가 일치하지 않으면 최신순으로 정렬 (기본값)
+                reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
+                break;
         }
 
-        if(member != null)
-            return getReviewDTOS(reviews, member.getMemberCode());
-        else
-            return getReviewDTOS(reviews, null);
+        return getReviewDTOS(reviews, memberCode);
     }
 
     @Transactional
     @Override
-    public List<ReviewDTO> getReviewDTOS(List<Review> sublist, Integer memberCode) {
+    public List<ReviewDTO> findReviewsWithFilters(
+            Integer themeCode,
+            String filter,
+            Pageable pageable
+    ) {
+
+        // 테마 코드로 리뷰를 모두 조회
+        List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(themeCode, pageable);
+
+        switch (filter) {
+            case "highScore":
+
+                // 점수 높은 순 정렬
+                reviews.sort(Comparator.comparing(Review::getTotalScore).reversed()
+                        .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
+                break;
+            case "lowScore":
+
+                // 점수 낮은 순 정렬
+                reviews.sort(Comparator.comparing(Review::getTotalScore)
+                        .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
+                break;
+            default:
+
+                // 필터가 일치하지 않으면 최신순으로 정렬 (기본값)
+                reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
+                break;
+        }
+
+        return getReviewDTOS(reviews);
+    }
+
+    @Transactional
+    @Override
+    public List<ReviewDTO> getReviewDTOS(List<Review> sublist, int memberCode) {
         List<ReviewDTO> result = sublist.stream()
             .map(review -> {
                 ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
@@ -182,6 +204,36 @@ public class ReviewServiceImpl implements ReviewService {
 
                 return reviewDTO;
             }).toList();
+
+        return result;
+    }
+
+    @Transactional
+    @Override
+    public List<ReviewDTO> getReviewDTOS(List<Review> sublist) {
+        List<ReviewDTO> result = sublist.stream()
+                .map(review -> {
+                    ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
+
+                    // 이미지 경로 추가
+                    reviewDTO.setImagePaths(findImagePathsByReviewCode(review.getReviewCode()));
+                    reviewDTO.setLikes(findReviewLikesByReviewCode(review.getReviewCode()));
+                    reviewDTO.setMemberNickname(review.getMember().getNickname());
+                    reviewDTO.setReviewCode(review.getReviewCode());
+                    reviewDTO.setMemberCode(review.getMember().getMemberCode());
+                    reviewDTO.setMemberImage(review.getMember().getImage());
+                    List<String> genres = findMemberTendencyGenre(review.getMember().getMemberCode());
+                    reviewDTO.setThemeCode(review.getTheme().getThemeCode());
+                    reviewDTO.setThemeImage(review.getTheme().getPosterImage());
+                    reviewDTO.setThemeName(review.getTheme().getName());
+                    reviewDTO.setIsLike(false);
+
+
+                    if(!genres.isEmpty())
+                        reviewDTO.setGenres(genres);
+
+                    return reviewDTO;
+                }).toList();
 
         return result;
     }

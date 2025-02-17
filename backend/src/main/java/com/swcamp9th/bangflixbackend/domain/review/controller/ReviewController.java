@@ -91,9 +91,16 @@ public class ReviewController {
         @RequestParam(required = false) String filter,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
+        List<ReviewDTO> reviews;
+
+        if (loginId == null) {  // for guests
+            reviews = reviewService.findReviewsWithFilters(themeCode, filter, pageable);
+        } else {    // for members
+            int memberCode = userService.findMemberCodeByLoginId(loginId);
+            reviews = reviewService.findReviewsWithFilters(themeCode, filter, pageable, memberCode);
+        }
 
         // 서비스에서 필터를 사용해 조회
-        List<ReviewDTO> reviews = reviewService.findReviewsWithFilters(themeCode, filter, pageable, loginId);
         return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 조회 성공", reviews));
     }
 
