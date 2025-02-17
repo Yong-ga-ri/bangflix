@@ -64,7 +64,6 @@ public class ThemeServiceImpl implements ThemeService {
     public ThemeDTO findTheme(Integer themeCode) {
         Theme theme = themeRepository.findById(themeCode)
                 .orElseThrow(() -> new ThemeNotFoundException("존재하지 않는 테마입니다."));
-        log.debug("theme: {}", theme);
         return createThemeDTO(theme);
     }
 

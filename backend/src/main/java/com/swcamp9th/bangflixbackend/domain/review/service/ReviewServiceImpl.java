@@ -116,6 +116,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 테마 코드로 리뷰를 모두 조회
         List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(themeCode, pageable);
+        if (filter == null) filter = "";
 
         switch (filter) {
             case "highScore":
@@ -151,6 +152,8 @@ public class ReviewServiceImpl implements ReviewService {
         // 테마 코드로 리뷰를 모두 조회
         List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(themeCode, pageable);
 
+        if (filter == null) filter = "";
+
         switch (filter) {
             case "highScore":
 
@@ -166,7 +169,7 @@ public class ReviewServiceImpl implements ReviewService {
                 break;
             default:
 
-                // 필터가 일치하지 않으면 최신순으로 정렬 (기본값)
+                // 최신순으로 정렬 (기본값)
                 reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
                 break;
         }

@@ -18,8 +18,8 @@ public interface ReviewService {
 
     void deleteReview(ReviewCodeDTO reviewCodeDTO, int memberCode);
 
-    List<ReviewDTO> findReviewsWithFilters(Integer themeCode, String filter, Pageable pageable, int memberCode);
     List<ReviewDTO> findReviewsWithFilters(Integer themeCode, String filter, Pageable pageable);
+    List<ReviewDTO> findReviewsWithFilters(Integer themeCode, String filter, Pageable pageable, int memberCode);
 
     void likeReview(ReviewCodeDTO reviewCodeDTO, String loginId);
 

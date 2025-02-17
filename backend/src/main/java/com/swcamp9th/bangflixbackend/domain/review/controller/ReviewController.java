@@ -8,13 +8,11 @@ import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewCodeDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewReportDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.StatisticsReviewDTO;
-import com.swcamp9th.bangflixbackend.domain.review.dto.UpdateReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -84,12 +82,12 @@ public class ReviewController {
     */
     @GetMapping("/{themeCode}")
     @SecurityRequirement(name = "Authorization")
-    @Operation(summary = "테마 별 리뷰 검색 API. filter 값에는 highScore, lowScore를 넣어주시면 됩니다. 만약 filter 값을 첨부하지 않으면 최신순 정렬입니다")
+    @Operation(summary = "테마 별 리뷰 조회 API. filter 값에는 highScore, lowScore를 넣어주시면 됩니다. 만약 filter 값을 첨부하지 않으면 최신순 정렬입니다")
     public ResponseEntity<ResponseMessage<List<ReviewDTO>>> findReviewList(
         @PathVariable("themeCode") Integer themeCode,
         @PageableDefault(size = 10, page = 0) Pageable pageable,
         @RequestParam(required = false) String filter,
-        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
+        @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
         List<ReviewDTO> reviews;
 
