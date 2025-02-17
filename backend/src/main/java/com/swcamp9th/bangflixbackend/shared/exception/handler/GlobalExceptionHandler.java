@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
         DuplicateException.class,
         InvalidEmailCodeException.class,
         LoginException.class,
+        MemberNotFoundException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
