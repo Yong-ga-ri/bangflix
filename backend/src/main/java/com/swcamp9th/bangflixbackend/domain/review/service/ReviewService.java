@@ -12,6 +12,12 @@ import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+
+/**
+ * 리뷰 관련 비즈니스 로직을 처리하는 서비스 인터페이스입니다.
+ * 게스트와 회원용 리뷰 조회, 리뷰 생성 및 삭제, 리뷰 좋아요 등 다양한 기능을 제공합니다.
+ * 게스트용 메서드는 로그인한 회원의 memberCode를 전달하지 않으며, 회원용 메서드는 memberCode를 전달합니다.
+ */
 public interface ReviewService {
 
     /**
