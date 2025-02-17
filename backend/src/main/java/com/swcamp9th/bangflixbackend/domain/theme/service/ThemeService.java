@@ -20,7 +20,8 @@ public interface ThemeService {
     ThemeDTO findTheme(Integer themeCode, int memberCode);
     ThemeDTO findTheme(Integer themeCode);
 
-    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content, String loginId);
+    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content, int memberCode);
+    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content);
 
     List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String filter, Integer storeCode, String loginId);
 

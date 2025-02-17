@@ -50,8 +50,7 @@ public class ThemeController {
     ) {
         ThemeDTO themeDTO;
 
-        // 게스트용
-        if (loginId == null) {
+        if (loginId == null) {  // 게스트용
             themeDTO = themeService.findTheme(themeCode);
         } else {    // 회원용
             int memberCode = userService.findMemberCodeByLoginId(loginId);
@@ -80,10 +79,15 @@ public class ThemeController {
         @RequestParam(required = false) String content,
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
-        List<ThemeDTO> themes = themeService.findThemeByGenresAndSearchOrderBySort(
-                pageable, filter, genres, content, loginId
-        );
-        return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themes));
+        List<ThemeDTO> themeDTOList;
+
+        if (loginId == null) {  // 게스트용
+            themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content);
+        } else {    // 회원용
+            int memberCode = userService.findMemberCodeByLoginId(loginId);
+            themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content, memberCode);
+        }
+        return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themeDTOList));
     }
 
     @GetMapping("/store/{storeCode}")
