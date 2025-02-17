@@ -16,6 +16,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
+import com.swcamp9th.bangflixbackend.shared.exception.ReactionNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -98,7 +100,7 @@ class ThemeServiceImplTests {
         when(themeRepository.countLikesByThemeCode(themeCode)).thenReturn(10);
         when(themeRepository.countScrapsByThemeCode(themeCode)).thenReturn(5);
         when(themeRepository.countReviewsByThemeCode(themeCode)).thenReturn(3);
-        when(themeReactionRepository.findByIds(themeCode, member.getMemberCode())).thenReturn(Optional.empty());
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(themeCode, member.getMemberCode())).thenReturn(Optional.empty());
 
         // Act
         ThemeDTO result = themeService.findTheme(themeCode, loginId);
@@ -219,7 +221,7 @@ class ThemeServiceImplTests {
         when(themeRepository.countLikesByThemeCode(2)).thenReturn(10);
         when(themeRepository.countScrapsByThemeCode(2)).thenReturn(2);
         when(themeRepository.countReviewsByThemeCode(2)).thenReturn(1);
-        when(themeReactionRepository.findByIds(anyInt(), eq(member.getMemberCode()))).thenReturn(Optional.empty());
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(anyInt(), eq(member.getMemberCode()))).thenReturn(Optional.empty());
 
         // Act
         List<ThemeDTO> result = themeService.findThemeByGenresAndSearchOrderBySort(
@@ -271,7 +273,7 @@ class ThemeServiceImplTests {
         when(themeRepository.countLikesByThemeCode(20)).thenReturn(15);
         when(themeRepository.countScrapsByThemeCode(20)).thenReturn(3);
         when(themeRepository.countReviewsByThemeCode(20)).thenReturn(12);
-        when(themeReactionRepository.findByIds(anyInt(), eq(member.getMemberCode()))).thenReturn(Optional.empty());
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(anyInt(), eq(member.getMemberCode()))).thenReturn(Optional.empty());
 
         // Act
         List<ThemeDTO> result = themeService.findThemeByStoreOrderBySort(
@@ -299,7 +301,7 @@ class ThemeServiceImplTests {
         theme.setThemeCode(100);
         when(themeRepository.findById(100)).thenReturn(Optional.of(theme));
 
-        when(themeReactionRepository.findByIds(100, member.getMemberCode())).thenReturn(Optional.empty());
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(100, member.getMemberCode())).thenReturn(Optional.empty());
 
         // Act
         themeService.createThemeReaction(userId, reactionDTO);
@@ -331,7 +333,7 @@ class ThemeServiceImplTests {
 
         ThemeReaction existingReaction = new ThemeReaction();
         existingReaction.setReaction(ReactionType.SCRAP);
-        when(themeReactionRepository.findByIds(200, member.getMemberCode())).thenReturn(Optional.of(existingReaction));
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(200, member.getMemberCode())).thenReturn(Optional.of(existingReaction));
 
         // Act
         themeService.createThemeReaction(userId, reactionDTO);
@@ -359,7 +361,7 @@ class ThemeServiceImplTests {
 
         ThemeReaction existingReaction = new ThemeReaction();
         existingReaction.setReaction(ReactionType.LIKE);
-        when(themeReactionRepository.findByIds(300, member.getMemberCode())).thenReturn(Optional.of(existingReaction));
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(300, member.getMemberCode())).thenReturn(Optional.of(existingReaction));
 
         // Act
         themeService.createThemeReaction(userId, reactionDTO);
@@ -382,7 +384,7 @@ class ThemeServiceImplTests {
 
         ThemeReaction existingReaction = new ThemeReaction();
         existingReaction.setReaction(ReactionType.LIKE);
-        when(themeReactionRepository.findByIds(400, member.getMemberCode())).thenReturn(Optional.of(existingReaction));
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(400, member.getMemberCode())).thenReturn(Optional.of(existingReaction));
 
         // Act
         themeService.deleteThemeReaction(loginId, reactionDTO);
@@ -405,7 +407,7 @@ class ThemeServiceImplTests {
 
         ThemeReaction existingReaction = new ThemeReaction();
         existingReaction.setReaction(ReactionType.SCRAPLIKE);
-        when(themeReactionRepository.findByIds(500, member.getMemberCode())).thenReturn(Optional.of(existingReaction));
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(500, member.getMemberCode())).thenReturn(Optional.of(existingReaction));
 
         // Act
         themeService.deleteThemeReaction(loginId, reactionDTO);
@@ -429,7 +431,7 @@ class ThemeServiceImplTests {
 
         ThemeReaction existingReaction = new ThemeReaction();
         existingReaction.setReaction(ReactionType.SCRAP);
-        when(themeReactionRepository.findByIds(600, member.getMemberCode())).thenReturn(Optional.of(existingReaction));
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(600, member.getMemberCode())).thenReturn(Optional.of(existingReaction));
 
         // Act
         themeService.deleteThemeReaction(loginId, reactionDTO);
@@ -450,10 +452,11 @@ class ThemeServiceImplTests {
         member.setMemberCode(13);
         when(userRepository.findById(loginId)).thenReturn(Optional.of(member));
 
-        when(themeReactionRepository.findByIds(700, member.getMemberCode())).thenReturn(Optional.empty());
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(700, member.getMemberCode()))
+                .thenReturn(Optional.empty());
 
         // Act
-        themeService.deleteThemeReaction(loginId, reactionDTO);
+        assertThrows(ReactionNotFoundException.class, () -> themeService.deleteThemeReaction(loginId, reactionDTO));
 
         // Assert: delete나 save 호출 없이 아무 동작 없음.
         verify(themeReactionRepository, never()).delete(any());
@@ -543,7 +546,7 @@ class ThemeServiceImplTests {
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
         when(themeRepository.countReviewsByThemeCode(theme.getThemeCode())).thenReturn(1);
-        when(themeReactionRepository.findByIds(theme.getThemeCode(), member.getMemberCode())).thenReturn(Optional.empty());
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), member.getMemberCode())).thenReturn(Optional.empty());
 
         // Act
         List<ThemeDTO> result = themeService.findThemeByWeek(loginId);
@@ -646,8 +649,10 @@ class ThemeServiceImplTests {
         ThemeReaction reaction2 = new ThemeReaction();
         reaction2.setThemeCode(2000);
         List<ThemeReaction> reactions = List.of(reaction1, reaction2);
-        when(themeReactionRepository.findThemeByMemberCode(member.getMemberCode()))
-                .thenReturn(reactions);
+        when(themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(
+                member.getMemberCode(),
+                List.of(ReactionType.SCRAP, ReactionType.SCRAPLIKE)
+        )).thenReturn(reactions);
 
         Theme theme1 = new Theme();
         theme1.setThemeCode(1000);
@@ -673,7 +678,7 @@ class ThemeServiceImplTests {
         when(themeRepository.countLikesByThemeCode(2000)).thenReturn(6);
         when(themeRepository.countScrapsByThemeCode(2000)).thenReturn(3);
         when(themeRepository.countReviewsByThemeCode(2000)).thenReturn(1);
-        when(themeReactionRepository.findByIds(anyInt(), eq(member.getMemberCode()))).thenReturn(Optional.empty());
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(anyInt(), eq(member.getMemberCode()))).thenReturn(Optional.empty());
 
         // Act
         List<ThemeDTO> result = themeService.getScrapedTheme(loginId);

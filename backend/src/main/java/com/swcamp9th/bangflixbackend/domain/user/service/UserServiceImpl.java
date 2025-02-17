@@ -246,4 +246,8 @@ public class UserServiceImpl implements UserService {
                 user.getImage()
         );
     }
+
+    public int findMemberCodeByLoginId(String loginId) {
+        return userRepository.findMemberCodeByLoginId(loginId);
+    }
 }

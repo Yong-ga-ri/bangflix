@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import com.swcamp9th.bangflixbackend.shared.exception.ReactionNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -202,9 +203,8 @@ public class ThemeServiceImpl implements ThemeService {
     ) {
         Member member = userRepository.findById(userId).orElseThrow();
         Theme theme = themeRepository.findById(themeReactionDTO.getThemeCode()).orElseThrow();
-        ThemeReaction themeReaction = themeReactionRepository.findByIds(
+        ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(
             themeReactionDTO.getThemeCode(), member.getMemberCode()).orElse(null);
-
         if(themeReaction == null){
             themeReaction = new ThemeReaction();
             themeReaction.setMember(member);
@@ -243,30 +243,42 @@ public class ThemeServiceImpl implements ThemeService {
     @Override
     @Transactional
     public void deleteThemeReaction(String loginId, ThemeReactionDTO themeReactionDTO) {
-        Member member = userRepository.findById(loginId).orElseThrow();
-        ThemeReaction themeReaction = themeReactionRepository.findByIds(
-            themeReactionDTO.getThemeCode(), member.getMemberCode()).orElse(null);
+        Member member = userRepository.findById(loginId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(
+            themeReactionDTO.getThemeCode(), member.getMemberCode()).orElseThrow(() -> new ReactionNotFoundException("리액션이 존재하지 않습니다."));
 
-        if(themeReaction != null) {
-            if (themeReactionDTO.getReaction().equals("like")) {
-                if (themeReaction.getReaction().equals(ReactionType.LIKE))
-                    themeReactionRepository.delete(themeReaction);
-                else if (themeReaction.getReaction().equals(ReactionType.SCRAP))
-                    return;
-                else if (themeReaction.getReaction().equals(ReactionType.SCRAPLIKE)){
-                    themeReaction.setReaction(ReactionType.SCRAP);
-                    themeReactionRepository.save(themeReaction);
-                }
-            } else if (themeReactionDTO.getReaction().equals("scrap")) {
-                if (themeReaction.getReaction().equals(ReactionType.LIKE))
-                    return;
-                else if (themeReaction.getReaction().equals(ReactionType.SCRAP))
-                    themeReactionRepository.delete(themeReaction);
-                else if (themeReaction.getReaction().equals(ReactionType.SCRAPLIKE)){
-                    themeReaction.setReaction(ReactionType.LIKE);
-                    themeReactionRepository.save(themeReaction);
-                }
+        ReactionType currentReaction = themeReaction.getReaction();
+        String requestedReaction = themeReactionDTO.getReaction();
+
+        // 요청이 'like'인 경우
+        if ("like".equals(requestedReaction)) {
+            if (currentReaction == ReactionType.LIKE) {
+
+                // 이미 좋아요 상태이면 삭제
+                themeReactionRepository.delete(themeReaction);
+            } else if (currentReaction == ReactionType.SCRAPLIKE) {
+
+                // 스크랩+좋아요인 경우 좋아요만 취소 -> 스크랩 상태로 변경
+                themeReaction.setReaction(ReactionType.SCRAP);
+                themeReactionRepository.save(themeReaction);
             }
+        }
+        // 요청이 'scrap'인 경우
+        else if ("scrap".equals(requestedReaction)) {
+            if (currentReaction == ReactionType.SCRAP) {
+
+                // 이미 스크랩 상태이면 삭제
+                themeReactionRepository.delete(themeReaction);
+            } else if (currentReaction == ReactionType.SCRAPLIKE) {
+
+                // 스크랩+좋아요인 경우 스크랩만 취소 -> 좋아요 상태로 변경
+                themeReaction.setReaction(ReactionType.LIKE);
+                themeReactionRepository.save(themeReaction);
+            }
+        } else {
+
+            // 예상치 못한 반응 타입이 들어온 경우 (필요 시 예외 처리)
+            throw new IllegalArgumentException("잘못된 반응 타입: " + requestedReaction);
         }
     }
 
@@ -373,7 +385,8 @@ public class ThemeServiceImpl implements ThemeService {
         Integer memberCode = userRepository.findById(loginId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."))
                 .getMemberCode();
-        List<ThemeReaction> themeReactions = themeReactionRepository.findThemeByMemberCode(memberCode);
+        List<ThemeReaction> themeReactions =
+                themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(memberCode, List.of(ReactionType.SCRAP, ReactionType.SCRAPLIKE));
 
         List<Theme> themes = themeRepository.findByThemeCodes(themeReactions.stream()
                 .map(ThemeReaction::getThemeCode)
@@ -387,8 +400,6 @@ public class ThemeServiceImpl implements ThemeService {
 
     }
 
-
-
     private ThemeDTO createThemeDTO(Theme theme, Integer memberCode) {
         ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
         themeDto.setStoreCode(theme.getStore().getStoreCode());
@@ -398,7 +409,7 @@ public class ThemeServiceImpl implements ThemeService {
         themeDto.setStoreName(theme.getStore().getName());
 
         if(memberCode != null){
-            ThemeReaction themeReaction = themeReactionRepository.findByIds(theme.getThemeCode(), memberCode)
+            ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
                     .orElse(null);
 
             if(themeReaction != null){
@@ -430,7 +441,7 @@ public class ThemeServiceImpl implements ThemeService {
             themeDto.setStoreName(theme.getStore().getName());
 
             if(memberCode != null){
-                ThemeReaction themeReaction = themeReactionRepository.findByIds(theme.getThemeCode(), memberCode)
+                ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode)
                         .orElse(null);
 
                 if(themeReaction != null){
