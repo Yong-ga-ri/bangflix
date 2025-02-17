@@ -1,5 +1,7 @@
 package com.swcamp9th.bangflixbackend.domain.review.controller;
 
+import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
+import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.review.dto.CreateReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewCodeDTO;
@@ -39,12 +41,13 @@ import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final UserService userService;
 
     @Autowired
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, UserService userService) {
         this.reviewService = reviewService;
+        this.userService = userService;
     }
-
 
     @PostMapping
     @SecurityRequirement(name = "Authorization")
@@ -54,7 +57,8 @@ public class ReviewController {
         @RequestPart(value = "images", required = false) List<MultipartFile> images,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) throws IOException, URISyntaxException {
-        reviewService.createReview(newReview, images, loginId);
+        Member member = userService.findMemberByLoginId(loginId);
+        reviewService.createReview(newReview, images, member);
         return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 작성 성공", null));
     }
 

@@ -10,12 +10,14 @@ import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+
+import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ReviewService {
 
-    void createReview(CreateReviewDTO newReview, List<MultipartFile> images, String loginId)
+    void createReview(CreateReviewDTO newReview, List<MultipartFile> images, Member member)
         throws IOException, URISyntaxException;
 
     void updateReview(UpdateReviewDTO updateReview, String loginId);

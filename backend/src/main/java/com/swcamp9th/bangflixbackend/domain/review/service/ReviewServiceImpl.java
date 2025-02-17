@@ -18,6 +18,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
 import com.swcamp9th.bangflixbackend.shared.exception.AlreadyLikedException;
+import com.swcamp9th.bangflixbackend.shared.exception.FileUploadException;
 import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
 import com.swcamp9th.bangflixbackend.shared.exception.LikeNotFoundException;
 import java.io.IOException;
@@ -73,13 +74,12 @@ public class ReviewServiceImpl implements ReviewService {
     public void createReview(
             CreateReviewDTO newReview,
             List<MultipartFile> images,
-            String loginId
+            Member member
     ) {
 
         // 리뷰 저장
         Review review = modelMapper.map(newReview, Review.class);
         Theme theme = themeRepository.findById(newReview.getThemeCode()).orElse(null);
-        Member member = userRepository.findById(loginId).orElse(null);
         review.setTheme(theme);
         review.setMember(member);
         review.setActive(true);
@@ -88,17 +88,12 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 리뷰 파일 저장
         if(images != null) {
-            try {
-                saveReviewFile(images, insertReview);
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e);
-            }
+            saveReviewFile(images, insertReview);
         }
 
         // 멤버 포인트 올리기
         member.setPoint(member.getPoint()+5);
         userRepository.save(member);
-
     }
 
     @Transactional
@@ -378,26 +373,28 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    private void saveReviewFile(List<MultipartFile> images, Review review) throws IOException {
+    private void saveReviewFile(List<MultipartFile> images, Review review) {
         String uploadsDir = "src/main/resources/static/uploadFiles/reviewFile";
 
-        for(MultipartFile file : images) {
-            String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + file.getOriginalFilename();
-            // 실제 파일이 저장될 경로
-            String filePath = uploadsDir + "/" + fileName;
-            // DB에 저장할 경로 문자열
-            String dbFilePath = "/uploadFiles/reviewFile/" + fileName;
+        try {
+            for(MultipartFile file : images) {
+                String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + file.getOriginalFilename();
+                String filePath = uploadsDir + "/" + fileName;
+                String dbFilePath = "/uploadFiles/reviewFile/" + fileName;
 
-            Path path = Paths.get(filePath); // Path 객체 생성
-            Files.createDirectories(path.getParent()); // 디렉토리 생성
-            Files.write(path, file.getBytes()); // 디렉토리에 파일 저장
+                Path path = Paths.get(filePath);
+                Files.createDirectories(path.getParent());
+                Files.write(path, file.getBytes());
 
-            reviewFileRepository.save(ReviewFile.builder()
-                .review(review)
-                .active(true)
-                .createdAt(LocalDateTime.now())
-                .url(dbFilePath)
-                .build());
+                reviewFileRepository.save(ReviewFile.builder()
+                        .review(review)
+                        .active(true)
+                        .createdAt(LocalDateTime.now())
+                        .url(dbFilePath)
+                        .build());
+            }
+        } catch (IOException e) {
+            throw new FileUploadException("파일 업로드에 실패했습니다.");
         }
     }
 
