@@ -245,7 +245,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public ReviewDTO getReviewDTO(Review review, Integer memberCode) {
+    public ReviewDTO getReviewDTO(Review review) {
 
         ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
 
@@ -260,13 +260,6 @@ public class ReviewServiceImpl implements ReviewService {
         reviewDTO.setThemeCode(review.getTheme().getThemeCode());
         reviewDTO.setThemeImage(review.getTheme().getPosterImage());
         reviewDTO.setThemeName(review.getTheme().getName());
-
-        ReviewLike reviewLike = reviewLikeRepository.findByReviewCodeAndMemberCode(review.getReviewCode(), memberCode).orElse(null);
-
-        if (reviewLike != null)
-            reviewDTO.setIsLike(true);
-        else
-            reviewDTO.setIsLike(false);
 
         if(!genres.isEmpty())
             reviewDTO.setGenres(genres);
