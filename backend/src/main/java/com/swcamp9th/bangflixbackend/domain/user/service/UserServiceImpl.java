@@ -6,6 +6,7 @@ import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
 import com.swcamp9th.bangflixbackend.shared.exception.DuplicateException;
 import com.swcamp9th.bangflixbackend.shared.exception.ExpiredTokenExcepiton;
 import com.swcamp9th.bangflixbackend.security.service.RedisService;
+import com.swcamp9th.bangflixbackend.shared.exception.MemberNotFoundException;
 import com.swcamp9th.bangflixbackend.shared.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -247,7 +248,9 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+    @Override
     public int findMemberCodeByLoginId(String loginId) {
-        return userRepository.findMemberCodeByLoginId(loginId);
+        return userRepository.findMemberCodeByLoginId(loginId)
+                .orElseThrow(() -> new MemberNotFoundException("사용자를 찾을 수 없습니다."));
     }
 }
