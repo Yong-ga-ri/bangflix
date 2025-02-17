@@ -44,12 +44,11 @@ public class StoreController {
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "특정 업체에서 가장 좋아요 수가 많은 리뷰를 반환하는 API.")
     public ResponseEntity<ResponseMessage<ReviewDTO>> findBestReviewByStore(
-        @PathVariable("storeCode") Integer storeCode,
-        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
+        @PathVariable("storeCode") Integer storeCode
     ) {
 
         // 서비스에서 필터를 사용해 조회
-        ReviewDTO storeBestReview  = storeService.findBestReviewByStore(storeCode, loginId);
+        ReviewDTO storeBestReview  = storeService.findBestReviewByStore(storeCode);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, storeCode + "번 업체 베스트 리뷰 조회 성공", storeBestReview));
     }

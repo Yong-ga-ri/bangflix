@@ -72,13 +72,11 @@ public interface ReviewService {
 
     /**
      * 단일 Review 엔티티를 회원용 ReviewDTO로 변환합니다.
-     * 회원 정보를 기반으로 추가 데이터를 포함시킬 수 있습니다.
      *
      * @param review 변환할 Review 엔티티
-     * @param memberCode 로그인한 회원의 고유 코드
      * @return 변환된 ReviewDTO
      */
-    ReviewDTO getReviewDTO(Review review, Integer memberCode);
+    ReviewDTO getReviewDTO(Review review);
 
     /**
      * 로그인한 회원의 리뷰 리포트 데이터를 조회합니다.
