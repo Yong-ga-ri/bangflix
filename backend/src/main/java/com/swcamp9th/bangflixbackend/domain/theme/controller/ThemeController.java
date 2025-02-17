@@ -50,9 +50,9 @@ public class ThemeController {
     ) {
         ThemeDTO themeDTO;
 
-        if (loginId == null) {  // 게스트용
+        if (loginId == null) {  // for guests
             themeDTO = themeService.findTheme(themeCode);
-        } else {    // 회원용
+        } else {    // for members
             int memberCode = userService.findMemberCodeByLoginId(loginId);
             themeDTO = themeService.findTheme(themeCode, memberCode);
         }
@@ -81,9 +81,9 @@ public class ThemeController {
     ) {
         List<ThemeDTO> themeDTOList;
 
-        if (loginId == null) {  // 게스트용
+        if (loginId == null) {  // for guests
             themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content);
-        } else {    // 회원용
+        } else {    // for members
             int memberCode = userService.findMemberCodeByLoginId(loginId);
             themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content, memberCode);
         }
@@ -93,15 +93,22 @@ public class ThemeController {
     @GetMapping("/store/{storeCode}")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "업체 별 테마 조회 API. filter 값 : (like, scrap, review, 값이 없다면 최신 순) ")
-    public ResponseEntity<ResponseMessage<List<ThemeDTO>>> findThemeByStoreOrderBySort(
+    public ResponseEntity<ResponseMessage<List<ThemeDTO>>> findThemeByStore(
         @PathVariable("storeCode") Integer storeCode,
         @PageableDefault(size = 10) Pageable pageable,
         @RequestParam(required = false) String filter,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
-        List<ThemeDTO> themes = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode,loginId);
+        List<ThemeDTO> themeDTOList;
 
-        return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themes));
+        if (loginId == null) {  // for guests
+            themeDTOList = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode);
+        } else {    // for members
+            int memberCode = userService.findMemberCodeByLoginId(loginId);
+            themeDTOList = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode, memberCode);
+        }
+
+        return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themeDTOList));
     }
 
     @PostMapping("/reaction")

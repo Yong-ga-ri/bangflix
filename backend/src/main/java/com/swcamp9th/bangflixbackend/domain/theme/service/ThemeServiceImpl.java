@@ -213,35 +213,78 @@ public class ThemeServiceImpl implements ThemeService {
             Pageable pageable,
             String filter,
             Integer storeCode,
-            String loginId
+            int memberCode
     ) {
         List<Theme> themes = themeRepository.findByStoreCode(storeCode);
-        Member member = userRepository.findById(loginId).orElseThrow();
         List<ThemeDTO> themesDTO = new ArrayList<>();
 
         for(Theme theme : themes)
-            themesDTO.add(createThemeDTO(theme, member.getMemberCode()));
+            themesDTO.add(createThemeDTO(theme, memberCode));
 
         if (filter != null) {
             switch (filter) {
                 case "like":
                     themesDTO.sort(Comparator.comparing(ThemeDTO::getLikeCount).reversed()
-                        .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
                     break;
 
                 case "scrap":
                     themesDTO.sort(Comparator.comparing(ThemeDTO::getScrapCount).reversed()
-                        .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
                     break;
 
                 case "review":
                     themesDTO.sort(Comparator.comparing(ThemeDTO::getReviewCount).reversed()
-                        .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
                     break;
 
                 default:
                     themesDTO.sort(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()
-                        .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+            }
+        } else
+            themesDTO.sort(Comparator.comparing(ThemeDTO::getCreatedAt).reversed());
+
+
+        int startIndex = pageable.getPageNumber() * pageable.getPageSize();
+        int lastIndex = Math.min((startIndex + pageable.getPageSize()), themes.size());
+        return themesDTO.subList(startIndex, lastIndex);
+    }
+
+    @Override
+    @Transactional
+    public List<ThemeDTO> findThemeByStoreOrderBySort(
+            Pageable pageable,
+            String filter,
+            Integer storeCode
+    ) {
+        List<Theme> themes = themeRepository.findByStoreCode(storeCode);
+        List<ThemeDTO> themesDTO = new ArrayList<>();
+
+        for(Theme theme : themes)
+            themesDTO.add(createThemeDTO(theme));
+
+        if (filter != null) {
+            switch (filter) {
+                case "like":
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getLikeCount).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+
+                case "scrap":
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getScrapCount).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+
+                case "review":
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getReviewCount).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
+                    break;
+
+                default:
+                    themesDTO.sort(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()
+                            .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));
                     break;
             }
         } else
