@@ -250,7 +250,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int findMemberCodeByLoginId(String loginId) {
-        return userRepository.findMemberCodeByLoginId(loginId)
-                .orElseThrow(() -> new MemberNotFoundException("사용자를 찾을 수 없습니다."));
+        return userRepository.findById(loginId)
+                .orElseThrow(() -> new MemberNotFoundException("사용자를 찾을 수 없습니다."))
+                .getMemberCode();
     }
 }
