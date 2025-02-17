@@ -184,7 +184,7 @@ public class ThemeController {
         return ResponseEntity.ok(new ResponseMessage<>(200, "추천 테마 조회 성공", themes));
     }
 
-    @GetMapping("scraped")
+    @GetMapping("/scraped")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "사용자가 스크랩한 테마 목록")
     public ResponseEntity<ResponseMessage<List<ThemeDTO>>> scrapTheme(

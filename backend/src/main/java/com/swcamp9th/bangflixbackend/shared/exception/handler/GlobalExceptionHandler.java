@@ -23,7 +23,9 @@ public class GlobalExceptionHandler {
             InvalidEmailCodeException.class,
             LoginException.class,
             MemberNotFoundException.class,
-            ThemeNotFoundException.class
+            ThemeNotFoundException.class,
+            FileUploadException.class,
+            ReviewNotFoundException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

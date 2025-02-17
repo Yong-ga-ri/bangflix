@@ -23,7 +23,7 @@ public class HealthCheck {
     public String getServerPort() {
         // 'server.port' 값을 통해 실행 중인 포트 확인
         String port = environment.getProperty("local.server.port");
-        log.debug("server port: {}!", port);
+        log.info("server port: {}!", port);
         return "Spring Boot server is running on port: " + port;
     }
 }
