@@ -23,9 +23,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,7 +208,7 @@ public class ReviewServiceImpl implements ReviewService {
                     reviewDTO.setGenres(genres);
 
                 return reviewDTO;
-            }).toList();
+            }).collect(Collectors.toCollection(ArrayList::new));
 
         return result;
     }
@@ -235,7 +238,7 @@ public class ReviewServiceImpl implements ReviewService {
                         reviewDTO.setGenres(genres);
 
                     return reviewDTO;
-                }).toList();
+                }).collect(Collectors.toCollection(ArrayList::new));
 
         return result;
     }
@@ -378,7 +381,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     public List<String> findImagePathsByReviewCode(Integer reviewCode) {
         return reviewFileRepository.findByReview_ReviewCode(reviewCode)
-            .stream().map(ReviewFile::getUrl).toList();
+            .stream().map(ReviewFile::getUrl).collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Integer findReviewLikesByReviewCode(Integer reviewCode) {
@@ -388,6 +391,6 @@ public class ReviewServiceImpl implements ReviewService {
     private List<String> findMemberTendencyGenre(Integer memberCode) {
         return reviewTendencyGenreRepository
             .findMemberGenreByMemberCode(memberCode).stream()
-            .map(reviewTendencyGenre -> reviewTendencyGenre.getGenre().getName()).toList();
+            .map(reviewTendencyGenre -> reviewTendencyGenre.getGenre().getName()).collect(Collectors.toCollection(ArrayList::new));
     }
 }
