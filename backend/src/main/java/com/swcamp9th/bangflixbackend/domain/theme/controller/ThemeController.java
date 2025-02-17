@@ -152,7 +152,7 @@ public class ThemeController {
         @PathVariable("storeCode") Integer storeCode,
         @PageableDefault(size = 10) Pageable pageable,
         @RequestParam(required = false) String filter,
-        @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
+        @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
         List<ThemeDTO> themeDTOList;
 
