@@ -15,7 +15,7 @@ public interface ThemeService {
 
     void deleteThemeReaction(String loginId, ThemeReactionDTO themeReactionDTO);
 
-    List<ThemeDTO> getScrapedTheme(String loginId);
+    List<ThemeDTO> getScrapedThemeByMemberCode(int memberCode);
 
     List<ThemeDTO> recommendTheme(List<Integer> themeCodes);
 

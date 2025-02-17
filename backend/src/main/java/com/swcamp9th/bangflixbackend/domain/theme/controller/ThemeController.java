@@ -190,8 +190,15 @@ public class ThemeController {
     public ResponseEntity<ResponseMessage<List<ThemeDTO>>> scrapTheme(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
-        List<ThemeDTO> themeDTOs = themeService.getScrapedTheme(loginId);
+        List<ThemeDTO> themeDTOList = themeService.getScrapedThemeByMemberCode(
+                userService.findMemberCodeByLoginId(loginId)
+        );
 
-        return ResponseEntity.ok(new ResponseMessage<>(200, "사용자 스크랩 테마 목록 조회 성공", themeDTOs));
+        return ResponseEntity.ok(
+                new ResponseMessage<>(
+                        200,
+                        "사용자 스크랩 테마 목록 조회 성공",
+                        themeDTOList
+                        ));
     }
 }
