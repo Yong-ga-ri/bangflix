@@ -349,10 +349,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public void deleteLikeReview(ReviewCodeDTO reviewCodeDTO, String loginId) {
-        Member member = userRepository.findById(loginId).orElseThrow();
+    public void deleteLikeReview(ReviewCodeDTO reviewCodeDTO, int memberCode) {
         ReviewLike reviewLike = reviewLikeRepository.findByMemberCodeAndReviewCode(
-            member.getMemberCode(), reviewCodeDTO.getReviewCode()
+                memberCode, reviewCodeDTO.getReviewCode()
         );
 
         if (reviewLike == null) {

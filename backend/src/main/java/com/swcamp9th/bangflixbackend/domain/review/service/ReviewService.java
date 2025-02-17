@@ -23,7 +23,7 @@ public interface ReviewService {
 
     void likeReview(ReviewCodeDTO reviewCodeDTO, int memberCode);
 
-    void deleteLikeReview(ReviewCodeDTO reviewCodeDTO, String loginId);
+    void deleteLikeReview(ReviewCodeDTO reviewCodeDTO, int memberCode);
 
     StatisticsReviewDTO findReviewStatistics(Integer themeCode);
 
