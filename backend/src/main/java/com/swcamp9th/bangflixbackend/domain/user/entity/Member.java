@@ -63,4 +63,8 @@ public class Member {
     public MemberRoleEnum getRole() {
         return isAdmin ? MemberRoleEnum.ADMIN : MemberRoleEnum.USER;
     }
+
+    public void gainPoint(int point) {
+        this.point += point;
+    }
 }

@@ -5,7 +5,6 @@ import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewCodeDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewReportDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.StatisticsReviewDTO;
-import com.swcamp9th.bangflixbackend.domain.review.dto.UpdateReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewFile;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewLike;
@@ -16,18 +15,20 @@ import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewTendencyGenreRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
-import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.exception.AlreadyLikedException;
-import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
-import com.swcamp9th.bangflixbackend.shared.exception.LikeNotFoundException;
+import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
+import com.swcamp9th.bangflixbackend.shared.exception.*;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ModelMapper modelMapper;
     private final ThemeRepository themeRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ReviewRepository reviewRepository;
     private final ReviewFileRepository reviewFileRepository;
     private final ReviewLikeRepository reviewLikeRepository;
@@ -53,7 +54,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewServiceImpl(
             ModelMapper modelMapper,
             ThemeRepository themeRepository,
-            UserRepository userRepository,
+            UserService userService,
             ReviewRepository reviewRepository,
             ReviewFileRepository reviewFileRepository,
             ReviewLikeRepository reviewLikeRepository,
@@ -61,7 +62,7 @@ public class ReviewServiceImpl implements ReviewService {
     ) {
         this.modelMapper = modelMapper;
         this.themeRepository = themeRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.reviewRepository = reviewRepository;
         this.reviewFileRepository = reviewFileRepository;
         this.reviewLikeRepository = reviewLikeRepository;
@@ -73,13 +74,12 @@ public class ReviewServiceImpl implements ReviewService {
     public void createReview(
             CreateReviewDTO newReview,
             List<MultipartFile> images,
-            String loginId
+            Member member
     ) {
 
         // 리뷰 저장
         Review review = modelMapper.map(newReview, Review.class);
         Theme theme = themeRepository.findById(newReview.getThemeCode()).orElse(null);
-        Member member = userRepository.findById(loginId).orElse(null);
         review.setTheme(theme);
         review.setMember(member);
         review.setActive(true);
@@ -88,87 +88,23 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 리뷰 파일 저장
         if(images != null) {
-            try {
-                saveReviewFile(images, insertReview);
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e);
-            }
+            saveReviewFile(images, insertReview);
         }
 
         // 멤버 포인트 올리기
-        member.setPoint(member.getPoint()+5);
-        userRepository.save(member);
-
+        userService.memberGetPoint(member, 5);
     }
 
     @Transactional
     @Override
-    public void updateReview(UpdateReviewDTO updateReview, String loginId) {
+    public void deleteReview(ReviewCodeDTO reviewCodeDTO, int memberCode) {
 
         // 기존 리뷰 조회
-        Review existingReview = reviewRepository.findById(updateReview.getReviewCode()).orElse(null);
+        Review existingReview = reviewRepository.findById(reviewCodeDTO.getReviewCode())
+                .orElseThrow(() -> new ReviewNotFoundException("리뷰가 존재하지 않습니다."));
 
-        if(existingReview == null)
-            throw new RuntimeException("Review not found");
-
-        if(loginId.equals(existingReview.getMember().getId())){
-
-            // DTO에서 null이 아닌 값만 업데이트
-            if (updateReview.getHeadcount() != null) {
-                existingReview.setHeadcount(updateReview.getHeadcount());
-            }
-            if (updateReview.getTakenTime() != null) {
-                existingReview.setTakenTime(updateReview.getTakenTime());
-            }
-            if (updateReview.getTotalScore() != null) {
-                existingReview.setTotalScore(updateReview.getTotalScore());
-            }
-            if (updateReview.getComposition() != null) {
-                existingReview.setComposition(updateReview.getComposition());
-            }
-            if (updateReview.getLevel() != null) {
-                existingReview.setLevel(updateReview.getLevel());
-            }
-            if (updateReview.getHorrorLevel() != null) {
-                existingReview.setHorrorLevel(updateReview.getHorrorLevel());
-            }
-            if (updateReview.getActivity() != null) {
-                existingReview.setActivity(updateReview.getActivity());
-            }
-            if (updateReview.getInterior() != null) {
-                existingReview.setInterior(updateReview.getInterior());
-            }
-            if (updateReview.getProbability() != null) {
-                existingReview.setProbability(updateReview.getProbability());
-            }
-            if (updateReview.getContent() != null) {
-                existingReview.setContent(updateReview.getContent());
-            }
-        }
-        else {
-            throw new InvalidUserException("리뷰 수정 권한이 없습니다");
-        }
-
+        existingReview.setActive(false);
         reviewRepository.save(existingReview);
-    }
-
-    @Transactional
-    @Override
-    public void deleteReview(ReviewCodeDTO reviewCodeDTO, String loginId) {
-
-        // 기존 리뷰 조회
-        Review existingReview = reviewRepository.findById(reviewCodeDTO.getReviewCode()).orElse(null);
-
-        if(existingReview == null)
-            throw new RuntimeException("Review not found");
-
-        if(loginId.equals(existingReview.getMember().getId())) {
-            existingReview.setActive(false);
-            reviewRepository.save(existingReview);
-        }
-        else {
-            throw new InvalidUserException("리뷰 삭제 권한이 없습니다");
-        }
     }
 
     @Transactional
@@ -177,49 +113,75 @@ public class ReviewServiceImpl implements ReviewService {
             Integer themeCode,
             String filter,
             Pageable pageable,
-            String loginId
+            int memberCode
     ) {
 
         // 테마 코드로 리뷰를 모두 조회
         List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(themeCode, pageable);
-        Member member = userRepository.findById(loginId).orElse(null);
+        if (filter == null) filter = "";
 
-        // 필터가 있을 경우 해당 조건에 맞게 정렬
-        if (filter != null) {
-            switch (filter) {
-                case "highScore":
+        switch (filter) {
+            case "highScore":
 
-                    // 점수 높은 순 정렬
-                    reviews.sort(Comparator.comparing(Review::getTotalScore).reversed()
+                // 점수 높은 순 정렬
+                reviews.sort(Comparator.comparing(Review::getTotalScore).reversed()
                         .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
-                    break;
-                case "lowScore":
+                break;
+            case "lowScore":
 
-                    // 점수 낮은 순 정렬
-                    reviews.sort(Comparator.comparing(Review::getTotalScore)
+                // 점수 낮은 순 정렬
+                reviews.sort(Comparator.comparing(Review::getTotalScore)
                         .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
-                    break;
-                default:
+                break;
+            default:
 
-                    // 필터가 일치하지 않으면 최신순으로 정렬 (기본값)
-                    reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
-                    break;
-            }
-        } else {
-
-            // 필터가 없으면 최신순으로 정렬 (기본값)
-            reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
+                // 필터가 일치하지 않으면 최신순으로 정렬 (기본값)
+                reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
+                break;
         }
 
-        if(member != null)
-            return getReviewDTOS(reviews, member.getMemberCode());
-        else
-            return getReviewDTOS(reviews, null);
+        return getReviewDTOS(reviews, memberCode);
     }
 
     @Transactional
     @Override
-    public List<ReviewDTO> getReviewDTOS(List<Review> sublist, Integer memberCode) {
+    public List<ReviewDTO> findReviewsWithFilters(
+            Integer themeCode,
+            String filter,
+            Pageable pageable
+    ) {
+
+        // 테마 코드로 리뷰를 모두 조회
+        List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(themeCode, pageable);
+
+        if (filter == null) filter = "";
+
+        switch (filter) {
+            case "highScore":
+
+                // 점수 높은 순 정렬
+                reviews.sort(Comparator.comparing(Review::getTotalScore).reversed()
+                        .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
+                break;
+            case "lowScore":
+
+                // 점수 낮은 순 정렬
+                reviews.sort(Comparator.comparing(Review::getTotalScore)
+                        .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
+                break;
+            default:
+
+                // 최신순으로 정렬 (기본값)
+                reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
+                break;
+        }
+
+        return getReviewDTOS(reviews);
+    }
+
+    @Transactional
+    @Override
+    public List<ReviewDTO> getReviewDTOS(List<Review> sublist, int memberCode) {
         List<ReviewDTO> result = sublist.stream()
             .map(review -> {
                 ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
@@ -246,14 +208,44 @@ public class ReviewServiceImpl implements ReviewService {
                     reviewDTO.setGenres(genres);
 
                 return reviewDTO;
-            }).toList();
+            }).collect(Collectors.toCollection(ArrayList::new));
 
         return result;
     }
 
     @Transactional
     @Override
-    public ReviewDTO getReviewDTO(Review review, Integer memberCode) {
+    public List<ReviewDTO> getReviewDTOS(List<Review> sublist) {
+        List<ReviewDTO> result = sublist.stream()
+                .map(review -> {
+                    ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
+
+                    // 이미지 경로 추가
+                    reviewDTO.setImagePaths(findImagePathsByReviewCode(review.getReviewCode()));
+                    reviewDTO.setLikes(findReviewLikesByReviewCode(review.getReviewCode()));
+                    reviewDTO.setMemberNickname(review.getMember().getNickname());
+                    reviewDTO.setReviewCode(review.getReviewCode());
+                    reviewDTO.setMemberCode(review.getMember().getMemberCode());
+                    reviewDTO.setMemberImage(review.getMember().getImage());
+                    List<String> genres = findMemberTendencyGenre(review.getMember().getMemberCode());
+                    reviewDTO.setThemeCode(review.getTheme().getThemeCode());
+                    reviewDTO.setThemeImage(review.getTheme().getPosterImage());
+                    reviewDTO.setThemeName(review.getTheme().getName());
+                    reviewDTO.setIsLike(false);
+
+
+                    if(!genres.isEmpty())
+                        reviewDTO.setGenres(genres);
+
+                    return reviewDTO;
+                }).collect(Collectors.toCollection(ArrayList::new));
+
+        return result;
+    }
+
+    @Transactional
+    @Override
+    public ReviewDTO getReviewDTO(Review review) {
 
         ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
 
@@ -269,13 +261,6 @@ public class ReviewServiceImpl implements ReviewService {
         reviewDTO.setThemeImage(review.getTheme().getPosterImage());
         reviewDTO.setThemeName(review.getTheme().getName());
 
-        ReviewLike reviewLike = reviewLikeRepository.findByReviewCodeAndMemberCode(review.getReviewCode(), memberCode).orElse(null);
-
-        if (reviewLike != null)
-            reviewDTO.setIsLike(true);
-        else
-            reviewDTO.setIsLike(false);
-
         if(!genres.isEmpty())
             reviewDTO.setGenres(genres);
 
@@ -284,40 +269,26 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public ReviewReportDTO findReviewReport(String loginId) {
-        Member member = userRepository.findById(loginId).orElseThrow();
-        Integer avgScore = reviewRepository.findAvgScoreByMemberCode(member.getMemberCode());
+    public ReviewReportDTO findReviewReport(int memberCode) {
+        Integer avgScore = reviewRepository.findAvgScoreByMemberCode(memberCode);
 
         if(avgScore == null)
             return null;
 
         Pageable pageable = PageRequest.of(0, 3);
-        List<String> genres = reviewRepository.findTopGenresByMemberCode(member.getMemberCode(), pageable);
+        List<String> genres = reviewRepository.findTopGenresByMemberCode(memberCode, pageable);
         ReviewReportDTO reviewReportDTO = new ReviewReportDTO(avgScore, genres);
         return reviewReportDTO;
     }
 
     @Transactional
     @Override
-    public List<ReviewDTO> findReviewByMember(String loginId, Pageable pageable) {
-        Member member = userRepository.findById(loginId).orElseThrow();
-        List<Review> review = reviewRepository.findByMemberCode(member.getMemberCode(), pageable);
+    public List<ReviewDTO> findReviewByMemberCode(int memberCode, Pageable pageable) {
+        List<Review> review = reviewRepository.findByMemberCode(memberCode, pageable);
 
         if(review == null || review.isEmpty())
             return null;
-        return getReviewDTOS(review, member.getMemberCode());
-    }
-
-    @Transactional
-    @Override
-    public ReviewDTO findReviewDetail(String loginId, Integer reviewCode) {
-        Member member = userRepository.findById(loginId).orElseThrow();
-        Review review = reviewRepository.findById(reviewCode).orElseThrow();
-
-        if(!review.getMember().getMemberCode().equals(member.getMemberCode()))
-            throw new InvalidUserException("리뷰 수정 권한이 없습니다");
-
-        return getReviewDTO(review, member.getMemberCode());
+        return getReviewDTOS(review, memberCode);
     }
 
     @Transactional
@@ -335,15 +306,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public void likeReview(ReviewCodeDTO reviewCodeDTO, String loginId) {
-        Member member = userRepository.findById(loginId).orElseThrow();
+    public void likeReview(ReviewCodeDTO reviewCodeDTO, int memberCode) {
         ReviewLike reviewLike = reviewLikeRepository.findByMemberCodeAndReviewCode(
-            member.getMemberCode(), reviewCodeDTO.getReviewCode()
-        );
+                memberCode,
+                reviewCodeDTO.getReviewCode());
 
         if (reviewLike == null) {
             ReviewLike newReviewLike = new ReviewLike();
-            newReviewLike.setMemberCode(member.getMemberCode());
+            newReviewLike.setMemberCode(memberCode);
             newReviewLike.setReviewCode(reviewCodeDTO.getReviewCode());
             newReviewLike.setCreatedAt(LocalDateTime.now());
             newReviewLike.setActive(true);
@@ -360,10 +330,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public void deleteLikeReview(ReviewCodeDTO reviewCodeDTO, String loginId) {
-        Member member = userRepository.findById(loginId).orElseThrow();
+    public void deleteLikeReview(ReviewCodeDTO reviewCodeDTO, int memberCode) {
         ReviewLike reviewLike = reviewLikeRepository.findByMemberCodeAndReviewCode(
-            member.getMemberCode(), reviewCodeDTO.getReviewCode()
+                memberCode, reviewCodeDTO.getReviewCode()
         );
 
         if (reviewLike == null) {
@@ -378,32 +347,34 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    private void saveReviewFile(List<MultipartFile> images, Review review) throws IOException {
+    private void saveReviewFile(List<MultipartFile> images, Review review) {
         String uploadsDir = "src/main/resources/static/uploadFiles/reviewFile";
 
-        for(MultipartFile file : images) {
-            String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + file.getOriginalFilename();
-            // 실제 파일이 저장될 경로
-            String filePath = uploadsDir + "/" + fileName;
-            // DB에 저장할 경로 문자열
-            String dbFilePath = "/uploadFiles/reviewFile/" + fileName;
+        try {
+            for(MultipartFile file : images) {
+                String fileName = UUID.randomUUID().toString().replace("-", "") + "_" + file.getOriginalFilename();
+                String filePath = uploadsDir + "/" + fileName;
+                String dbFilePath = "/uploadFiles/reviewFile/" + fileName;
 
-            Path path = Paths.get(filePath); // Path 객체 생성
-            Files.createDirectories(path.getParent()); // 디렉토리 생성
-            Files.write(path, file.getBytes()); // 디렉토리에 파일 저장
+                Path path = Paths.get(filePath);
+                Files.createDirectories(path.getParent());
+                Files.write(path, file.getBytes());
 
-            reviewFileRepository.save(ReviewFile.builder()
-                .review(review)
-                .active(true)
-                .createdAt(LocalDateTime.now())
-                .url(dbFilePath)
-                .build());
+                reviewFileRepository.save(ReviewFile.builder()
+                        .review(review)
+                        .active(true)
+                        .createdAt(LocalDateTime.now())
+                        .url(dbFilePath)
+                        .build());
+            }
+        } catch (IOException e) {
+            throw new FileUploadException("파일 업로드에 실패했습니다.");
         }
     }
 
     public List<String> findImagePathsByReviewCode(Integer reviewCode) {
         return reviewFileRepository.findByReview_ReviewCode(reviewCode)
-            .stream().map(ReviewFile::getUrl).toList();
+            .stream().map(ReviewFile::getUrl).collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Integer findReviewLikesByReviewCode(Integer reviewCode) {
@@ -413,6 +384,6 @@ public class ReviewServiceImpl implements ReviewService {
     private List<String> findMemberTendencyGenre(Integer memberCode) {
         return reviewTendencyGenreRepository
             .findMemberGenreByMemberCode(memberCode).stream()
-            .map(reviewTendencyGenre -> reviewTendencyGenre.getGenre().getName()).toList();
+            .map(reviewTendencyGenre -> reviewTendencyGenre.getGenre().getName()).collect(Collectors.toCollection(ArrayList::new));
     }
 }

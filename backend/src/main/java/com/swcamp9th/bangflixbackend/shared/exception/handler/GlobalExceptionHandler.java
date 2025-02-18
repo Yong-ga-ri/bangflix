@@ -19,11 +19,15 @@ public class GlobalExceptionHandler {
 
     // 400: 잘못된 요청 예외 처리
     @ExceptionHandler({
-        AlreadyLikedException.class,
-        LikeNotFoundException.class,
-        DuplicateException.class,
-        InvalidEmailCodeException.class,
-        LoginException.class,
+            AlreadyLikedException.class,
+            LikeNotFoundException.class,
+            DuplicateException.class,
+            InvalidEmailCodeException.class,
+            LoginException.class,
+            MemberNotFoundException.class,
+            ThemeNotFoundException.class,
+            FileUploadException.class,
+            ReviewNotFoundException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         log.error(e.getMessage(), e);
@@ -33,9 +37,9 @@ public class GlobalExceptionHandler {
 
     // 401: 지정한 리소스에 대한 권한이 없다
     @ExceptionHandler({
-        InvalidUserException.class,
-        ExpiredTokenExcepiton.class,
-        JwtException.class
+            InvalidUserException.class,
+            ExpiredTokenExcepiton.class,
+            JwtException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleInvalidUserException(Exception e) {
         log.error(e.getMessage(), e);
@@ -45,15 +49,15 @@ public class GlobalExceptionHandler {
 
 //    // 500: 내부 서버 에러
     @ExceptionHandler({
-        MailSendException.class,
-        RedisException.class,
-        IOException.class,
-        NullPointerException.class,
-        IllegalArgumentException.class,
-        IndexOutOfBoundsException.class,
-        UnsupportedOperationException.class,
-        IllegalStateException.class,
-        ArithmeticException.class
+            MailSendException.class,
+            RedisException.class,
+            IOException.class,
+            NullPointerException.class,
+            IllegalArgumentException.class,
+            IndexOutOfBoundsException.class,
+            UnsupportedOperationException.class,
+            IllegalStateException.class,
+            ArithmeticException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleInternalServerErrorException(Exception e) {
         log.error(e.getMessage(), e);

@@ -39,4 +39,4 @@ out/
 # Ignore application.yml
 /src/main/resources/*
 
-./logs/*
+/logs

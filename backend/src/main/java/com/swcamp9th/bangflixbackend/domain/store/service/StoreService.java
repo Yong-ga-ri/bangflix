@@ -7,5 +7,5 @@ public interface StoreService {
 
     StoreDTO findStore(Integer storeCode);
 
-    ReviewDTO findBestReviewByStore(Integer storeCode, String loginId);
+    ReviewDTO findBestReviewByStore(Integer storeCode);
 }

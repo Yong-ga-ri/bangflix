@@ -26,7 +26,7 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
     Integer countReviewsByThemeCode(int themeCode);
 
     @Query("SELECT COUNT(r) FROM ThemeReaction r WHERE r.theme.themeCode = :themeCode "
-        + "AND (r.reaction = 'SCRAP' OR r.reaction = 'SCRAPLIKE') AND r.active = true")
+        + "AND (r.reaction = 'LIKE' OR r.reaction = 'SCRAPLIKE') AND r.active = true")
     Integer countLikesByThemeCode(int themeCode);
 
     @Query("SELECT COUNT(r) FROM ThemeReaction r WHERE r.theme.themeCode = :themeCode "
