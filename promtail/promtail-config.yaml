@@ -25,4 +25,4 @@ scrape_configs:
           - 'backend:8080'
         labels:
           job: springboot
-          __path__: /logs/app.log
+          __path__: /logs/app-json.log

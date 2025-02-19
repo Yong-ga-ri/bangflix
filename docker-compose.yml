@@ -109,6 +109,8 @@ services:
     volumes:
       - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
       - ./backend/logs:/logs
+    ports:
+      - "9080:9080"
     command:
       - -config.file=/etc/promtail/promtail-config.yaml
       - -config.expand-env=true
