@@ -1,6 +1,8 @@
 package com.swcamp9th.bangflixbackend.shared.error.handler;
 
 import com.swcamp9th.bangflixbackend.shared.error.*;
+import com.swcamp9th.bangflixbackend.shared.error.exception.BusinessException;
+import com.swcamp9th.bangflixbackend.shared.error.exception.FileUploadException;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import io.jsonwebtoken.JwtException;
 import io.lettuce.core.RedisException;
@@ -17,19 +19,26 @@ public class GlobalExceptionHandler {
 
     // 400: 잘못된 요청 예외 처리
     @ExceptionHandler({
-            AlreadyLikedException.class,
-            LikeNotFoundException.class,
             DuplicateException.class,
             InvalidEmailCodeException.class,
             LoginException.class,
             MemberNotFoundException.class,
-            ThemeNotFoundException.class,
-            FileUploadException.class,
-            ReviewNotFoundException.class
+            ReviewNotFoundException.class,
+            FileUploadException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(new ResponseMessage<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null));
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ResponseMessage<Object>> handleBusinessException(BusinessException e) {
+        final ErrorCode errorCode = e.getErrorCode();
+//        final ErrorResponse response = ErrorResponse.of(errorCode, e.getErrors());
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(new ResponseMessage<>(errorCode.getStatus(), errorCode.getMessage(), null));
+
+//        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     // 401: 지정한 리소스에 대한 권한이 없다
@@ -53,7 +62,7 @@ public class GlobalExceptionHandler {
             IndexOutOfBoundsException.class,
             UnsupportedOperationException.class,
             IllegalStateException.class,
-            ArithmeticException.class
+            ArithmeticException.class,
     })
     public ResponseEntity<ResponseMessage<Object>> handleInternalServerErrorException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
