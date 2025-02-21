@@ -15,7 +15,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
-import com.swcamp9th.bangflixbackend.shared.error.ReviewNotFoundException;
+import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -184,7 +184,7 @@ class ReviewServiceImplTests {
         // when & then
         assertThatThrownBy(() -> reviewService.deleteReview(reviewCodeDTO, member.getMemberCode()))
                 .isInstanceOf(ReviewNotFoundException.class)
-                .hasMessage("리뷰가 존재하지 않습니다.");
+                .hasMessage("존재하지 않는 리뷰입니다.");
     }
 
     @Test

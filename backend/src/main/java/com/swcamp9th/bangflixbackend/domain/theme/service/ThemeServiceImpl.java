@@ -420,7 +420,7 @@ public class ThemeServiceImpl implements ThemeService {
         LocalDateTime oneWeekAgo = now.minusWeeks(1);  // 현재로부터 1주일 이전
         Pageable pageable = PageRequest.of(0,5);
 
-        List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable);
+        List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable).orElseThrow(() -> new RuntimeException("주간 인기 테마가 없습니다."));
 
         return createThemeDTOList(themes, memberCode);
     }
@@ -431,7 +431,7 @@ public class ThemeServiceImpl implements ThemeService {
         LocalDateTime oneWeekAgo = now.minusWeeks(1);  // 현재로부터 1주일 이전
         Pageable pageable = PageRequest.of(0,5);
 
-        List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable);
+        List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable).orElseThrow(() -> new RuntimeException("주간 인기 테마가 없습니다."));
 
         return createThemeDTOList(themes);
     }
@@ -540,11 +540,11 @@ public class ThemeServiceImpl implements ThemeService {
 
         for(Theme theme : themes) {
             ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
+
             themeDto.setStoreCode(theme.getStore().getStoreCode());
             themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
             themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
             themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
-            themeDto.setStoreName(theme.getStore().getName());
 
             themeDto.setIsLike(false);
             themeDto.setIsScrap(false);
@@ -575,7 +575,6 @@ public class ThemeServiceImpl implements ThemeService {
             themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
             themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
             themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
-            themeDto.setStoreName(theme.getStore().getName());
 
             themeDto.setIsLike(false);
             themeDto.setIsScrap(false);

@@ -1,5 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.review.service;
 
+import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.review.dto.CreateReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewCodeDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewDTO;
@@ -17,7 +18,6 @@ import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewTendencyGenr
 import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeService;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
-import com.swcamp9th.bangflixbackend.shared.error.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -101,7 +101,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 기존 리뷰 조회
         Review existingReview = reviewRepository.findById(reviewCodeDTO.getReviewCode())
-                .orElseThrow(() -> new ReviewNotFoundException("리뷰가 존재하지 않습니다."));
+                .orElseThrow(ReviewNotFoundException::new);
 
         existingReview.setActive(false);
         reviewRepository.save(existingReview);

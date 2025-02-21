@@ -10,6 +10,19 @@ public enum ErrorCode {
     // General
     FILE_UPLOAD_ERROR(400, "파일 업로드에 실패했습니다."),
 
+    // User
+    MEMBER_NOT_FOUND(404, "존재하지 않는 회원입니다."),
+    DUPLICATE_ID(400, "이미 존재하는 아이디입니다."),
+    DUPLICATE_NICKNAME(400, "이미 존재하는 닉네임입니다."),
+    DUPLICATE_EMAIL(400, "이미 존재하는 이메일입니다."),
+    PASSWORD_NOT_MATCHED(400, "비밀번호가 일치하지 않습니다."),
+
+    // Auth
+    INVALID_EMAIL_CODE_EXCEPTION(400, "이메일 인증에 실패했습니다."),
+    SEND_EMAIL_FAILED(400, "인증 이메일 발송에 실패했습니다."),
+    TOKEN_EXPIRED(401, "토큰이 만료되었습니다."),
+    TOKEN_INVALID(401, "유효하지 않은 토큰입니다."),
+
     // Theme
     THEME_NOT_FOUND(404, "존재하지 않는 테마입니다."),
 

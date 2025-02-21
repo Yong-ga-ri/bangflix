@@ -1,5 +1,7 @@
 package com.swcamp9th.bangflixbackend.shared.error.handler;
 
+import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewNotFoundException;
+import com.swcamp9th.bangflixbackend.domain.user.exception.ExpiredTokenException;
 import com.swcamp9th.bangflixbackend.shared.error.*;
 import com.swcamp9th.bangflixbackend.shared.error.exception.BusinessException;
 import com.swcamp9th.bangflixbackend.shared.error.exception.FileUploadException;
@@ -19,10 +21,6 @@ public class GlobalExceptionHandler {
 
     // 400: 잘못된 요청 예외 처리
     @ExceptionHandler({
-            DuplicateException.class,
-            InvalidEmailCodeException.class,
-            LoginException.class,
-            MemberNotFoundException.class,
             ReviewNotFoundException.class,
             FileUploadException.class
     })
@@ -34,17 +32,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ResponseMessage<Object>> handleBusinessException(BusinessException e) {
         final ErrorCode errorCode = e.getErrorCode();
-//        final ErrorResponse response = ErrorResponse.of(errorCode, e.getErrors());
         return ResponseEntity.status(errorCode.getStatus())
                 .body(new ResponseMessage<>(errorCode.getStatus(), errorCode.getMessage(), null));
-
-//        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     // 401: 지정한 리소스에 대한 권한이 없다
     @ExceptionHandler({
             InvalidUserException.class,
-            ExpiredTokenExcepiton.class,
+            ExpiredTokenException.class,
             JwtException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleInvalidUserException(Exception e) {

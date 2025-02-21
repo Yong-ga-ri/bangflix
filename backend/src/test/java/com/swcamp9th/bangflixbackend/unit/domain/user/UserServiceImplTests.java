@@ -2,6 +2,7 @@ package com.swcamp9th.bangflixbackend.unit.domain.user;
 
 import com.swcamp9th.bangflixbackend.domain.user.dto.UserInfoResponseDto;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
+import com.swcamp9th.bangflixbackend.domain.user.exception.MemberNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,11 +61,11 @@ class UserServiceImplTests {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        MemberNotFoundException exception = assertThrows(MemberNotFoundException.class,
                 () -> userInfoService.findUserInfoById(userId));
 
         // then
-        assertEquals("사용자를 찾을 수 없습니다.", exception.getMessage());
+        assertEquals("존재하지 않는 회원입니다.", exception.getMessage());
         verify(userRepository, times(1)).findById(userId);
     }
 }

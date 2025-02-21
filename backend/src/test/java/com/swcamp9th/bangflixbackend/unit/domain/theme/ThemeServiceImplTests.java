@@ -12,6 +12,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReaction;
 import com.swcamp9th.bangflixbackend.domain.theme.exception.ThemeNotFoundException;
+import com.swcamp9th.bangflixbackend.domain.theme.exception.UnexpectedReactionTypeException;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.GenreRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeReactionRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
@@ -453,7 +454,7 @@ class ThemeServiceImplTests {
 
         // when & then
         assertThatThrownBy(() -> themeService.deleteThemeReaction(memberCode, invalidDTO))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(UnexpectedReactionTypeException.class);
     }
 
     @DisplayName("사용자 반응으로 테마 조회 - 좋아요")
