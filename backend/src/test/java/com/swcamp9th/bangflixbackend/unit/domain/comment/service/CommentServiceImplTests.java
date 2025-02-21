@@ -11,7 +11,7 @@ import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityPost;
 import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityPostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
+import com.swcamp9th.bangflixbackend.shared.error.InvalidUserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

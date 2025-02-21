@@ -16,7 +16,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeReactionReposi
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
-import com.swcamp9th.bangflixbackend.shared.exception.ThemeNotFoundException;
+import com.swcamp9th.bangflixbackend.shared.error.ThemeNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

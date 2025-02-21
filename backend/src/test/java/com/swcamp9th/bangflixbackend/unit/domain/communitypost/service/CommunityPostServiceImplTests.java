@@ -10,7 +10,7 @@ import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityPo
 import com.swcamp9th.bangflixbackend.domain.communitypost.service.CommunityPostServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
+import com.swcamp9th.bangflixbackend.shared.error.InvalidUserException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

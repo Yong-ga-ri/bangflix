@@ -1,7 +1,7 @@
 package com.swcamp9th.bangflixbackend.shared.email.service;
 
 import com.swcamp9th.bangflixbackend.domain.user.dto.EmailCodeRequestDto;
-import com.swcamp9th.bangflixbackend.shared.exception.InvalidEmailCodeException;
+import com.swcamp9th.bangflixbackend.shared.error.InvalidEmailCodeException;
 import com.swcamp9th.bangflixbackend.security.service.RedisService;
 import io.lettuce.core.RedisException;
 import jakarta.mail.MessagingException;

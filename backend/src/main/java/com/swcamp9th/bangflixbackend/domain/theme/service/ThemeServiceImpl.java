@@ -16,8 +16,8 @@ import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import com.swcamp9th.bangflixbackend.shared.exception.ReactionNotFoundException;
-import com.swcamp9th.bangflixbackend.shared.exception.ThemeNotFoundException;
+import com.swcamp9th.bangflixbackend.shared.error.ReactionNotFoundException;
+import com.swcamp9th.bangflixbackend.shared.error.ThemeNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -10,7 +10,7 @@ import com.swcamp9th.bangflixbackend.domain.noticepost.repository.NoticeFileRepo
 import com.swcamp9th.bangflixbackend.domain.noticepost.repository.NoticePostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
+import com.swcamp9th.bangflixbackend.shared.error.InvalidUserException;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

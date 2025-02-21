@@ -1,6 +1,6 @@
-package com.swcamp9th.bangflixbackend.shared.exception.handler;
+package com.swcamp9th.bangflixbackend.shared.error.handler;
 
-import com.swcamp9th.bangflixbackend.shared.exception.*;
+import com.swcamp9th.bangflixbackend.shared.error.*;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import io.jsonwebtoken.JwtException;
 import io.lettuce.core.RedisException;

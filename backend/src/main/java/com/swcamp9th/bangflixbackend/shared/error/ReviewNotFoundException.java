@@ -1,4 +1,4 @@
-package com.swcamp9th.bangflixbackend.shared.exception;
+package com.swcamp9th.bangflixbackend.shared.error;
 
 public class ReviewNotFoundException extends RuntimeException {
     public ReviewNotFoundException(String message) {

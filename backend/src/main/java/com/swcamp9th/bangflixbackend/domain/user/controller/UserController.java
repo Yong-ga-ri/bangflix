@@ -3,7 +3,7 @@ package com.swcamp9th.bangflixbackend.domain.user.controller;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.user.dto.*;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserServiceImpl;
-import com.swcamp9th.bangflixbackend.shared.exception.ExpiredTokenExcepiton;
+import com.swcamp9th.bangflixbackend.shared.error.ExpiredTokenExcepiton;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;

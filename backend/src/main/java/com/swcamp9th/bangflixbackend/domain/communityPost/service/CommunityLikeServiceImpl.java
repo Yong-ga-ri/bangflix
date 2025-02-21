@@ -8,7 +8,7 @@ import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityLi
 import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityPostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
+import com.swcamp9th.bangflixbackend.shared.error.InvalidUserException;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

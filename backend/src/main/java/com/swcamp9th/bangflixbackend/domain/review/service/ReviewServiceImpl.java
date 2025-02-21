@@ -16,7 +16,7 @@ import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewTendencyGenr
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
-import com.swcamp9th.bangflixbackend.shared.exception.*;
+import com.swcamp9th.bangflixbackend.shared.error.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
