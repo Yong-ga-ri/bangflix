@@ -507,7 +507,7 @@ class ThemeServiceImplTests {
         Pageable pageable = PageRequest.of(0, 5);
         List<Theme> themeList = List.of(theme);
         when(themeRepository.findByWeekOrderByLikes(any(LocalDateTime.class), eq(pageable)))
-                .thenReturn(themeList);
+                .thenReturn(Optional.of(themeList));
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
@@ -529,7 +529,7 @@ class ThemeServiceImplTests {
         Pageable pageable = PageRequest.of(0, 5);
         List<Theme> themeList = List.of(theme);
         when(themeRepository.findByWeekOrderByLikes(any(LocalDateTime.class), eq(pageable)))
-                .thenReturn(themeList);
+                .thenReturn(Optional.of(themeList));
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);

@@ -3,6 +3,7 @@ package com.swcamp9th.bangflixbackend.domain.eventPost.service;
 import com.swcamp9th.bangflixbackend.domain.eventPost.dto.*;
 import com.swcamp9th.bangflixbackend.domain.eventPost.entity.EventFile;
 import com.swcamp9th.bangflixbackend.domain.eventPost.entity.EventPost;
+import com.swcamp9th.bangflixbackend.domain.eventPost.exception.EventPostNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.eventPost.repository.EventFileRepository;
 import com.swcamp9th.bangflixbackend.domain.eventPost.repository.EventPostRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
@@ -10,7 +11,8 @@ import com.swcamp9th.bangflixbackend.domain.theme.exception.ThemeNotFoundExcepti
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.error.InvalidUserException;
+import com.swcamp9th.bangflixbackend.shared.error.exception.FileUploadException;
+import com.swcamp9th.bangflixbackend.shared.error.exception.InvalidUserException;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,11 +51,11 @@ public class EventPostServiceImpl implements EventPostService {
 
     @Transactional
     @Override
-    public void createEventPost(String loginId, EventPostCreateDTO newEvent, List<MultipartFile> images) throws IOException {
+    public void createEventPost(String loginId, EventPostCreateDTO newEvent, List<MultipartFile> images) {
 
         // 관리자 회원이 아니라면 예외 발생
         Member admin = userRepository.findByIdAndIsAdminTrue(loginId)
-                .orElseThrow(() -> new InvalidUserException("관리자 회원만 접근 가능합니다."));
+                .orElseThrow(InvalidUserException::new);
 
         Theme selectedTheme = themeRepository.findById(newEvent.getThemeCode()).orElse(null);
 
@@ -76,7 +78,7 @@ public class EventPostServiceImpl implements EventPostService {
         }
     }
 
-    private List<EventFile> saveFiles(List<MultipartFile> images, EventPost createdEventPost) throws IOException {
+    private List<EventFile> saveFiles(List<MultipartFile> images, EventPost createdEventPost) {
         List<EventFile> eventFiles = new ArrayList<>();
 
         for (MultipartFile file : images) {
@@ -93,8 +95,12 @@ public class EventPostServiceImpl implements EventPostService {
             String dbUrl = "/uploadFiles/eventFiles/" + uuid + fileName;
 
             //저장
-            Files.createDirectories(path.getParent());
-            Files.write(path, file.getBytes());
+            try {
+                Files.createDirectories(path.getParent());
+                Files.write(path, file.getBytes());
+            } catch (IOException e) {
+                throw new FileUploadException();
+            }
 
             EventFile addedImage = eventFileRepository.save(EventFile.builder()
                     .url(dbUrl)
@@ -116,15 +122,15 @@ public class EventPostServiceImpl implements EventPostService {
                                 EventPostUpdateDTO modifiedEvent, List<MultipartFile> images) {
 
         EventPost foundPost = eventPostRepository.findById(eventPostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(EventPostNotFoundException::new);
 
         // 관리자 회원이 아니라면 예외 발생
         Member admin = userRepository.findByIdAndIsAdminTrue(loginId)
-                .orElseThrow(() -> new InvalidUserException("관리자 회원만 접근 가능합니다."));
+                .orElseThrow(InvalidUserException::new);
 
         // 게시글 작성자가 아니라면 예외 발생
         if (!foundPost.getMember().getMemberCode().equals(admin.getMemberCode())) {
-            throw new InvalidUserException("게시글 수정 권한이 없습니다.");
+            throw new InvalidUserException();
         }
 
         Theme selectedTheme = themeRepository.findById(modifiedEvent.getThemeCode()).orElse(null);
@@ -142,15 +148,15 @@ public class EventPostServiceImpl implements EventPostService {
     @Override
     public void deleteEventPost(String loginId, int eventPostCode) {
         EventPost foundPost = eventPostRepository.findById(eventPostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(EventPostNotFoundException::new);
 
         // 관리자 회원이 아니라면 예외 발생
         Member admin = userRepository.findByIdAndIsAdminTrue(loginId)
-                .orElseThrow(() -> new InvalidUserException("관리자 회원만 접근 가능합니다."));
+                .orElseThrow(InvalidUserException::new);
 
         // 게시글 작성자가 아니라면 예외 발생
         if (!foundPost.getMember().getMemberCode().equals(admin.getMemberCode())) {
-            throw new InvalidUserException("게시글 수정 권한이 없습니다.");
+            throw new InvalidUserException();
         }
 
         foundPost.setActive(false);
@@ -206,7 +212,7 @@ public class EventPostServiceImpl implements EventPostService {
     @Override
     public EventPostDTO findEventByCode(int eventPostCode) {
         EventPost foundEvent = eventPostRepository.findById(eventPostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(EventPostNotFoundException::new);
 
         EventPostDTO selectedEvent = modelMapper.map(foundEvent, EventPostDTO.class);
         selectedEvent.setNickname(foundEvent.getMember().getNickname());

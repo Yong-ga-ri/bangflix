@@ -22,6 +22,8 @@ public enum ErrorCode {
     SEND_EMAIL_FAILED(400, "인증 이메일 발송에 실패했습니다."),
     TOKEN_EXPIRED(401, "토큰이 만료되었습니다."),
     TOKEN_INVALID(401, "유효하지 않은 토큰입니다."),
+    LOGIN_REQUIRED(401, "로그인이 필요합니다."),
+    INVALID_USER(401, "유효하지 않은 사용자입니다."),
 
     // Theme
     THEME_NOT_FOUND(404, "존재하지 않는 테마입니다."),
@@ -35,6 +37,17 @@ public enum ErrorCode {
     UNEXPECTED_REACTION_TYPE(400, "지정되지 않은 타입의 리액션입니다."),
     REACTION_NOT_FOUND(404, "존재하지 않는 리액션입니다."),
 
+    // EventPost
+    EVENT_POST_NOT_FOUND(404, "존재하지 않는 이벤트 게시글입니다."),
+
+    // NoticePost
+    NOTICE_POST_NOT_FOUND(404, "존재하지 않는 공지사항 게시글입니다."),
+
+    // Community
+    COMMUNITY_POST_NOT_FOUND(404, "존재하지 않는 게시글입니다."),
+
+    // Comment
+    COMMENT_NOT_FOUND(404, "존재하지 않는 댓글입니다."),
     ;
 
     private final int status;

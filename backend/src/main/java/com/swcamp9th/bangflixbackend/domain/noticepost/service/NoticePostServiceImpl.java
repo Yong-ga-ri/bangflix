@@ -1,5 +1,7 @@
 package com.swcamp9th.bangflixbackend.domain.noticepost.service;
 
+import com.swcamp9th.bangflixbackend.domain.noticepost.exception.NoticePostNotFoundException;
+import com.swcamp9th.bangflixbackend.shared.error.exception.FileUploadException;
 import com.swcamp9th.bangflixbackend.shared.response.NoticePageResponse;
 import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostDTO;
@@ -10,8 +12,7 @@ import com.swcamp9th.bangflixbackend.domain.noticepost.repository.NoticeFileRepo
 import com.swcamp9th.bangflixbackend.domain.noticepost.repository.NoticePostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.error.InvalidUserException;
-import jakarta.persistence.EntityNotFoundException;
+import com.swcamp9th.bangflixbackend.shared.error.exception.InvalidUserException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -52,11 +53,11 @@ public class NoticePostServiceImpl implements NoticePostService {
 
     @Transactional
     @Override
-    public void createNoticePost(NoticePostCreateDTO newNotice, List<MultipartFile> images, String userId) throws IOException {
+    public void createNoticePost(NoticePostCreateDTO newNotice, List<MultipartFile> images, String userId) {
 
         // 관리자 회원이 아니라면 예외 발생
         Member admin = userRepository.findByIdAndIsAdminTrue(userId)
-                .orElseThrow(() -> new InvalidUserException("관리자 회원만 접근 가능합니다."));
+                .orElseThrow(InvalidUserException::new);
 
         NoticePost createdNotice = new NoticePost();
         createdNotice.setActive(true);
@@ -70,12 +71,13 @@ public class NoticePostServiceImpl implements NoticePostService {
 
         // 첨부파일 있으면 저장
         if (images != null) {
-            List<NoticeFile> addedImages = saveFiles(images, createdNotice);
+            List<NoticeFile> addedImages;
+            addedImages = saveFiles(images, createdNotice);
             createdNotice.setNoticeFiles(addedImages);
         }
     }
 
-    private List<NoticeFile> saveFiles(List<MultipartFile> images, NoticePost createdNotice) throws IOException {
+    private List<NoticeFile> saveFiles(List<MultipartFile> images, NoticePost createdNotice) {
         List<NoticeFile> noticeFiles = new ArrayList<>();
 
         for (MultipartFile file : images) {
@@ -92,8 +94,12 @@ public class NoticePostServiceImpl implements NoticePostService {
             String dbUrl = "/uploadFiles/noticeFiles/" + uuid + fileName;
 
             //저장
-            Files.createDirectories(path.getParent());
-            Files.write(path, file.getBytes());
+            try {
+                Files.createDirectories(path.getParent());
+                Files.write(path, file.getBytes());
+            } catch (IOException e) {
+                throw new FileUploadException();
+            }
 
             NoticeFile addedImage = noticeFileRepository.save(NoticeFile.builder()
                     .url(dbUrl)
@@ -111,19 +117,22 @@ public class NoticePostServiceImpl implements NoticePostService {
 
     @Transactional
     @Override
-    public void updateNoticePost(int noticePostCode, NoticePostUpdateDTO updatedNotice,
-                                 List<MultipartFile> images, String userId) {
+    public void updateNoticePost(
+            int noticePostCode,
+            NoticePostUpdateDTO updatedNotice,
+            List<MultipartFile> images, String userId
+    ) {
 
         NoticePost foundNotice = noticePostRepository.findById(noticePostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(NoticePostNotFoundException::new);
 
         // 관리자 회원이 아니라면 예외 발생
         Member admin = userRepository.findByIdAndIsAdminTrue(userId)
-                .orElseThrow(() -> new InvalidUserException("관리자 회원만 접근 가능합니다."));
+                .orElseThrow(InvalidUserException::new);
 
         // 게시글 작성자가 아니라면 예외 발생
         if (!foundNotice.getMember().getMemberCode().equals(admin.getMemberCode())) {
-            throw new InvalidUserException("게시글 수정 권한이 없습니다.");
+            throw new InvalidUserException();
         }
 
         foundNotice.setTitle(updatedNotice.getTitle());
@@ -137,15 +146,15 @@ public class NoticePostServiceImpl implements NoticePostService {
     @Override
     public void deleteNoticePost(int noticePostCode, String userId) {
         NoticePost foundNotice = noticePostRepository.findById(noticePostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(NoticePostNotFoundException::new);
 
         // 관리자 회원이 아니라면 예외 발생
         Member admin = userRepository.findByIdAndIsAdminTrue(userId)
-                .orElseThrow(() -> new InvalidUserException("관리자 회원만 접근 가능합니다."));
+                .orElseThrow(InvalidUserException::new);
 
         // 게시글 작성자가 아니라면 예외 발생
         if (!foundNotice.getMember().getMemberCode().equals(admin.getMemberCode())) {
-            throw new InvalidUserException("게시글 삭제 권한이 없습니다.");
+            throw new InvalidUserException();
         }
 
         foundNotice.setActive(false);
@@ -187,7 +196,7 @@ public class NoticePostServiceImpl implements NoticePostService {
     @Override
     public NoticePostDTO findNoticeByCode(int noticePostCode) {
         NoticePost foundNotice = noticePostRepository.findById(noticePostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(NoticePostNotFoundException::new);
 
         NoticePostDTO selectedNotice = modelMapper.map(foundNotice, NoticePostDTO.class);
         selectedNotice.setNickname(foundNotice.getMember().getNickname());

@@ -11,7 +11,7 @@ import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityPost;
 import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityPostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.error.InvalidUserException;
+import com.swcamp9th.bangflixbackend.shared.error.exception.InvalidUserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -99,7 +99,7 @@ class CommentServiceImplTests {
         // When & Then
         assertThatThrownBy(() -> commentService.createComment("user123", 100, request))
                 .isInstanceOf(InvalidUserException.class)
-                .hasMessage("댓글 작성 권한이 없습니다.");
+                .hasMessage("유효하지 않은 사용자입니다.");
     }
 
     @DisplayName("댓글 업데이트 테스트")

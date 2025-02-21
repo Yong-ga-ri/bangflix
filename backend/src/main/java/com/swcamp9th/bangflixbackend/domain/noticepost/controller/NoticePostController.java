@@ -42,7 +42,7 @@ public class NoticePostController {
     public ResponseEntity<ResponseMessage<Object>> createNoticePost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @Valid @RequestPart NoticePostCreateDTO newNotice,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
 
         noticePostService.createNoticePost(newNotice, images, loginId);
         return ResponseEntity.ok(new ResponseMessage<>(200, "게시글 등록 성공", null));
