@@ -96,6 +96,8 @@ public interface ReviewService {
      */
     List<ReviewDTO> findReviewByMemberCode(int memberCode, Pageable pageable);
 
+    ReviewDTO getBestReviewByStoreCode(int storeCode);
+
     /**
      * 특정 리뷰에 대해 로그인한 회원이 좋아요를 등록합니다.
      *

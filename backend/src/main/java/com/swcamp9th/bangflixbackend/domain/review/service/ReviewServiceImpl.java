@@ -10,12 +10,10 @@ import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewFile;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewLike;
 import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewAlreadyLiked;
 import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewNotLikedException;
-import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewFileRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewLikeRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewTendencyGenreRepository;
-import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeService;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
@@ -383,5 +381,19 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewTendencyGenreRepository
             .findMemberGenreByMemberCode(memberCode).stream()
             .map(reviewTendencyGenre -> reviewTendencyGenre.getGenre().getName()).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    @Transactional
+    public ReviewDTO getBestReviewByStoreCode(int storeCode) {
+        List<ReviewLike> reviewLike = reviewLikeRepository.findBestReviewByStoreCode(storeCode);
+
+        if(reviewLike.isEmpty())
+            return null;
+
+        Review review = reviewRepository.findById(reviewLike.get(0).getReviewCode()).orElse(null);
+
+        return getReviewDTO(review);
+
     }
 }
