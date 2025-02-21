@@ -86,7 +86,6 @@ public class ThemeController {
      */
     @GetMapping("/genres")
     @SecurityRequirement(name = "Authorization")
-    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "전체 장르 조회 API",
             description = "현재 데이터베이스에 존재하는 모든 장르 정보를 조회합니다.")
     public ResponseEntity<ResponseMessage<List<GenreDTO>>> findGenres() {

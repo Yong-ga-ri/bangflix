@@ -45,14 +45,22 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
         + "ORDER BY COUNT(rl) DESC")
     Page<ReviewLike> findReviewByReviewLikes(Pageable pageable);
 
-    @Query("SELECT rl FROM ReviewLike rl "
-        + "JOIN FETCH rl.review JOIN FETCH rl.review.theme JOIN FETCH rl.review.theme.store "
-        + "WHERE rl.active = true AND rl.review.theme.store.storeCode = :storeCode "
-        + "GROUP BY rl.reviewCode "
-        + "ORDER BY COUNT(rl) DESC, rl.review.createdAt DESC")
+    @Query("SELECT rl FROM ReviewLike rl " +
+            "JOIN FETCH rl.review " +
+            "JOIN FETCH rl.review.theme " +
+            "JOIN FETCH rl.review.theme.store " +
+            "WHERE rl.active = true " +
+            "AND rl.review.theme.store.storeCode = :storeCode " +
+            "GROUP BY rl.reviewCode " +
+            "ORDER BY COUNT(rl) DESC, rl.review.createdAt DESC")
     List<ReviewLike> findBestReviewByStoreCode(@Param("storeCode")Integer storeCode);
 
-    @Query("SELECT r FROM ReviewLike r JOIN FETCH r.review JOIN FETCH r.member "
-        + "WHERE r.review.reviewCode = :reviewCode AND r.member.memberCode = :memberCode AND r.active = true")
+    @Query("SELECT r " +
+            "FROM ReviewLike r " +
+            "JOIN FETCH r.review " +
+            "JOIN FETCH r.member " +
+            "WHERE r.review.reviewCode = :reviewCode " +
+            "AND r.member.memberCode = :memberCode " +
+            "AND r.active = true")
     Optional<ReviewLike> findByReviewCodeAndMemberCode(@Param("reviewCode") Integer reviewCode, @Param("memberCode") Integer memberCode);
 }

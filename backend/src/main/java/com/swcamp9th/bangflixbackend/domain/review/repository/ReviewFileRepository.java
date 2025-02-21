@@ -11,9 +11,10 @@ import org.springframework.stereotype.Repository;
 public interface ReviewFileRepository extends JpaRepository<ReviewFile, Integer> {
 
     @Query("SELECT " +
-                "r " +
+                  "r " +
              "FROM ReviewFile r " +
              "JOIN FETCH r.review " +
-             "WHERE r.review.reviewCode = :reviewCode AND r.active = true")
+            "WHERE r.review.reviewCode = :reviewCode " +
+                  "AND r.active = true")
     List<ReviewFile> findByReview_ReviewCode(@Param("reviewCode") Integer reviewCode);
 }

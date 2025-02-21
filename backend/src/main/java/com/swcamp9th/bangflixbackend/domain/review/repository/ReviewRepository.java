@@ -13,9 +13,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
-    @Query("SELECT r FROM Review r JOIN FETCH r.member JOIN FETCH r.theme "
-        + "WHERE r.theme.themeCode = :themeCode AND r.active = true "
-        + "ORDER BY r.createdAt desc ")
+    @Query("SELECT r " +
+            "FROM Review r " +
+            "JOIN FETCH r.member " +
+            "JOIN FETCH r.theme " +
+            "WHERE r.theme.themeCode = :themeCode " +
+            "AND r.active = true " +
+            "ORDER BY r.createdAt desc ")
     List<Review> findByThemeCodeAndActiveTrueWithFetchJoin(@Param("themeCode") Integer themeCode, Pageable pageable);
 
     @Query("SELECT new com.swcamp9th.bangflixbackend.domain.review.dto.StatisticsReviewDTO(" +
@@ -71,24 +75,32 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
         "CAST(COUNT(CASE WHEN r.composition = 'FOUR' THEN 1  END) / COUNT(r) * 100 AS int), " +
         "CAST(COUNT(CASE WHEN r.composition = 'FIVE' THEN 1  END) / COUNT(r) * 100 AS int)) " +
 
-        "FROM Review r WHERE r.theme.themeCode = :themeCode AND r.active = true"
+        "FROM Review r " +
+            "WHERE r.theme.themeCode = :themeCode " +
+            "AND r.active = true"
     )
     Optional<StatisticsReviewDTO> findStatisticsByThemeCode(@Param("themeCode") Integer themeCode);
 
-    @Query("SELECT AVG(r.totalScore) FROM Review r INNER JOIN r.member WHERE r.member.memberCode = :memberCode")
+    @Query("SELECT AVG(r.totalScore) " +
+            "FROM Review r " +
+            "INNER JOIN r.member " +
+            "WHERE r.member.memberCode = :memberCode")
     Integer findAvgScoreByMemberCode(@Param("memberCode") Integer memberCode);
 
     @Query("SELECT g.name " +
-        "FROM Review r " +
-        "INNER JOIN r.theme t " +
-        "INNER JOIN ThemeGenre tg ON t.themeCode = tg.theme.themeCode " +  // 중간 테이블과 조인
-        "INNER JOIN Genre g ON tg.genre.genreCode = g.genreCode " +  // 장르 테이블과 조인
-        "WHERE r.member.memberCode = :memberCode AND t.active = true " +
-        "GROUP BY g.name " +
-        "ORDER BY COUNT(g) DESC")
+            "FROM Review r " +
+            "INNER JOIN r.theme t " +
+            "INNER JOIN ThemeGenre tg ON t.themeCode = tg.theme.themeCode " +  // 중간 테이블과 조인
+            "INNER JOIN Genre g ON tg.genre.genreCode = g.genreCode " +  // 장르 테이블과 조인
+            "WHERE r.member.memberCode = :memberCode AND t.active = true " +
+            "GROUP BY g.name " +
+            "ORDER BY COUNT(g) DESC")
     List<String> findTopGenresByMemberCode(@Param("memberCode") int memberCode, Pageable pageable);
 
-    @Query("SELECT r FROM Review r JOIN FETCH r.member WHERE r.member.memberCode = :memberCode "
-        + "ORDER BY r.createdAt DESC ")
+    @Query("SELECT r " +
+            "FROM Review r " +
+            "JOIN FETCH r.member " +
+            "WHERE r.member.memberCode = :memberCode " +
+            "ORDER BY r.createdAt DESC ")
     List<Review> findByMemberCode(@Param("memberCode") Integer memberCode, Pageable pageable);
 }

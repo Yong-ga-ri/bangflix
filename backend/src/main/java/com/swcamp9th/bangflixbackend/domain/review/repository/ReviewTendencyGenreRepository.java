@@ -9,11 +9,17 @@ import org.springframework.data.repository.query.Param;
 
 public interface ReviewTendencyGenreRepository extends JpaRepository<ReviewTendencyGenre, ReviewTendencyGenreId> {
 
-    @Query("SELECT t FROM ReviewTendencyGenre t JOIN FETCH t.tendency JOIN FETCH t.genre "
-        + "WHERE t.tendency.tendencyCode = :tendencyCode")
+    @Query("SELECT t " +
+            "FROM ReviewTendencyGenre t " +
+            "JOIN FETCH t.tendency " +
+            "JOIN FETCH t.genre " +
+            "WHERE t.tendency.tendencyCode = :tendencyCode")
     List<ReviewTendencyGenre> findByTendency_TendencyCode(@Param("tendencyCode") Integer tendencyCode);
 
-    @Query("SELECT t FROM ReviewTendencyGenre t JOIN FETCH t.tendency JOIN FETCH t.genre "
-        + "WHERE t.tendency.member.memberCode = :memberCode")
+    @Query("SELECT t " +
+            "FROM ReviewTendencyGenre t " +
+            "JOIN FETCH t.tendency " +
+            "JOIN FETCH t.genre " +
+            "WHERE t.tendency.member.memberCode = :memberCode")
     List<ReviewTendencyGenre> findMemberGenreByMemberCode(@Param("memberCode") Integer memberCode);
 }
