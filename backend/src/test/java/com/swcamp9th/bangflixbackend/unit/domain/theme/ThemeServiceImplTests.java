@@ -11,12 +11,12 @@ import com.swcamp9th.bangflixbackend.domain.theme.entity.Genre;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReaction;
+import com.swcamp9th.bangflixbackend.domain.theme.exception.ThemeNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.GenreRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeReactionRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
-import com.swcamp9th.bangflixbackend.shared.error.ThemeNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -107,7 +107,7 @@ class ThemeServiceImplTests {
         when(themeRepository.countReviewsByThemeCode(1)).thenReturn(3);
 
         // when
-        ThemeDTO result = themeService.findTheme(1);
+        ThemeDTO result = themeService.findThemeDTOByThemeCode(1);
 
         // then
         assertThat(result).isNotNull();
@@ -126,7 +126,7 @@ class ThemeServiceImplTests {
         when(themeRepository.findById(1)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> themeService.findTheme(1))
+        assertThatThrownBy(() -> themeService.findThemeDTOByThemeCode(1))
                 .isInstanceOf(ThemeNotFoundException.class)
                 .hasMessage("존재하지 않는 테마입니다.");
     }

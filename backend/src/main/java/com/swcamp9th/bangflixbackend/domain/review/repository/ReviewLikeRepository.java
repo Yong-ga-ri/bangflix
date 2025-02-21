@@ -22,7 +22,7 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
              "JOIN FETCH r.review " +
              "JOIN FETCH r.member " +
             "WHERE r.review.reviewCode = :reviewCode AND r.member.memberCode = :memberCode AND r.active = true")
-    ReviewLike findByMemberCodeAndReviewCode(@Param("memberCode") Integer memberCode, @Param("reviewCode") Integer reviewCode);
+    Optional<ReviewLike> findByMemberCodeAndReviewCode(@Param("memberCode") Integer memberCode, @Param("reviewCode") Integer reviewCode);
 
     @Query("SELECT " +
                 "r " +

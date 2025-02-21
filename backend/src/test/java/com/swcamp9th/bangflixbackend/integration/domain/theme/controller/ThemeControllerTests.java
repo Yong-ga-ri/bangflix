@@ -58,7 +58,7 @@ class ThemeControllerTests {
         ThemeDTO dummyTheme = new ThemeDTO();
         dummyTheme.setName("Test Theme");
 
-        when(themeService.findTheme(themeCode)).thenReturn(dummyTheme);
+        when(themeService.findThemeDTOByThemeCode(themeCode)).thenReturn(dummyTheme);
 
         mockMvc.perform(get("/api/v1/themes/{themeCode}", themeCode))
                 .andExpect(status().isOk())

@@ -8,12 +8,15 @@ import com.swcamp9th.bangflixbackend.domain.review.dto.StatisticsReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewFile;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewLike;
+import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewAlreadyLiked;
+import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewNotLikedException;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewFileRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewLikeRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewTendencyGenreRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
+import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeService;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
 import com.swcamp9th.bangflixbackend.shared.error.*;
@@ -23,12 +26,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.swcamp9th.bangflixbackend.shared.error.exception.FileUploadException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ModelMapper modelMapper;
-    private final ThemeRepository themeRepository;
+    private final ThemeService themeService;
     private final UserService userService;
     private final ReviewRepository reviewRepository;
     private final ReviewFileRepository reviewFileRepository;
@@ -53,7 +54,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     public ReviewServiceImpl(
             ModelMapper modelMapper,
-            ThemeRepository themeRepository,
+            ThemeService themeService,
             UserService userService,
             ReviewRepository reviewRepository,
             ReviewFileRepository reviewFileRepository,
@@ -61,7 +62,7 @@ public class ReviewServiceImpl implements ReviewService {
             ReviewTendencyGenreRepository reviewTendencyGenreRepository
     ) {
         this.modelMapper = modelMapper;
-        this.themeRepository = themeRepository;
+        this.themeService = themeService;
         this.userService = userService;
         this.reviewRepository = reviewRepository;
         this.reviewFileRepository = reviewFileRepository;
@@ -79,8 +80,9 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 리뷰 저장
         Review review = modelMapper.map(newReview, Review.class);
-        Theme theme = themeRepository.findById(newReview.getThemeCode()).orElse(null);
-        review.setTheme(theme);
+        review.setTheme(
+                themeService.findThemeByThemeCode(newReview.getThemeCode())
+        );
         review.setMember(member);
         review.setActive(true);
         review.setCreatedAt(LocalDateTime.now());
@@ -307,11 +309,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     @Override
     public void likeReview(ReviewCodeDTO reviewCodeDTO, int memberCode) {
-        ReviewLike reviewLike = reviewLikeRepository.findByMemberCodeAndReviewCode(
+        Optional<ReviewLike> reviewLikeOptional = reviewLikeRepository.findByMemberCodeAndReviewCode(
                 memberCode,
                 reviewCodeDTO.getReviewCode());
 
-        if (reviewLike == null) {
+        if (reviewLikeOptional.isEmpty()) {
             ReviewLike newReviewLike = new ReviewLike();
             newReviewLike.setMemberCode(memberCode);
             newReviewLike.setReviewCode(reviewCodeDTO.getReviewCode());
@@ -319,8 +321,9 @@ public class ReviewServiceImpl implements ReviewService {
             newReviewLike.setActive(true);
             reviewLikeRepository.save(newReviewLike);
         } else {
+            ReviewLike reviewLike = reviewLikeOptional.get();
             if(reviewLike.getActive()) {
-                throw new AlreadyLikedException("이미 좋아요가 존재합니다.");
+                throw new ReviewAlreadyLiked();
             } else{
                 reviewLike.setActive(true);
                 reviewLikeRepository.save(reviewLike);
@@ -331,19 +334,14 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     @Override
     public void deleteLikeReview(ReviewCodeDTO reviewCodeDTO, int memberCode) {
-        ReviewLike reviewLike = reviewLikeRepository.findByMemberCodeAndReviewCode(
-                memberCode, reviewCodeDTO.getReviewCode()
-        );
+        ReviewLike reviewLike = reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode())
+                .orElseThrow(ReviewNotLikedException::new);
 
-        if (reviewLike == null) {
-            throw new LikeNotFoundException("좋아요가 존재하지 않습니다.");
-        } else {
-            if(reviewLike.getActive()) {
-                reviewLike.setActive(false);
-                reviewLikeRepository.save(reviewLike);
-            } else{
-                throw new LikeNotFoundException("좋아요가 존재하지 않습니다.");
-            }
+        if(reviewLike.getActive()) {
+            reviewLike.setActive(false);
+            reviewLikeRepository.save(reviewLike);
+        } else{
+            throw new ReviewNotLikedException();
         }
     }
 
@@ -368,7 +366,7 @@ public class ReviewServiceImpl implements ReviewService {
                         .build());
             }
         } catch (IOException e) {
-            throw new FileUploadException("파일 업로드에 실패했습니다.");
+            throw new FileUploadException();
         }
     }
 

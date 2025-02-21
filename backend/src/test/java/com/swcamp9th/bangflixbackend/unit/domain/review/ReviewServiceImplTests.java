@@ -4,17 +4,17 @@ import com.swcamp9th.bangflixbackend.domain.review.dto.*;
 import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewFile;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewLike;
+import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewAlreadyLiked;
+import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewNotLikedException;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewFileRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewLikeRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewTendencyGenreRepository;
 import com.swcamp9th.bangflixbackend.domain.review.service.ReviewServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
-import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
+import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
-import com.swcamp9th.bangflixbackend.shared.error.AlreadyLikedException;
-import com.swcamp9th.bangflixbackend.shared.error.LikeNotFoundException;
 import com.swcamp9th.bangflixbackend.shared.error.ReviewNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +48,7 @@ class ReviewServiceImplTests {
     @Mock
     private ModelMapper modelMapper;
     @Mock
-    private ThemeRepository themeRepository;
+    private ThemeServiceImpl themeService;
     @Mock
     private UserService userService;
     @Mock
@@ -124,7 +124,7 @@ class ReviewServiceImplTests {
 
         // given
         when(modelMapper.map(createReviewDTO, Review.class)).thenReturn(review);
-        when(themeRepository.findById(createReviewDTO.getThemeCode())).thenReturn(Optional.of(theme));
+        when(themeService.findThemeByThemeCode(createReviewDTO.getThemeCode())).thenReturn(theme);
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
 
         // when
@@ -146,7 +146,7 @@ class ReviewServiceImplTests {
         MultipartFile file = new MockMultipartFile("file", "image.png", "image/png", "dummyImageContent".getBytes());
         List<MultipartFile> images = List.of(file);
         when(modelMapper.map(createReviewDTO, Review.class)).thenReturn(review);
-        when(themeRepository.findById(createReviewDTO.getThemeCode())).thenReturn(Optional.of(theme));
+        when(themeService.findThemeByThemeCode(createReviewDTO.getThemeCode())).thenReturn(theme);
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
 
         // when
@@ -430,7 +430,7 @@ class ReviewServiceImplTests {
         // given
         int memberCode = member.getMemberCode();
         when(reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode()))
-                .thenReturn(null);
+                .thenReturn(Optional.empty());
         // when
         reviewService.likeReview(reviewCodeDTO, memberCode);
         // then
@@ -451,7 +451,7 @@ class ReviewServiceImplTests {
         ReviewLike existingLike = new ReviewLike();
         existingLike.setActive(false);
         when(reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode()))
-                .thenReturn(existingLike);
+                .thenReturn(Optional.of(existingLike));
         // when
         reviewService.likeReview(reviewCodeDTO, memberCode);
         // then
@@ -468,12 +468,12 @@ class ReviewServiceImplTests {
         ReviewLike existingLike = new ReviewLike();
         existingLike.setActive(true);
         when(reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode()))
-                .thenReturn(existingLike);
+                .thenReturn(Optional.of(existingLike));
 
         // when & then
         assertThatThrownBy(() -> reviewService.likeReview(reviewCodeDTO, memberCode))
-                .isInstanceOf(AlreadyLikedException.class)
-                .hasMessage("이미 좋아요가 존재합니다.");
+                .isInstanceOf(ReviewAlreadyLiked.class)
+                .hasMessage("이미 좋아요를 누른 리뷰입니다.");
     }
 
     @Test
@@ -485,7 +485,7 @@ class ReviewServiceImplTests {
         ReviewLike existingLike = new ReviewLike();
         existingLike.setActive(true);
         when(reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode()))
-                .thenReturn(existingLike);
+                .thenReturn(Optional.of(existingLike));
 
         // when
         reviewService.deleteLikeReview(reviewCodeDTO, memberCode);
@@ -502,12 +502,11 @@ class ReviewServiceImplTests {
         // given
         int memberCode = member.getMemberCode();
         when(reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode()))
-                .thenReturn(null);
+                .thenThrow(ReviewNotLikedException.class);
 
         // when & then
         assertThatThrownBy(() -> reviewService.deleteLikeReview(reviewCodeDTO, memberCode))
-                .isInstanceOf(LikeNotFoundException.class)
-                .hasMessage("좋아요가 존재하지 않습니다.");
+                .isInstanceOf(ReviewNotLikedException.class);
     }
 
     @Test
@@ -519,11 +518,11 @@ class ReviewServiceImplTests {
         ReviewLike existingLike = new ReviewLike();
         existingLike.setActive(false);
         when(reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode()))
-                .thenReturn(existingLike);
+                .thenReturn(Optional.of(existingLike));
 
         // when & then
         assertThatThrownBy(() -> reviewService.deleteLikeReview(reviewCodeDTO, memberCode))
-                .isInstanceOf(LikeNotFoundException.class)
-                .hasMessage("좋아요가 존재하지 않습니다.");
+                .isInstanceOf(ReviewNotLikedException.class)
+                .hasMessage("좋아요를 누르지 않은 리뷰입니다.");
     }
 }

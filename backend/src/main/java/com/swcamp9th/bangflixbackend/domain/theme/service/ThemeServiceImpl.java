@@ -9,6 +9,9 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReaction;
+import com.swcamp9th.bangflixbackend.domain.theme.exception.ReactionNotFoundException;
+import com.swcamp9th.bangflixbackend.domain.theme.exception.ThemeNotFoundException;
+import com.swcamp9th.bangflixbackend.domain.theme.exception.UnexpectedReactionTypeException;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.GenreRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeReactionRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
@@ -16,8 +19,6 @@ import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import com.swcamp9th.bangflixbackend.shared.error.ReactionNotFoundException;
-import com.swcamp9th.bangflixbackend.shared.error.ThemeNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,17 +57,21 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public ThemeDTO findTheme(Integer themeCode) {
-        Theme theme = themeRepository.findById(themeCode)
-                .orElseThrow(() -> new ThemeNotFoundException("존재하지 않는 테마입니다."));
-        return createThemeDTO(theme);
+    public ThemeDTO findThemeDTOByThemeCode(Integer themeCode) {
+        return createThemeDTO(findThemeByThemeCode(themeCode));
+    }
+
+    @Transactional
+    public Theme findThemeByThemeCode(Integer themeCode) {
+        return themeRepository.findById(themeCode)
+                .orElseThrow(ThemeNotFoundException::new);
     }
 
     @Override
     @Transactional
     public ThemeDTO findTheme(Integer themeCode, int memberCode) {
         Theme theme = themeRepository.findById(themeCode)
-                .orElseThrow(() -> new ThemeNotFoundException("존재하지 않는 테마입니다."));
+                .orElseThrow(ThemeNotFoundException::new);
 
         return createThemeDTO(theme, memberCode);
     }
@@ -292,10 +297,15 @@ public class ThemeServiceImpl implements ThemeService {
             Member member,
             ThemeReactionDTO themeReactionDTO
     ) {
-        Theme theme = themeRepository.findById(themeReactionDTO.getThemeCode()).orElseThrow();
-        ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(
-            themeReactionDTO.getThemeCode(), member.getMemberCode()).orElse(null);
-        if(themeReaction == null){
+        Theme theme = themeRepository.findById(themeReactionDTO.getThemeCode())
+                .orElseThrow(ThemeNotFoundException::new);
+        ThemeReaction themeReaction = themeReactionRepository
+                .findReactionByThemeCodeAndMemberCode(
+                        themeReactionDTO.getThemeCode(),
+                        member.getMemberCode()
+                )
+                .orElse(null);
+        if (themeReaction == null) {
             themeReaction = new ThemeReaction();
             themeReaction.setMember(member);
             if(themeReactionDTO.getReaction().equals("like"))
@@ -310,8 +320,8 @@ public class ThemeServiceImpl implements ThemeService {
             themeReactionRepository.save(themeReaction);
         }
         else {
-            if(themeReactionDTO.getReaction().equals("like")){
-                if(themeReaction.getReaction().equals(ReactionType.LIKE))
+            if (themeReactionDTO.getReaction().equals("like")) {
+                if (themeReaction.getReaction().equals(ReactionType.LIKE))
                     return;
                 else if (themeReaction.getReaction().equals(ReactionType.SCRAP))
                     themeReaction.setReaction(ReactionType.SCRAPLIKE);
@@ -333,8 +343,9 @@ public class ThemeServiceImpl implements ThemeService {
     @Override
     @Transactional
     public void deleteThemeReaction(int memberCode, ThemeReactionDTO themeReactionDTO) {
-        ThemeReaction themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(
-            themeReactionDTO.getThemeCode(), memberCode).orElseThrow(() -> new ReactionNotFoundException("리액션이 존재하지 않습니다."));
+        ThemeReaction themeReaction =
+                themeReactionRepository.findReactionByThemeCodeAndMemberCode(themeReactionDTO.getThemeCode(), memberCode)
+                .orElseThrow(ReactionNotFoundException::new);
 
         ReactionType currentReaction = themeReaction.getReaction();
         String requestedReaction = themeReactionDTO.getReaction();
@@ -365,9 +376,7 @@ public class ThemeServiceImpl implements ThemeService {
                 themeReactionRepository.save(themeReaction);
             }
         } else {
-
-            // 예상치 못한 반응 타입이 들어온 경우 (필요 시 예외 처리)
-            throw new IllegalArgumentException("잘못된 반응 타입: " + requestedReaction);
+            throw new UnexpectedReactionTypeException("잘못된 타입입니다. + 요청된 리액션: " + requestedReaction);
         }
     }
 
@@ -387,7 +396,7 @@ public class ThemeServiceImpl implements ThemeService {
             themeReactions = themeReactionRepository.findThemeByMemberScrap(pageable, memberCode);
 
         else
-            throw new RuntimeException();
+            throw new UnexpectedReactionTypeException("잘못된 타입입니다. + 요청된 리액션: " + reaction);
 
 
         List<FindThemeByReactionDTO> result = new ArrayList<>();

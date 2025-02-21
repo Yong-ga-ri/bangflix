@@ -6,6 +6,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
 import java.util.List;
 
+import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import org.springframework.data.domain.Pageable;
 
@@ -78,7 +79,15 @@ public interface ThemeService {
      * @param themeCode 조회할 테마의 고유 코드
      * @return 해당 테마의 상세 정보를 담은 ThemeDTO
      */
-    ThemeDTO findTheme(Integer themeCode);
+    ThemeDTO findThemeDTOByThemeCode(Integer themeCode);
+
+    /**
+     * 게스트용 테마 상세 조회 API.
+     *
+     * @param themeCode 조회할 테마의 고유 코드
+     * @return 해당 테마의 상세 정보를 담은 ThemeDTO
+     */
+    Theme findThemeByThemeCode(Integer themeCode);
 
     /**
      * 회원용 테마 조회 API (필터링 및 검색).

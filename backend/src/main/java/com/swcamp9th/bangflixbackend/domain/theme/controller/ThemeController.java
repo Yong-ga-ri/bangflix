@@ -69,7 +69,7 @@ public class ThemeController {
         ThemeDTO themeDTO;
 
         if (loginId == null) {  // for guests
-            themeDTO = themeService.findTheme(themeCode);
+            themeDTO = themeService.findThemeDTOByThemeCode(themeCode);
         } else {    // for members
             int memberCode = userService.findMemberCodeByLoginId(loginId);
             themeDTO = themeService.findTheme(themeCode, memberCode);
