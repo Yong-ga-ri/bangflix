@@ -13,9 +13,10 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
 
     @Query("SELECT " +
                   "DISTINCT t " +
-             "FROM Theme t " +
-             "JOIN ThemeGenre tg " +
-             "JOIN Genre g " +
+             "FROM " +
+                  "Theme t " +
+                ", ThemeGenre tg" +
+                ", Genre g " +
             "WHERE g.name IN :genres " +
               "AND t.active = true " +
               "AND (:search IS NULL OR t.name LIKE CONCAT('%', :search, '%')) ")
@@ -49,9 +50,7 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
 
     @Query("SELECT " +
                   "DISTINCT t " +
-             "FROM Theme t " +
-             "JOIN ThemeGenre tg " +
-             "JOIN Genre g " +
+             "FROM Theme t, ThemeGenre tg, Genre g " +
             "WHERE t.active = true " +
               "AND g.name IN :genres ")
     List<Theme> findThemesByAllGenres(List<String> genres);
