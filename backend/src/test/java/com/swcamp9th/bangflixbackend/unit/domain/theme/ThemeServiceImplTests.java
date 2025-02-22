@@ -232,7 +232,7 @@ class ThemeServiceImplTests {
 
         // mocking: 검색 메서드 분기 (genres != null && content != null)
         List<Theme> themeList = List.of(theme, theme2);
-        when(themeRepository.findThemesByAllGenresAndSearch(genres, content)).thenReturn(Optional.of(themeList));
+        when(themeRepository.findThemesByAllGenresAndSearch(genres, content)).thenReturn(themeList);
 
         // 각 Theme에 대한 매핑
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
@@ -247,7 +247,7 @@ class ThemeServiceImplTests {
         when(themeRepository.countReviewsByThemeCode(theme2.getThemeCode())).thenReturn(5);
 
         // reaction 조회 (없다고 가정)
-        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(any(), eq(memberCode)))
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(anyInt(), eq(memberCode)))
                 .thenReturn(Optional.empty());
 
         // when
@@ -308,7 +308,7 @@ class ThemeServiceImplTests {
         themeDTO2.setReviewCount(15);
 
         List<Theme> themeList = List.of(theme, theme2);
-        when(themeRepository.findByStoreCode(storeCode)).thenReturn(themeList);
+        when(themeRepository.findThemeListByStoreCode(storeCode)).thenReturn(themeList);
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(modelMapper.map(theme2, ThemeDTO.class)).thenReturn(themeDTO2);
 
@@ -321,7 +321,7 @@ class ThemeServiceImplTests {
         when(themeRepository.countReviewsByThemeCode(theme2.getThemeCode())).thenReturn(15);
 
         // reaction 조회 (없다고 가정)
-        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(any(), eq(memberCode)))
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(anyInt(), eq(memberCode)))
                 .thenReturn(Optional.empty());
 
         // when
@@ -344,7 +344,7 @@ class ThemeServiceImplTests {
         int storeCode = 100;
 
         List<Theme> themeList = List.of(theme);
-        when(themeRepository.findByStoreCode(storeCode)).thenReturn(themeList);
+        when(themeRepository.findThemeListByStoreCode(storeCode)).thenReturn(themeList);
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
@@ -467,7 +467,7 @@ class ThemeServiceImplTests {
 
         // reaction "like" branch
         when(themeReactionRepository.findLikeReactionsByMemberCode(pageable, memberCode))
-                .thenReturn(Optional.of(List.of(themeReaction)));
+                .thenReturn(List.of(themeReaction));
 
         // store lookup
         when(storeRepository.findByThemeCode(theme.getThemeCode())).thenReturn(store);
@@ -507,7 +507,7 @@ class ThemeServiceImplTests {
         Pageable pageable = PageRequest.of(0, 5);
         List<Theme> themeList = List.of(theme);
         when(themeRepository.findByWeekOrderByLikes(any(LocalDateTime.class), eq(pageable)))
-                .thenReturn(Optional.of(themeList));
+                .thenReturn(themeList);
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
@@ -529,7 +529,7 @@ class ThemeServiceImplTests {
         Pageable pageable = PageRequest.of(0, 5);
         List<Theme> themeList = List.of(theme);
         when(themeRepository.findByWeekOrderByLikes(any(LocalDateTime.class), eq(pageable)))
-                .thenReturn(Optional.of(themeList));
+                .thenReturn(themeList);
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
@@ -575,7 +575,7 @@ class ThemeServiceImplTests {
         when(themeRepository.findGenresByThemeCode(themeCodes)).thenReturn(List.of(10, 20, 10));
 
         // genreRepository.findGenreNames: for most frequent genres (here 10)
-        when(genreRepository.findGenreNames(List.of(10))).thenReturn(Optional.of(List.of("Comedy")));
+        when(genreRepository.findGenreNames(List.of(10))).thenReturn(List.of("Comedy"));
 
         // 내부 호출: findThemeByGenresAndSearchOrderBySort(pageable, "like", genreNames, null)
         List<Theme> themeList = List.of(theme);
@@ -599,7 +599,7 @@ class ThemeServiceImplTests {
         int memberCode = 999;
         // themeReactionRepository: SCRAP 또는 SCRAPLIKE 반응을 가진 항목들 반환
         when(themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(eq(memberCode), any()))
-                .thenReturn(Optional.of(List.of(themeReaction)));
+                .thenReturn(List.of(themeReaction));
         // repository.findByThemeCodes: themeCodes를 통해 Theme 목록 반환
         when(themeRepository.findByThemeCodes(anyList())).thenReturn(List.of(theme));
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);

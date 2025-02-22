@@ -96,8 +96,7 @@ public class ThemeServiceImpl implements ThemeService {
 
         if(genres != null){
             if(content != null)
-                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content)
-                        .orElseThrow(ThemeNotFoundException::new);
+                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content);
             else
                 themes = themeRepository.findThemesByAllGenres(genres);
         } else {
@@ -155,8 +154,7 @@ public class ThemeServiceImpl implements ThemeService {
 
         if(genres != null){
             if(content != null)
-                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content)
-                        .orElseThrow(ThemeNotFoundException::new);
+                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content);
             else
                 themes = themeRepository.findThemesByAllGenres(genres);
         } else {
@@ -210,7 +208,7 @@ public class ThemeServiceImpl implements ThemeService {
             Integer storeCode,
             int memberCode
     ) {
-        List<Theme> themes = themeRepository.findByStoreCode(storeCode);
+        List<Theme> themes = themeRepository.findThemeListByStoreCode(storeCode);
         List<ThemeDTO> themesDTO = new ArrayList<>();
 
         for(Theme theme : themes)
@@ -254,7 +252,7 @@ public class ThemeServiceImpl implements ThemeService {
             String filter,
             Integer storeCode
     ) {
-        List<Theme> themes = themeRepository.findByStoreCode(storeCode);
+        List<Theme> themes = themeRepository.findThemeListByStoreCode(storeCode);
         List<ThemeDTO> themesDTO = new ArrayList<>();
 
         for(Theme theme : themes)
@@ -390,12 +388,10 @@ public class ThemeServiceImpl implements ThemeService {
         List<ThemeReaction> themeReactions;
 
         if(reaction.equals("like"))
-            themeReactions = themeReactionRepository.findLikeReactionsByMemberCode(pageable, memberCode)
-                    .orElseThrow(ThemeReactionNotFoundException::new);
+            themeReactions = themeReactionRepository.findLikeReactionsByMemberCode(pageable, memberCode);
 
         else if(reaction.equals("scrap"))
-            themeReactions = themeReactionRepository.findScrapReactionsByMemberCode(pageable, memberCode)
-                    .orElseThrow(ThemeReactionNotFoundException::new);
+            themeReactions = themeReactionRepository.findScrapReactionsByMemberCode(pageable, memberCode);
 
         else
             throw new UnexpectedReactionTypeException("잘못된 타입입니다. + 요청된 리액션: " + reaction);
@@ -422,7 +418,7 @@ public class ThemeServiceImpl implements ThemeService {
         LocalDateTime oneWeekAgo = now.minusWeeks(1);  // 현재로부터 1주일 이전
         Pageable pageable = PageRequest.of(0,5);
 
-        List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable).orElseThrow(() -> new RuntimeException("주간 인기 테마가 없습니다."));
+        List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable);
 
         return createThemeDTOList(themes, memberCode);
     }
@@ -433,7 +429,7 @@ public class ThemeServiceImpl implements ThemeService {
         LocalDateTime oneWeekAgo = now.minusWeeks(1);  // 현재로부터 1주일 이전
         Pageable pageable = PageRequest.of(0,5);
 
-        List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable).orElseThrow(() -> new RuntimeException("주간 인기 테마가 없습니다."));
+        List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable);
 
         return createThemeDTOList(themes);
     }
@@ -473,8 +469,7 @@ public class ThemeServiceImpl implements ThemeService {
                 mostFrequentNumbers.add(number);
         }
 
-        List<String> genreNames = genreRepository.findGenreNames(mostFrequentNumbers)
-                .orElseThrow(GenreNotFoundException::new);
+        List<String> genreNames = genreRepository.findGenreNames(mostFrequentNumbers);
 
         return findThemeByGenresAndSearchOrderBySort(
                 pageable,
@@ -488,8 +483,7 @@ public class ThemeServiceImpl implements ThemeService {
     @Override
     public List<ThemeDTO> getScrapedThemeByMemberCode(int memberCode) {
         List<ThemeReaction> themeReactions =
-                themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(memberCode, List.of(ReactionType.SCRAP, ReactionType.SCRAPLIKE))
-                        .orElseThrow(ThemeReactionNotFoundException::new);
+                themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(memberCode, List.of(ReactionType.SCRAP, ReactionType.SCRAPLIKE));
 
         List<Theme> themes = themeRepository.findByThemeCodes(themeReactions.stream()
                 .map(ThemeReaction::getThemeCode)
