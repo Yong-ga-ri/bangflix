@@ -17,12 +17,13 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
                   "Theme t " +
                 ", ThemeGenre tg" +
                 ", Genre g " +
-            "WHERE g.name IN :genres " +
-              "AND t.active = true " +
+            "WHERE t.active = true " +
+              "AND g.name IN :genres " +
               "AND (:search IS NULL OR t.name LIKE CONCAT('%', :search, '%')) ")
     List<Theme> findThemesByAllGenresAndSearch(
-            List<String> genres,
-            String search
+            @Param("genres") List<String> genres,
+            @Param("search") String search,
+            Pageable pageable
     );
 
     @Query("SELECT " +
@@ -53,7 +54,9 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
              "FROM Theme t, ThemeGenre tg, Genre g " +
             "WHERE t.active = true " +
               "AND g.name IN :genres ")
-    List<Theme> findThemesByAllGenres(List<String> genres);
+    List<Theme> findThemesByAllGenres(
+            @Param("genres") List<String> genres
+    );
 
     @Query("SELECT t " +
              "FROM Theme t " +

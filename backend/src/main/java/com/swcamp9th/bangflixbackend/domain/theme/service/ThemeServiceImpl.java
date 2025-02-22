@@ -6,6 +6,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
+import com.swcamp9th.bangflixbackend.domain.theme.dto.mapper.ReactionMapper;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReaction;
@@ -56,7 +57,7 @@ public class ThemeServiceImpl implements ThemeService {
     @Override
     @Transactional
     public ThemeDTO findThemeDTOByThemeCode(Integer themeCode) {
-        return createThemeDTO(findThemeByThemeCode(themeCode));
+        return createBaseThemeDTO(findThemeByThemeCode(themeCode));
     }
 
     @Transactional
@@ -87,7 +88,7 @@ public class ThemeServiceImpl implements ThemeService {
     @Transactional
     public List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(
             Pageable pageable,
-            String filter,
+            String sort,
             List<String> genres,
             String search,
             int memberCode
@@ -96,7 +97,7 @@ public class ThemeServiceImpl implements ThemeService {
 
         if(genres != null){
             if(search != null)
-                themes = themeRepository.findThemesByAllGenresAndSearch(genres, search);
+                themes = themeRepository.findThemesByAllGenresAndSearch(genres, search, pageable);
             else
                 themes = themeRepository.findThemesByAllGenres(genres);
         } else {
@@ -112,7 +113,7 @@ public class ThemeServiceImpl implements ThemeService {
             themesDTO.add(createThemeDTO(theme, memberCode));
         }
 
-        filterThemeList(themesDTO, filter);
+        sortThemeList(themesDTO, sort);
 
         int startIndex = pageable.getPageNumber() * pageable.getPageSize();
         int lastIndex = Math.min((startIndex + pageable.getPageSize()), themes.size());
@@ -123,7 +124,7 @@ public class ThemeServiceImpl implements ThemeService {
     @Transactional
     public List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(
             Pageable pageable,
-            String filter,
+            String sort,
             List<String> genres,
             String search
     ) {
@@ -131,7 +132,7 @@ public class ThemeServiceImpl implements ThemeService {
 
         if(genres != null){
             if(search != null)
-                themes = themeRepository.findThemesByAllGenresAndSearch(genres, search);
+                themes = themeRepository.findThemesByAllGenresAndSearch(genres, search, pageable);
             else
                 themes = themeRepository.findThemesByAllGenres(genres);
         } else {
@@ -144,14 +145,12 @@ public class ThemeServiceImpl implements ThemeService {
         List<ThemeDTO> themesDTO = new ArrayList<>();
 
         for(Theme theme : themes) {
-            themesDTO.add(createThemeDTO(theme));
+            themesDTO.add(createBaseThemeDTO(theme));
         }
 
-        filterThemeList(themesDTO, filter);
+        sortThemeList(themesDTO, sort);
 
-        int startIndex = pageable.getPageNumber() * pageable.getPageSize();
-        int lastIndex = Math.min((startIndex + pageable.getPageSize()), themes.size());
-        return themesDTO.subList(startIndex, lastIndex);
+        return themesDTO;
     }
 
     @Override
@@ -168,7 +167,7 @@ public class ThemeServiceImpl implements ThemeService {
         for(Theme theme : themes)
             themesDTO.add(createThemeDTO(theme, memberCode));
 
-        filterThemeList(themesDTO, filter);
+        sortThemeList(themesDTO, filter);
 
 
         int startIndex = pageable.getPageNumber() * pageable.getPageSize();
@@ -187,9 +186,9 @@ public class ThemeServiceImpl implements ThemeService {
         List<ThemeDTO> themesDTO = new ArrayList<>();
 
         for(Theme theme : themes)
-            themesDTO.add(createThemeDTO(theme));
+            themesDTO.add(createBaseThemeDTO(theme));
 
-        filterThemeList(themesDTO, filter);
+        sortThemeList(themesDTO, filter);
 
         int startIndex = pageable.getPageNumber() * pageable.getPageSize();
         int lastIndex = Math.min((startIndex + pageable.getPageSize()), themes.size());
@@ -347,44 +346,46 @@ public class ThemeServiceImpl implements ThemeService {
     public List<ThemeDTO> recommendTheme(List<Integer> themeCodes) {
         Pageable pageable = PageRequest.of(0,5);
 
-        if (themeCodes == null)
+        if (themeCodes == null) {
             return findThemeByGenresAndSearchOrderBySort(
                     pageable,
                     "like",
                     null,
                     null
             );
+        } else {
 
-        List<Integer> genres = new ArrayList<>(themeRepository.findGenresByThemeCode(themeCodes));
+            List<Integer> genres = new ArrayList<>(themeRepository.findGenresByThemeCode(themeCodes));
 
-        HashMap<Integer, Integer> countMap = new HashMap<>();
-        for (int number : genres) {
-            countMap.put(number, countMap.getOrDefault(number, 0) + 1);
-        }
-
-        // 가장 많이 등장한 횟수 찾기
-        int maxCount = 0;
-        for (int count : countMap.values()) {
-            if (count > maxCount) {
-                maxCount = count;
+            HashMap<Integer, Integer> countMap = new HashMap<>();
+            for (int number : genres) {
+                countMap.put(number, countMap.getOrDefault(number, 0) + 1);
             }
+
+            // 가장 많이 등장한 횟수 찾기
+            int maxCount = 0;
+            for (int count : countMap.values()) {
+                if (count > maxCount) {
+                    maxCount = count;
+                }
+            }
+
+            // 가장 많이 등장한 숫자들을 리스트에 저장
+            List<Integer> mostFrequentNumbers = new ArrayList<>();
+            for (int number : countMap.keySet()) {
+                if (countMap.get(number) == maxCount)
+                    mostFrequentNumbers.add(number);
+            }
+
+            List<String> genreNames = genreRepository.findGenreNames(mostFrequentNumbers);
+
+            return findThemeByGenresAndSearchOrderBySort(
+                    pageable,
+                    "like",
+                    genreNames,
+                    null
+            );
         }
-
-        // 가장 많이 등장한 숫자들을 리스트에 저장
-        List<Integer> mostFrequentNumbers = new ArrayList<>();
-        for (int number : countMap.keySet()) {
-            if (countMap.get(number) == maxCount)
-                mostFrequentNumbers.add(number);
-        }
-
-        List<String> genreNames = genreRepository.findGenreNames(mostFrequentNumbers);
-
-        return findThemeByGenresAndSearchOrderBySort(
-                pageable,
-                "like",
-                genreNames,
-                null
-        );
     }
 
     @Transactional(readOnly = true)
@@ -404,98 +405,60 @@ public class ThemeServiceImpl implements ThemeService {
 
     }
 
-    private ThemeDTO createThemeDTO(Theme theme, Integer memberCode) {
-        ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
-        themeDto.setStoreCode(theme.getStore().getStoreCode());
-        themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
-        themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
-        themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
-        themeDto.setStoreName(theme.getStore().getName());
-
-        themeDto.setIsLike(false);
-        themeDto.setIsScrap(false);
-
-        Optional<ThemeReaction> themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode);
-
-        if (themeReaction.isPresent()) {
-            if (themeReaction.get().getReaction().equals(ReactionType.LIKE) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
-                themeDto.setIsLike(true);
-            if (themeReaction.get().getReaction().equals(ReactionType.SCRAP) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
-                themeDto.setIsScrap(true);
-        }
-
-        return themeDto;
-    }
-
-    private ThemeDTO createThemeDTO(Theme theme) {
-        ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
-        themeDto.setStoreCode(theme.getStore().getStoreCode());
-        themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
-        themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
-        themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
-        themeDto.setStoreName(theme.getStore().getName());
-
-        themeDto.setIsLike(false);
-        themeDto.setIsScrap(false);
-        return themeDto;
-    }
-
     private List<ThemeDTO> createThemeDTOList(List<Theme> themes, int memberCode) {
 
         List<ThemeDTO> themeDTOList = new ArrayList<>();
 
-        for(Theme theme : themes) {
-            ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
-
-            themeDto.setStoreCode(theme.getStore().getStoreCode());
-            themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
-            themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
-            themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
-
-            themeDto.setIsLike(false);
-            themeDto.setIsScrap(false);
-
-
-            Optional<ThemeReaction> themeReaction = themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode);
-
-            if (themeReaction.isPresent()) {
-                if (themeReaction.get().getReaction().equals(ReactionType.LIKE) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
-                    themeDto.setIsLike(true);
-                if (themeReaction.get().getReaction().equals(ReactionType.SCRAP) || themeReaction.get().getReaction().equals(ReactionType.SCRAPLIKE))
-                    themeDto.setIsScrap(true);
-            }
-
-            themeDTOList.add(themeDto);
-        }
+        themes.stream()
+                .map(theme -> {
+                    ThemeDTO themeDto = createBaseThemeDTO(theme);
+                    applyReaction(theme.getThemeCode(), memberCode, themeDto);
+                    return themeDto;
+                })
+                .forEach(themeDTOList::add);
 
         return themeDTOList;
     }
 
     private List<ThemeDTO> createThemeDTOList(List<Theme> themes) {
-
         List<ThemeDTO> themeDTOList = new ArrayList<>();
 
-        for(Theme theme : themes) {
-            ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
-            themeDto.setStoreCode(theme.getStore().getStoreCode());
-            themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
-            themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
-            themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
-
-            themeDto.setIsLike(false);
-            themeDto.setIsScrap(false);
-
-            themeDTOList.add(themeDto);
-        }
+        themes.stream()
+                .map(this::createBaseThemeDTO)
+                .forEach(themeDTOList::add);
 
         return themeDTOList;
     }
 
-    private void filterThemeList(List<ThemeDTO> themesDTO, String filter) {
-        if (filter == null) {
-            filter = "NONE";
+    private ThemeDTO createThemeDTO(Theme theme, Integer memberCode) {
+        ThemeDTO themeDto = createBaseThemeDTO(theme);
+        applyReaction(theme.getThemeCode(), memberCode, themeDto);
+        return themeDto;
+    }
+
+    private ThemeDTO createBaseThemeDTO(Theme theme) {
+        ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
+        themeDto.setStoreCode(theme.getStore().getStoreCode());
+        themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
+        themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
+        themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
+        themeDto.setStoreName(theme.getStore().getName());
+        themeDto.setIsLike(false);
+        themeDto.setIsScrap(false);
+        return themeDto;
+    }
+
+    private void applyReaction(int themeCode, int memberCode, ThemeDTO themeDto) {
+        themeReactionRepository.findReactionByThemeCodeAndMemberCode(themeCode, memberCode)
+                .ifPresent(reaction -> ReactionMapper.applyReaction(themeDto, reaction.getReaction()));
+    }
+
+
+    private void sortThemeList(List<ThemeDTO> themesDTO, String sort) {
+        if (sort == null) {
+            sort = "NONE";
         }
-        switch (filter) {
+        switch (sort) {
             case "like":
                 themesDTO.sort(Comparator.comparing(ThemeDTO::getLikeCount).reversed()
                         .thenComparing(Comparator.comparing(ThemeDTO::getCreatedAt).reversed()));

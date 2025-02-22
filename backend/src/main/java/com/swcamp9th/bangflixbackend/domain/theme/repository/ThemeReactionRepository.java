@@ -22,7 +22,8 @@ public interface ThemeReactionRepository extends JpaRepository<ThemeReaction, Th
               "AND tr.member.memberCode = :memberCode ")
     Optional<ThemeReaction> findReactionByThemeCodeAndMemberCode(
             int themeCode,
-            int memberCode);
+            int memberCode
+    );
 
     @Query("SELECT tr " +
              "FROM ThemeReaction tr " +
