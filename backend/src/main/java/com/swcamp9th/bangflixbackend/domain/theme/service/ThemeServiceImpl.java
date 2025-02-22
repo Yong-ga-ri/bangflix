@@ -89,19 +89,19 @@ public class ThemeServiceImpl implements ThemeService {
             Pageable pageable,
             String filter,
             List<String> genres,
-            String content,
+            String search,
             int memberCode
     ) {
         List<Theme> themes;
 
         if(genres != null){
-            if(content != null)
-                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content);
+            if(search != null)
+                themes = themeRepository.findThemesByAllGenresAndSearch(genres, search);
             else
                 themes = themeRepository.findThemesByAllGenres(genres);
         } else {
-            if(content != null)
-                themes = themeRepository.findThemesBySearch(content);
+            if(search != null)
+                themes = themeRepository.findThemesBySearch(search);
             else
                 themes = themeRepository.findAll();
         }
@@ -148,18 +148,18 @@ public class ThemeServiceImpl implements ThemeService {
             Pageable pageable,
             String filter,
             List<String> genres,
-            String content
+            String search
     ) {
         List<Theme> themes;
 
         if(genres != null){
-            if(content != null)
-                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content);
+            if(search != null)
+                themes = themeRepository.findThemesByAllGenresAndSearch(genres, search);
             else
                 themes = themeRepository.findThemesByAllGenres(genres);
         } else {
-            if(content != null)
-                themes = themeRepository.findThemesBySearch(content);
+            if(search != null)
+                themes = themeRepository.findThemesBySearch(search);
             else
                 themes = themeRepository.findAll();
         }

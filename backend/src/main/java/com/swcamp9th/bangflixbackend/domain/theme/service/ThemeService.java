@@ -97,11 +97,11 @@ public interface ThemeService {
      * @param pageable   페이징 정보
      * @param filter     정렬 필터 (예: "like", "scrap", "review"). 값이 없으면 기본 생성 순으로 정렬됩니다.
      * @param genres     선택적 장르 리스트 (여러 개 가능)
-     * @param content    검색어 (테마 이름에 포함된 문자열)
+     * @param search    검색어 (테마 이름에 포함된 문자열)
      * @param memberCode 로그인한 회원의 고유 코드
      * @return 조회된 테마 목록을 담은 ThemeDTO 리스트
      */
-    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content, int memberCode);
+    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String search, int memberCode);
 
     /**
      * 게스트용 테마 조회 API (필터링 및 검색).
@@ -111,10 +111,10 @@ public interface ThemeService {
      * @param pageable 페이징 정보
      * @param filter   정렬 필터 (예: "like", "scrap", "review"). 값이 없으면 기본 생성 순으로 정렬됩니다.
      * @param genres   선택적 장르 리스트 (여러 개 가능)
-     * @param content  검색어 (테마 이름에 포함된 문자열)
+     * @param search  검색어 (테마 이름에 포함된 문자열)
      * @return 조회된 테마 목록을 담은 ThemeDTO 리스트
      */
-    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content);
+    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String search);
 
     /**
      * 회원용 업체별 테마 조회 API.
