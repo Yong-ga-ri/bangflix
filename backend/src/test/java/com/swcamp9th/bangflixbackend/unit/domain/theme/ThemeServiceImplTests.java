@@ -575,7 +575,7 @@ class ThemeServiceImplTests {
         when(themeRepository.findGenresByThemeCode(themeCodes)).thenReturn(List.of(10, 20, 10));
 
         // genreRepository.findGenreNames: for most frequent genres (here 10)
-        when(genreRepository.findGenreNames(List.of(10))).thenReturn(List.of("Comedy"));
+        when(genreRepository.findGenreNames(List.of(10))).thenReturn(Optional.of(List.of("Comedy")));
 
         // 내부 호출: findThemeByGenresAndSearchOrderBySort(pageable, "like", genreNames, null)
         List<Theme> themeList = List.of(theme);

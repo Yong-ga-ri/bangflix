@@ -2,6 +2,8 @@ package com.swcamp9th.bangflixbackend.domain.theme.repository;
 
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Genre;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +16,6 @@ public interface GenreRepository extends JpaRepository<Genre, Integer> {
              "FROM Genre g " +
             "INNER JOIN ThemeGenre tg ON  g.genreCode = tg.genreCode " +
             "WHERE g.genreCode IN :genreCodes")
-    List<String> findGenreNames(@Param("genreCodes") List<Integer> genreCodes);
+    Optional<List<String>> findGenreNames(@Param("genreCodes") List<Integer> genreCodes);
 
 }

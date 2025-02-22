@@ -27,6 +27,7 @@ public enum ErrorCode {
 
     // Theme
     THEME_NOT_FOUND(404, "존재하지 않는 테마입니다."),
+    GENRE_NOT_FOUND(404, "존재하지 않는 장르입니다."),
 
     // Review
     REVIEW_NOT_FOUND(404, "존재하지 않는 리뷰입니다."),

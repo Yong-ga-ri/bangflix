@@ -9,6 +9,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReaction;
+import com.swcamp9th.bangflixbackend.domain.theme.exception.GenreNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.theme.exception.ReactionNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.theme.exception.ThemeNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.theme.exception.UnexpectedReactionTypeException;
@@ -471,7 +472,8 @@ public class ThemeServiceImpl implements ThemeService {
                 mostFrequentNumbers.add(number);
         }
 
-        List<String> genreNames = genreRepository.findGenreNames(mostFrequentNumbers);
+        List<String> genreNames = genreRepository.findGenreNames(mostFrequentNumbers)
+                .orElseThrow(GenreNotFoundException::new);
 
         return findThemeByGenresAndSearchOrderBySort(
                 pageable,
