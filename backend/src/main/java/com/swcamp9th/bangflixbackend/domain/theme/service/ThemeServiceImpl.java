@@ -295,8 +295,7 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     public List<ThemeDTO> findThemeByWeek(int memberCode) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime oneWeekAgo = now.minusWeeks(1);  // 현재로부터 1주일 이전
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);  // 현재로부터 1주일 이전
         Pageable pageable = PageRequest.of(0,5);
 
         List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable);
@@ -306,8 +305,7 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     public List<ThemeDTO> findThemeByWeek() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime oneWeekAgo = now.minusWeeks(1);  // 현재로부터 1주일 이전
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);  // 현재로부터 1주일 이전
         Pageable pageable = PageRequest.of(0,5);
 
         List<Theme> themes = themeRepository.findByWeekOrderByLikes(oneWeekAgo, pageable);
