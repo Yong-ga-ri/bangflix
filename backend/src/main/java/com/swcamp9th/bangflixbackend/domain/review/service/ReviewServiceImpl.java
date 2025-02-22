@@ -117,7 +117,7 @@ public class ReviewServiceImpl implements ReviewService {
     ) {
 
         // 테마 코드로 리뷰를 모두 조회
-        List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(themeCode, pageable);
+        List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(pageable, themeCode);
         if (filter == null) filter = "";
 
         switch (filter) {
@@ -152,7 +152,7 @@ public class ReviewServiceImpl implements ReviewService {
     ) {
 
         // 테마 코드로 리뷰를 모두 조회
-        List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(themeCode, pageable);
+        List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(pageable, themeCode);
 
         if (filter == null) filter = "";
 
@@ -276,7 +276,7 @@ public class ReviewServiceImpl implements ReviewService {
             return null;
 
         Pageable pageable = PageRequest.of(0, 3);
-        List<String> genres = reviewRepository.findTopGenresByMemberCode(memberCode, pageable);
+        List<String> genres = reviewRepository.findTopGenresByMemberCode(pageable, memberCode);
         ReviewReportDTO reviewReportDTO = new ReviewReportDTO(avgScore, genres);
         return reviewReportDTO;
     }
@@ -284,7 +284,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     @Override
     public List<ReviewDTO> findReviewByMemberCode(int memberCode, Pageable pageable) {
-        List<Review> review = reviewRepository.findByMemberCode(memberCode, pageable);
+        List<Review> review = reviewRepository.findByMemberCode(pageable, memberCode);
 
         if(review == null || review.isEmpty())
             return null;

@@ -1,8 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.theme.service;
 
 import com.swcamp9th.bangflixbackend.domain.store.dto.StoreDTO;
-import com.swcamp9th.bangflixbackend.domain.store.entity.Store;
-import com.swcamp9th.bangflixbackend.domain.store.repository.StoreRepository;
 import com.swcamp9th.bangflixbackend.domain.store.service.StoreService;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;

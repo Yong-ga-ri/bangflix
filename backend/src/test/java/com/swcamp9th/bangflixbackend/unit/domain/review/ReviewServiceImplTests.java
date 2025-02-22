@@ -195,7 +195,7 @@ class ReviewServiceImplTests {
         int themeCode = theme.getThemeCode();
         Pageable pageable = PageRequest.of(0, 10);
         List<Review> reviews = new ArrayList<>(List.of(review));
-        when(reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(eq(themeCode), eq(pageable))).thenReturn(reviews);
+        when(reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
         when(reviewLikeRepository.findByReviewCodeAndMemberCode(eq(review.getReviewCode()), any(Integer.class)))
                 .thenReturn(Optional.empty());
@@ -206,7 +206,7 @@ class ReviewServiceImplTests {
 
         // then
         assertThat(result).hasSize(1);
-        verify(reviewRepository, times(1)).findByThemeCodeAndActiveTrueWithFetchJoin(eq(themeCode), eq(pageable));
+        verify(reviewRepository, times(1)).findByThemeCodeAndActiveTrueWithFetchJoin(eq(pageable), eq(themeCode));
     }
 
     @Test
@@ -232,7 +232,7 @@ class ReviewServiceImplTests {
         reviewLow.setActive(true);
 
         List<Review> reviews = new ArrayList<>(List.of(reviewLow, reviewHigh));
-        when(reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(eq(themeCode), eq(pageable))).thenReturn(reviews);
+        when(reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(any(Review.class), eq(ReviewDTO.class))).thenReturn(reviewDTO);
         when(reviewLikeRepository.findByReviewCodeAndMemberCode(any(Integer.class), any(Integer.class)))
                 .thenReturn(Optional.empty());
@@ -253,7 +253,7 @@ class ReviewServiceImplTests {
         int themeCode = theme.getThemeCode();
         Pageable pageable = PageRequest.of(0, 10);
         List<Review> reviews = new ArrayList<>(List.of(review));
-        when(reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(eq(themeCode), eq(pageable))).thenReturn(reviews);
+        when(reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class))).thenReturn(Collections.emptyList());
 
@@ -327,7 +327,7 @@ class ReviewServiceImplTests {
         List<String> topGenres = List.of("Action", "Thriller", "Adventure");
         when(reviewRepository.findAvgScoreByMemberCode(memberCode)).thenReturn(avgScore);
         Pageable pageable = PageRequest.of(0, 3);
-        when(reviewRepository.findTopGenresByMemberCode(memberCode, pageable)).thenReturn(topGenres);
+        when(reviewRepository.findTopGenresByMemberCode(pageable, memberCode)).thenReturn(topGenres);
 
         // when
         ReviewReportDTO report = reviewService.findReviewReport(memberCode);
@@ -360,7 +360,7 @@ class ReviewServiceImplTests {
         int memberCode = member.getMemberCode();
         Pageable pageable = PageRequest.of(0, 10);
         List<Review> reviews = List.of(review);
-        when(reviewRepository.findByMemberCode(memberCode, pageable)).thenReturn(reviews);
+        when(reviewRepository.findByMemberCode(pageable, memberCode)).thenReturn(reviews);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
         when(reviewLikeRepository.findByReviewCodeAndMemberCode(eq(review.getReviewCode()), eq(memberCode)))
                 .thenReturn(Optional.empty());
@@ -381,7 +381,7 @@ class ReviewServiceImplTests {
         // given
         int memberCode = member.getMemberCode();
         Pageable pageable = PageRequest.of(0, 10);
-        when(reviewRepository.findByMemberCode(memberCode, pageable)).thenReturn(Collections.emptyList());
+        when(reviewRepository.findByMemberCode(pageable, memberCode)).thenReturn(Collections.emptyList());
 
         // when
         List<ReviewDTO> result = reviewService.findReviewByMemberCode(memberCode, pageable);
