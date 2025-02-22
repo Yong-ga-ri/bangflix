@@ -96,7 +96,8 @@ public class ThemeServiceImpl implements ThemeService {
 
         if(genres != null){
             if(content != null)
-                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content);
+                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content)
+                        .orElseThrow(ThemeNotFoundException::new);
             else
                 themes = themeRepository.findThemesByAllGenres(genres);
         } else {
@@ -154,7 +155,8 @@ public class ThemeServiceImpl implements ThemeService {
 
         if(genres != null){
             if(content != null)
-                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content);
+                themes = themeRepository.findThemesByAllGenresAndSearch(genres, content)
+                        .orElseThrow(ThemeNotFoundException::new);
             else
                 themes = themeRepository.findThemesByAllGenres(genres);
         } else {

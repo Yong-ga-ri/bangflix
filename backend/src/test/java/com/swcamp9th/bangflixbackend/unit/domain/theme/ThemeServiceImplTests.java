@@ -232,7 +232,7 @@ class ThemeServiceImplTests {
 
         // mocking: 검색 메서드 분기 (genres != null && content != null)
         List<Theme> themeList = List.of(theme, theme2);
-        when(themeRepository.findThemesByAllGenresAndSearch(genres, content)).thenReturn(themeList);
+        when(themeRepository.findThemesByAllGenresAndSearch(genres, content)).thenReturn(Optional.of(themeList));
 
         // 각 Theme에 대한 매핑
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
