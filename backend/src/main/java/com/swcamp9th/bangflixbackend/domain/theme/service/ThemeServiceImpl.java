@@ -9,10 +9,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReaction;
-import com.swcamp9th.bangflixbackend.domain.theme.exception.GenreNotFoundException;
-import com.swcamp9th.bangflixbackend.domain.theme.exception.ReactionNotFoundException;
-import com.swcamp9th.bangflixbackend.domain.theme.exception.ThemeNotFoundException;
-import com.swcamp9th.bangflixbackend.domain.theme.exception.UnexpectedReactionTypeException;
+import com.swcamp9th.bangflixbackend.domain.theme.exception.*;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.GenreRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeReactionRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
@@ -391,10 +388,12 @@ public class ThemeServiceImpl implements ThemeService {
         List<ThemeReaction> themeReactions;
 
         if(reaction.equals("like"))
-            themeReactions = themeReactionRepository.findThemeByMemberLike(pageable, memberCode);
+            themeReactions = themeReactionRepository.findLikeReactionsByMemberCode(pageable, memberCode)
+                    .orElseThrow(ThemeReactionNotFoundException::new);
 
         else if(reaction.equals("scrap"))
-            themeReactions = themeReactionRepository.findThemeByMemberScrap(pageable, memberCode);
+            themeReactions = themeReactionRepository.findScrapReactionsByMemberCode(pageable, memberCode)
+                    .orElseThrow(ThemeReactionNotFoundException::new);
 
         else
             throw new UnexpectedReactionTypeException("잘못된 타입입니다. + 요청된 리액션: " + reaction);

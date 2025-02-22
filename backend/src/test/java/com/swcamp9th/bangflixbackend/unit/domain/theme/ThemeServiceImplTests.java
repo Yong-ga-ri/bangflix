@@ -466,8 +466,8 @@ class ThemeServiceImplTests {
         int memberCode = 999;
 
         // reaction "like" branch
-        when(themeReactionRepository.findThemeByMemberLike(pageable, memberCode))
-                .thenReturn(List.of(themeReaction));
+        when(themeReactionRepository.findLikeReactionsByMemberCode(pageable, memberCode))
+                .thenReturn(Optional.of(List.of(themeReaction)));
 
         // store lookup
         when(storeRepository.findByThemeCode(theme.getThemeCode())).thenReturn(store);

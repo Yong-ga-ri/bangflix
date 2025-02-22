@@ -28,6 +28,7 @@ public enum ErrorCode {
     // Theme
     THEME_NOT_FOUND(404, "존재하지 않는 테마입니다."),
     GENRE_NOT_FOUND(404, "존재하지 않는 장르입니다."),
+    REACTION_NOT_FOUND(404, "존재하지 않는 리액션입니다."),
 
     // Review
     REVIEW_NOT_FOUND(404, "존재하지 않는 리뷰입니다."),
@@ -36,7 +37,7 @@ public enum ErrorCode {
 
     // Reaction
     UNEXPECTED_REACTION_TYPE(400, "지정되지 않은 타입의 리액션입니다."),
-    REACTION_NOT_FOUND(404, "존재하지 않는 리액션입니다."),
+    THEME_REACTION_NOT_FOUND(404, "존재하지 않는 리액션입니다."),
 
     // EventPost
     EVENT_POST_NOT_FOUND(404, "존재하지 않는 이벤트 게시글입니다."),
