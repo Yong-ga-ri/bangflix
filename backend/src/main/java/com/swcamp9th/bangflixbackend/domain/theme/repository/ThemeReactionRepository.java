@@ -26,17 +26,6 @@ public interface ThemeReactionRepository extends JpaRepository<ThemeReaction, Th
              "JOIN FETCH tr.member " +
              "JOIN FETCH tr.theme " +
             "WHERE tr.memberCode = :memberCode " +
-                  "AND tr.reaction = :#{#reaction.name()} " +
-                  "AND tr.theme.active = true " +
-            "ORDER BY tr.createdAt desc")
-    List<ThemeReaction> findThemeByMemberReaction(Pageable pageable,
-        @Param("memberCode") int memberCode, @Param("reaction") ReactionType reaction);
-
-    @Query("SELECT tr " +
-             "FROM ThemeReaction tr " +
-             "JOIN FETCH tr.member " +
-             "JOIN FETCH tr.theme " +
-            "WHERE tr.memberCode = :memberCode " +
                   "AND tr.theme.active = true " +
                   "AND (tr.reaction = com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType.LIKE " +
                   "OR tr.reaction = com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType.SCRAPLIKE) " +
