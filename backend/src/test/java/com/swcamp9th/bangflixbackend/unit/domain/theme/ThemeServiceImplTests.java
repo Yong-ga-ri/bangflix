@@ -599,7 +599,7 @@ class ThemeServiceImplTests {
         int memberCode = 999;
         // themeReactionRepository: SCRAP 또는 SCRAPLIKE 반응을 가진 항목들 반환
         when(themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(eq(memberCode), any()))
-                .thenReturn(List.of(themeReaction));
+                .thenReturn(Optional.of(List.of(themeReaction)));
         // repository.findByThemeCodes: themeCodes를 통해 Theme 목록 반환
         when(themeRepository.findByThemeCodes(anyList())).thenReturn(List.of(theme));
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
