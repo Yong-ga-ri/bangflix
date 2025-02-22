@@ -72,7 +72,7 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
     @Query("SELECT " +
                   "DISTINCT t " +
              "FROM Theme t " +
-             "JOIN ThemeReaction tr " +
+             "JOIN ThemeReaction tr ON t.themeCode = tr.themeCode " +
             "WHERE tr.createdAt > :oneWeekAgo " +
               "AND tr.active = true " +
               "AND t.active = true " +
