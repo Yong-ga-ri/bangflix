@@ -1,7 +1,9 @@
 package com.swcamp9th.bangflixbackend.domain.theme.service;
 
+import com.swcamp9th.bangflixbackend.domain.store.dto.StoreDTO;
 import com.swcamp9th.bangflixbackend.domain.store.entity.Store;
 import com.swcamp9th.bangflixbackend.domain.store.repository.StoreRepository;
+import com.swcamp9th.bangflixbackend.domain.store.service.StoreService;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
@@ -31,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ThemeServiceImpl implements ThemeService {
 
     private final ModelMapper modelMapper;
-    private final StoreRepository storeRepository;
+    private final StoreService storeService;
 
     private final GenreRepository genreRepository;
 
@@ -41,13 +43,13 @@ public class ThemeServiceImpl implements ThemeService {
     @Autowired
     public ThemeServiceImpl(
             ModelMapper modelMapper,
-            StoreRepository storeRepository,
+            StoreService storeService,
             GenreRepository genreRepository,
             ThemeRepository themeRepository,
             ThemeReactionRepository themeReactionRepository
     ) {
         this.modelMapper = modelMapper;
-        this.storeRepository = storeRepository;
+        this.storeService = storeService;
         this.genreRepository = genreRepository;
         this.themeRepository = themeRepository;
         this.themeReactionRepository = themeReactionRepository;
@@ -401,9 +403,10 @@ public class ThemeServiceImpl implements ThemeService {
 
         for(ThemeReaction themeReaction : themeReactions){
             FindThemeByReactionDTO findThemeByReaction = modelMapper.map(themeReaction.getTheme(), FindThemeByReactionDTO.class);
-            Store store = storeRepository.findByThemeCode(themeReaction.getTheme().getThemeCode());
-            findThemeByReaction.setStoreCode(store.getStoreCode());
-            findThemeByReaction.setStoreName(store.getName());
+
+            StoreDTO storeDTO = storeService.findStore(themeReaction.getTheme().getThemeCode());
+            findThemeByReaction.setStoreCode(storeDTO.getStoreCode());
+            findThemeByReaction.setStoreName(storeDTO.getName());
             findThemeByReaction.setIsLike(true);
             findThemeByReaction.setIsScrap(true);
             result.add(findThemeByReaction);

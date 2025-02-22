@@ -1,8 +1,9 @@
 package com.swcamp9th.bangflixbackend.unit.domain.theme;
 
 
+import com.swcamp9th.bangflixbackend.domain.store.dto.StoreDTO;
 import com.swcamp9th.bangflixbackend.domain.store.entity.Store;
-import com.swcamp9th.bangflixbackend.domain.store.repository.StoreRepository;
+import com.swcamp9th.bangflixbackend.domain.store.service.StoreServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
@@ -47,7 +48,7 @@ class ThemeServiceImplTests {
     @Mock
     private ModelMapper modelMapper;
     @Mock
-    private StoreRepository storeRepository;
+    private StoreServiceImpl storeService;
     @Mock
     private GenreRepository genreRepository;
     @Mock
@@ -61,6 +62,7 @@ class ThemeServiceImplTests {
     private Theme theme;
     private ThemeDTO themeDTO;
     private Store store;
+    private StoreDTO storeDTO;
     private ThemeReaction themeReaction;
     private ThemeReactionDTO themeReactionDTO;
 
@@ -70,6 +72,11 @@ class ThemeServiceImplTests {
         store = new Store();
         store.setStoreCode(100);
         store.setName("Test Store");
+
+        // 샘플 StoreDTO (ModelMapper 매핑 시 사용)
+        storeDTO = new StoreDTO();
+        storeDTO.setStoreCode(100);
+        storeDTO.setName("Test Store");
 
         // 샘플 Theme
         theme = new Theme();
@@ -470,12 +477,12 @@ class ThemeServiceImplTests {
                 .thenReturn(List.of(themeReaction));
 
         // store lookup
-        when(storeRepository.findByThemeCode(theme.getThemeCode())).thenReturn(store);
+        when(storeService.findStore(theme.getThemeCode())).thenReturn(storeDTO);
 
         // modelMapper mapping from Theme -> FindThemeByReactionDTO
         FindThemeByReactionDTO reactionDTO = new FindThemeByReactionDTO();
-        reactionDTO.setStoreCode(store.getStoreCode());
-        reactionDTO.setStoreName(store.getName());
+        reactionDTO.setStoreCode(storeDTO.getStoreCode());
+        reactionDTO.setStoreName(storeDTO.getName());
         reactionDTO.setIsLike(true);
         reactionDTO.setIsScrap(true);
         when(modelMapper.map(theme, FindThemeByReactionDTO.class)).thenReturn(reactionDTO);

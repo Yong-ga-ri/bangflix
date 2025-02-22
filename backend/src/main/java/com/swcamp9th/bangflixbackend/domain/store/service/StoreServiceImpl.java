@@ -3,7 +3,7 @@ package com.swcamp9th.bangflixbackend.domain.store.service;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.service.ReviewService;
 import com.swcamp9th.bangflixbackend.domain.store.dto.StoreDTO;
-import com.swcamp9th.bangflixbackend.domain.store.entity.Store;
+import com.swcamp9th.bangflixbackend.domain.store.exception.StoreNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.store.repository.StoreRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +31,10 @@ public class StoreServiceImpl implements StoreService {
     @Override
     @Transactional
     public StoreDTO findStore(Integer storeCode) {
-        Store store = storeRepository.findById(storeCode).orElseThrow();
-        return modelMapper.map(store, StoreDTO.class);
+        return modelMapper.map(
+                storeRepository.findById(storeCode)
+                        .orElseThrow(StoreNotFoundException::new),
+                StoreDTO.class);
     }
 
     @Override

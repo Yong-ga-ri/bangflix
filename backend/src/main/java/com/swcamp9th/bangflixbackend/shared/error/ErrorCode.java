@@ -25,6 +25,9 @@ public enum ErrorCode {
     LOGIN_REQUIRED(401, "로그인이 필요합니다."),
     INVALID_USER(401, "유효하지 않은 사용자입니다."),
 
+    // Store
+    STORE_NOT_FOUND(404, "존재하지 않는 업체입니다."),
+
     // Theme
     THEME_NOT_FOUND(404, "존재하지 않는 테마입니다."),
     GENRE_NOT_FOUND(404, "존재하지 않는 장르입니다."),
