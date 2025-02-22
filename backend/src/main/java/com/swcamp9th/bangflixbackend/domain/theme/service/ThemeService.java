@@ -127,7 +127,7 @@ public interface ThemeService {
      * @param memberCode 로그인한 회원의 고유 코드
      * @return 해당 업체의 테마 정보를 담은 ThemeDTO 리스트
      */
-    List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String sort, Integer storeCode, int memberCode);
+    List<ThemeDTO> findThemeDTOListByStoreCode(Pageable pageable, String sort, int storeCode, int memberCode);
 
     /**
      * 게스트용 업체별 테마 조회 API.
@@ -137,7 +137,7 @@ public interface ThemeService {
      * @param storeCode 업체 고유 코드
      * @return 해당 업체의 테마 정보를 담은 ThemeDTO 리스트
      */
-    List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String sort, Integer storeCode);
+    List<ThemeDTO> findThemeDTOListByStoreCode(Pageable pageable, String sort, int storeCode);
 
     /**
      * 회원용 테마 반응 조회 API.

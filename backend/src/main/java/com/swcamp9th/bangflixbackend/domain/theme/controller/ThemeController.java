@@ -117,16 +117,16 @@ public class ThemeController {
         @PageableDefault(size = 10, page = 0) Pageable pageable,
         @RequestParam(required = false) String filter,
         @RequestParam(required = false) List<String> genres,
-        @RequestParam(required = false) String search,
+        @RequestParam(required = false) String content,
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
         List<ThemeDTO> themeDTOList;
 
         if (loginId == null) {  // for guests
-            themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, search);
+            themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content);
         } else {    // for members
             int memberCode = userService.findMemberCodeByLoginId(loginId);
-            themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, search, memberCode);
+            themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content, memberCode);
         }
         return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themeDTOList));
     }
@@ -156,10 +156,10 @@ public class ThemeController {
         List<ThemeDTO> themeDTOList;
 
         if (loginId == null) {  // for guests
-            themeDTOList = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode);
+            themeDTOList = themeService.findThemeDTOListByStoreCode(pageable, filter, storeCode);
         } else {    // for members
             int memberCode = userService.findMemberCodeByLoginId(loginId);
-            themeDTOList = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode, memberCode);
+            themeDTOList = themeService.findThemeDTOListByStoreCode(pageable, filter, storeCode, memberCode);
         }
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themeDTOList));

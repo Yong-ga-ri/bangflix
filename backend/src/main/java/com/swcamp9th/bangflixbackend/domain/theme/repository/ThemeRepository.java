@@ -13,21 +13,6 @@ import org.springframework.data.repository.query.Param;
 public interface ThemeRepository extends JpaRepository<Theme, Integer> {
 
     @Query("SELECT " +
-                  "DISTINCT t " +
-             "FROM " +
-                  "Theme t " +
-                ", ThemeGenre tg" +
-                ", Genre g " +
-            "WHERE t.active = true " +
-              "AND g.name IN :genres " +
-              "AND (:search IS NULL OR t.name LIKE CONCAT('%', :search, '%')) ")
-    List<Theme> findThemesByAllGenresAndSearch(
-            @Param("genres") List<String> genres,
-            @Param("search") String search,
-            Pageable pageable
-    );
-
-    @Query("SELECT " +
                   "COUNT(r) " +
              "FROM Review r " +
             "WHERE r.active = true " +
@@ -56,19 +41,16 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
 
     @Query("SELECT " +
                   "DISTINCT t " +
-             "FROM Theme t, ThemeGenre tg, Genre g " +
-            "WHERE t.active = true " +
-              "AND g.name IN :genres ")
-    List<Theme> findThemesByAllGenres(
-            @Param("genres") List<String> genres,
-            Pageable pageable
-    );
-
-    @Query("SELECT t " +
              "FROM Theme t " +
+             "LEFT JOIN ThemeGenre tg " +
+                  "ON tg.themeCode = t.themeCode " +
+             "LEFT JOIN Genre g " +
+                  "ON tg.genreCode = g.genreCode " +
             "WHERE t.active = true " +
-              "AND (:search IS NULL OR t.name LIKE CONCAT('%', :search, '%'))")
-    List<Theme> findThemesBySearch(
+              "AND ((:genres) IS NULL OR g.name IN :genres) " +
+              "AND ((:search) IS NULL OR :search = '' OR t.name LIKE CONCAT('%', :search, '%'))")
+    List<Theme> findThemesBy(
+            @Param("genres") List<String> genres,
             @Param("search") String search,
             Pageable pageable
     );
@@ -78,7 +60,10 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
              "JOIN Store s " +
             "WHERE t.active = true " +
               "AND s.storeCode = :storeCode ")
-    List<Theme> findThemeListByStoreCode(int storeCode);
+    List<Theme> findThemeListByStoreCode(
+            int storeCode,
+            Pageable pageable
+    );
 
     @EntityGraph(attributePaths = {"store"})
     @Query("SELECT " +

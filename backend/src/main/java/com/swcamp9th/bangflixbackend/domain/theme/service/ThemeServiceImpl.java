@@ -60,7 +60,6 @@ public class ThemeServiceImpl implements ThemeService {
         return createBaseThemeDTO(findThemeByThemeCode(themeCode));
     }
 
-    @Transactional
     public Theme findThemeByThemeCode(Integer themeCode) {
         return themeRepository.findById(themeCode)
                 .orElseThrow(ThemeNotFoundException::new);
@@ -114,59 +113,34 @@ public class ThemeServiceImpl implements ThemeService {
     }
 
     private List<Theme> fetchThemesBy(Pageable pageable, List<String> genres, String search) {
-        if(genres != null){
-            if(search != null)
-                return themeRepository.findThemesByAllGenresAndSearch(genres, search, pageable);
-            else
-                return themeRepository.findThemesByAllGenres(genres, pageable);
-        } else {
-            if(search != null)
-                return themeRepository.findThemesBySearch(search, pageable);
-            else
-                return themeRepository.findAll();
-        }
+        return themeRepository.findThemesBy(genres, search, pageable);
     }
 
     @Override
     @Transactional
-    public List<ThemeDTO> findThemeByStoreOrderBySort(
+    public List<ThemeDTO> findThemeDTOListByStoreCode(
             Pageable pageable,
-            String filter,
-            Integer storeCode,
+            String sort,
+            int storeCode,
             int memberCode
     ) {
-        List<Theme> themes = themeRepository.findThemeListByStoreCode(storeCode);
-        List<ThemeDTO> themesDTO = new ArrayList<>();
-
-        for(Theme theme : themes)
-            themesDTO.add(createThemeDTO(theme, memberCode));
-
-        sortThemeList(themesDTO, filter);
-
-
-        int startIndex = pageable.getPageNumber() * pageable.getPageSize();
-        int lastIndex = Math.min((startIndex + pageable.getPageSize()), themes.size());
-        return themesDTO.subList(startIndex, lastIndex);
+        List<Theme> themes = themeRepository.findThemeListByStoreCode(storeCode, pageable);
+        List<ThemeDTO> themeDTOList = createThemeDTOList(themes, memberCode);
+        sortThemeList(themeDTOList, sort);
+        return themeDTOList;
     }
 
     @Override
     @Transactional
-    public List<ThemeDTO> findThemeByStoreOrderBySort(
+    public List<ThemeDTO> findThemeDTOListByStoreCode(
             Pageable pageable,
-            String filter,
-            Integer storeCode
+            String sort,
+            int storeCode
     ) {
-        List<Theme> themes = themeRepository.findThemeListByStoreCode(storeCode);
-        List<ThemeDTO> themesDTO = new ArrayList<>();
-
-        for(Theme theme : themes)
-            themesDTO.add(createBaseThemeDTO(theme));
-
-        sortThemeList(themesDTO, filter);
-
-        int startIndex = pageable.getPageNumber() * pageable.getPageSize();
-        int lastIndex = Math.min((startIndex + pageable.getPageSize()), themes.size());
-        return themesDTO.subList(startIndex, lastIndex);
+        List<Theme> themes = themeRepository.findThemeListByStoreCode(storeCode, pageable);
+        List<ThemeDTO> themeDTOList = createThemeDTOList(themes);
+        sortThemeList(themeDTOList, sort);
+        return themeDTOList;
     }
 
     @Override
