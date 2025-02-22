@@ -486,7 +486,8 @@ public class ThemeServiceImpl implements ThemeService {
     @Override
     public List<ThemeDTO> getScrapedThemeByMemberCode(int memberCode) {
         List<ThemeReaction> themeReactions =
-                themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(memberCode, List.of(ReactionType.SCRAP, ReactionType.SCRAPLIKE));
+                themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(memberCode, List.of(ReactionType.SCRAP, ReactionType.SCRAPLIKE))
+                        .orElseThrow(ThemeReactionNotFoundException::new);
 
         List<Theme> themes = themeRepository.findByThemeCodes(themeReactions.stream()
                 .map(ThemeReaction::getThemeCode)

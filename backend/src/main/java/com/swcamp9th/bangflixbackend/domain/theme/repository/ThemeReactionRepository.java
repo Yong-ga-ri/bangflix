@@ -37,8 +37,7 @@ public interface ThemeReactionRepository extends JpaRepository<ThemeReaction, Th
              "JOIN FETCH tr.theme " +
             "WHERE tr.memberCode = :memberCode " +
                   "AND tr.theme.active = true " +
-                  "AND (tr.reaction = com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType.SCRAP " +
-                  "OR tr.reaction = com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType.SCRAPLIKE) " +
+            "AND tr.reaction IN ('SCRAP', 'SCRAPLIKE') " +
             "ORDER BY tr.createdAt desc")
     Optional<List<ThemeReaction>> findScrapReactionsByMemberCode(Pageable pageable, @Param("memberCode") int memberCode);
 
@@ -50,5 +49,5 @@ public interface ThemeReactionRepository extends JpaRepository<ThemeReaction, Th
                   "AND tr.theme.active = true " +
                   "AND tr.reaction IN :reactions " +
             "ORDER BY tr.createdAt desc")
-    List<ThemeReaction> findThemeReactionsByMemberCodeAndReactionType(@Param("memberCode") int memberCode, @Param("reactions") List<ReactionType> reactions);
+    Optional<List<ThemeReaction>> findThemeReactionsByMemberCodeAndReactionType(@Param("memberCode") int memberCode, @Param("reactions") List<ReactionType> reactions);
 }
