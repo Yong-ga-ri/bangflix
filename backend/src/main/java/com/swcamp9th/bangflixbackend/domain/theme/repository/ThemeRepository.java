@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,7 +40,9 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
             "WHERE r.theme.themeCode = :themeCode " +
               "AND r.active = true " +
               "AND r.reaction IN ('LIKE', 'SCRAPLIKE')")
-    Integer countLikesByThemeCode(@Param("themeCode") int themeCode);
+    Integer countLikesByThemeCode(
+            @Param("themeCode") int themeCode
+    );
 
     @Query("SELECT " +
                   "COUNT(r) " +
@@ -47,7 +50,9 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
             "WHERE r.theme.themeCode = :themeCode " +
               "AND r.active = true " +
               "AND r.reaction IN ('SCRAP', 'SCRAPLIKE')")
-    Integer countScrapsByThemeCode(@Param("themeCode") int themeCode);
+    Integer countScrapsByThemeCode(
+            @Param("themeCode") int themeCode
+    );
 
     @Query("SELECT " +
                   "DISTINCT t " +
@@ -55,14 +60,18 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
             "WHERE t.active = true " +
               "AND g.name IN :genres ")
     List<Theme> findThemesByAllGenres(
-            @Param("genres") List<String> genres
+            @Param("genres") List<String> genres,
+            Pageable pageable
     );
 
     @Query("SELECT t " +
              "FROM Theme t " +
             "WHERE t.active = true " +
               "AND (:search IS NULL OR t.name LIKE CONCAT('%', :search, '%'))")
-    List<Theme> findThemesBySearch(@Param("search") String search);
+    List<Theme> findThemesBySearch(
+            @Param("search") String search,
+            Pageable pageable
+    );
 
     @Query("SELECT t " +
              "FROM Theme t " +
@@ -71,6 +80,7 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
               "AND s.storeCode = :storeCode ")
     List<Theme> findThemeListByStoreCode(int storeCode);
 
+    @EntityGraph(attributePaths = {"store"})
     @Query("SELECT " +
                   "DISTINCT t " +
              "FROM Theme t " +
@@ -78,6 +88,7 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
             "WHERE tr.createdAt > :oneWeekAgo " +
               "AND tr.active = true " +
               "AND t.active = true " +
+            "GROUP BY t " +
             "ORDER BY " +
                   "COUNT(tr) DESC, " +
                   "t.themeCode DESC")

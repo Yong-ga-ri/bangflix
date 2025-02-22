@@ -93,31 +93,10 @@ public class ThemeServiceImpl implements ThemeService {
             String search,
             int memberCode
     ) {
-        List<Theme> themes;
-
-        if(genres != null){
-            if(search != null)
-                themes = themeRepository.findThemesByAllGenresAndSearch(genres, search, pageable);
-            else
-                themes = themeRepository.findThemesByAllGenres(genres);
-        } else {
-            if(search != null)
-                themes = themeRepository.findThemesBySearch(search);
-            else
-                themes = themeRepository.findAll();
-        }
-
-        List<ThemeDTO> themesDTO = new ArrayList<>();
-
-        for(Theme theme : themes) {
-            themesDTO.add(createThemeDTO(theme, memberCode));
-        }
-
-        sortThemeList(themesDTO, sort);
-
-        int startIndex = pageable.getPageNumber() * pageable.getPageSize();
-        int lastIndex = Math.min((startIndex + pageable.getPageSize()), themes.size());
-        return themesDTO.subList(startIndex, lastIndex);
+        List<Theme> themes = fetchThemesBy(pageable, genres, search);
+        List<ThemeDTO> themeDTOList = createThemeDTOList(themes, memberCode);
+        sortThemeList(themeDTOList, sort);
+        return themeDTOList;
     }
 
     @Override
@@ -128,29 +107,24 @@ public class ThemeServiceImpl implements ThemeService {
             List<String> genres,
             String search
     ) {
-        List<Theme> themes;
+        List<Theme> themes = fetchThemesBy(pageable, genres, search);
+        List<ThemeDTO> themeDTOList = createThemeDTOList(themes);
+        sortThemeList(themeDTOList, sort);
+        return themeDTOList;
+    }
 
+    private List<Theme> fetchThemesBy(Pageable pageable, List<String> genres, String search) {
         if(genres != null){
             if(search != null)
-                themes = themeRepository.findThemesByAllGenresAndSearch(genres, search, pageable);
+                return themeRepository.findThemesByAllGenresAndSearch(genres, search, pageable);
             else
-                themes = themeRepository.findThemesByAllGenres(genres);
+                return themeRepository.findThemesByAllGenres(genres, pageable);
         } else {
             if(search != null)
-                themes = themeRepository.findThemesBySearch(search);
+                return themeRepository.findThemesBySearch(search, pageable);
             else
-                themes = themeRepository.findAll();
+                return themeRepository.findAll();
         }
-
-        List<ThemeDTO> themesDTO = new ArrayList<>();
-
-        for(Theme theme : themes) {
-            themesDTO.add(createBaseThemeDTO(theme));
-        }
-
-        sortThemeList(themesDTO, sort);
-
-        return themesDTO;
     }
 
     @Override
@@ -344,48 +318,12 @@ public class ThemeServiceImpl implements ThemeService {
     @Override
     @Transactional
     public List<ThemeDTO> recommendTheme(List<Integer> themeCodes) {
-        Pageable pageable = PageRequest.of(0,5);
-
-        if (themeCodes == null) {
-            return findThemeByGenresAndSearchOrderBySort(
-                    pageable,
-                    "like",
-                    null,
-                    null
-            );
-        } else {
-
-            List<Integer> genres = new ArrayList<>(themeRepository.findGenresByThemeCode(themeCodes));
-
-            HashMap<Integer, Integer> countMap = new HashMap<>();
-            for (int number : genres) {
-                countMap.put(number, countMap.getOrDefault(number, 0) + 1);
-            }
-
-            // 가장 많이 등장한 횟수 찾기
-            int maxCount = 0;
-            for (int count : countMap.values()) {
-                if (count > maxCount) {
-                    maxCount = count;
-                }
-            }
-
-            // 가장 많이 등장한 숫자들을 리스트에 저장
-            List<Integer> mostFrequentNumbers = new ArrayList<>();
-            for (int number : countMap.keySet()) {
-                if (countMap.get(number) == maxCount)
-                    mostFrequentNumbers.add(number);
-            }
-
-            List<String> genreNames = genreRepository.findGenreNames(mostFrequentNumbers);
-
-            return findThemeByGenresAndSearchOrderBySort(
-                    pageable,
-                    "like",
-                    genreNames,
-                    null
-            );
-        }
+        return findThemeByGenresAndSearchOrderBySort(
+                PageRequest.of(0,5),
+                "like",
+                (themeCodes == null) ? null : getGenreNameListByThemeCodeList(themeCodes),
+                null
+        );
     }
 
     @Transactional(readOnly = true)
@@ -403,6 +341,32 @@ public class ThemeServiceImpl implements ThemeService {
                 .map(theme -> createThemeDTO(theme, memberCode))
                 .toList();
 
+    }
+
+    private List<String> getGenreNameListByThemeCodeList(List<Integer> themeCodes) {
+        List<Integer> genres = new ArrayList<>(themeRepository.findGenresByThemeCode(themeCodes));
+
+        HashMap<Integer, Integer> countMap = new HashMap<>();
+        for (int number : genres) {
+            countMap.put(number, countMap.getOrDefault(number, 0) + 1);
+        }
+
+        // 가장 많이 등장한 횟수 찾기
+        int maxCount = 0;
+        for (int count : countMap.values()) {
+            if (count > maxCount) {
+                maxCount = count;
+            }
+        }
+
+        // 가장 많이 등장한 숫자들을 리스트에 저장
+        List<Integer> mostFrequentNumbers = new ArrayList<>();
+        for (int number : countMap.keySet()) {
+            if (countMap.get(number) == maxCount)
+                mostFrequentNumbers.add(number);
+        }
+
+        return genreRepository.findGenreNames(mostFrequentNumbers);
     }
 
     private List<ThemeDTO> createThemeDTOList(List<Theme> themes, int memberCode) {
