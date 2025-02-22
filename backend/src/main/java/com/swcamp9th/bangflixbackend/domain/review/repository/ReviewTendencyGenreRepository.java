@@ -13,8 +13,7 @@ public interface ReviewTendencyGenreRepository extends JpaRepository<ReviewTende
              "FROM ReviewTendencyGenre t " +
              "JOIN FETCH t.tendency " +
              "JOIN FETCH t.genre " +
-            "WHERE t.active = true " +
-              "AND t.tendency.member.memberCode = :memberCode")
+            "WHERE t.tendency.member.memberCode = :memberCode ")
     List<ReviewTendencyGenre> findMemberGenreByMemberCode(
             @Param("memberCode") int memberCode
     );

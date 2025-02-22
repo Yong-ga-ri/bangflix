@@ -1,5 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.store.controller;
 
+import com.swcamp9th.bangflixbackend.domain.review.service.ReviewService;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.store.dto.StoreDTO;
@@ -19,10 +20,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class StoreController {
 
     private final StoreService storeService;
+    private final ReviewService reviewService;
 
     @Autowired
-    public StoreController(StoreService storeService) {
+    public StoreController(
+            StoreService storeService,
+            ReviewService reviewService
+    ) {
         this.storeService = storeService;
+        this.reviewService = reviewService;
     }
 
     @GetMapping("/{storeCode}")
@@ -46,7 +52,7 @@ public class StoreController {
     ) {
 
         // 서비스에서 필터를 사용해 조회
-        ReviewDTO storeBestReview  = storeService.findBestReviewByStore(storeCode);
+        ReviewDTO storeBestReview  = reviewService.getBestReviewByStoreCode(storeCode);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, storeCode + "번 업체 베스트 리뷰 조회 성공", storeBestReview));
     }

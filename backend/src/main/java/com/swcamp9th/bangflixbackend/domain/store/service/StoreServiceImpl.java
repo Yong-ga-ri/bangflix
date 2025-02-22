@@ -1,7 +1,5 @@
 package com.swcamp9th.bangflixbackend.domain.store.service;
 
-import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewDTO;
-import com.swcamp9th.bangflixbackend.domain.review.service.ReviewService;
 import com.swcamp9th.bangflixbackend.domain.store.dto.StoreDTO;
 import com.swcamp9th.bangflixbackend.domain.store.exception.StoreNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.store.repository.StoreRepository;
@@ -14,17 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class StoreServiceImpl implements StoreService {
 
     private final ModelMapper modelMapper;
-    private final ReviewService reviewService;
     private final StoreRepository storeRepository;
 
     @Autowired
     public StoreServiceImpl(
             ModelMapper modelMapper,
-            ReviewService reviewService,
             StoreRepository storeRepository
     ) {
         this.modelMapper = modelMapper;
-        this.reviewService = reviewService;
         this.storeRepository = storeRepository;
     }
 
@@ -35,11 +30,5 @@ public class StoreServiceImpl implements StoreService {
                 storeRepository.findById(storeCode)
                         .orElseThrow(StoreNotFoundException::new),
                 StoreDTO.class);
-    }
-
-    @Override
-    @Transactional
-    public ReviewDTO findBestReviewByStore(Integer storeCode) {
-         return reviewService.getBestReviewByStoreCode(storeCode);
     }
 }
