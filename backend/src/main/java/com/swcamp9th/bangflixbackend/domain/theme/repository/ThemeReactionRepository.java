@@ -17,7 +17,7 @@ public interface ThemeReactionRepository extends JpaRepository<ThemeReaction, Th
              "FROM ThemeReaction tr " +
              "JOIN FETCH tr.theme " +
              "JOIN FETCH tr.member " +
-            "WHERE tr.active = true" +
+            "WHERE tr.active = true " +
               "AND tr.theme.themeCode = :themeCode " +
               "AND tr.member.memberCode = :memberCode ")
     Optional<ThemeReaction> findReactionByThemeCodeAndMemberCode(

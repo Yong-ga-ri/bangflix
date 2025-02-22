@@ -11,9 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLikeId> {
 
     @Query("SELECT r " +
@@ -32,13 +30,13 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
              "FROM ReviewLike r " +
              "JOIN FETCH r.review " +
              "JOIN FETCH r.member " +
-            "WHERE r.active = true" +
+            "WHERE r.active = true " +
               "AND r.review.reviewCode = :reviewCode ")
     List<ReviewLike> findByReviewCode(
             @Param("reviewCode") int reviewCode
     );
 
-    @Query("SELECT new ReviewLikeCountDTO(rl.reviewCode, COUNT(rl)) " +
+    @Query("SELECT new com.swcamp9th.bangflixbackend.domain.ranking.dto.ReviewLikeCountDTO(rl.reviewCode, COUNT(rl)) " +
              "FROM ReviewLike rl " +
             "WHERE rl.createdAt > :oneWeekAgo " +
               "AND rl.active = true " +
@@ -74,7 +72,7 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
              "FROM ReviewLike r " +
              "JOIN FETCH r.review " +
              "JOIN FETCH r.member " +
-            "WHERE r.active = true" +
+            "WHERE r.active = true " +
               "AND r.review.reviewCode = :reviewCode " +
               "AND r.member.memberCode = :memberCode ")
     Optional<ReviewLike> findByReviewCodeAndMemberCode(

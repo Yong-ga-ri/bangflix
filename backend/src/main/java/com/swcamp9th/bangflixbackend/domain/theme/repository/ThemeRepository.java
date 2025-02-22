@@ -8,9 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface ThemeRepository extends JpaRepository<Theme, Integer> {
 
     @Query("SELECT " +
@@ -39,15 +37,15 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
             "WHERE r.theme.themeCode = :themeCode " +
               "AND r.active = true " +
               "AND r.reaction IN ('LIKE', 'SCRAPLIKE')")
-    Integer countLikesByThemeCode(int themeCode);
+    Integer countLikesByThemeCode(@Param("themeCode") int themeCode);
 
     @Query("SELECT " +
                   "COUNT(r) " +
              "FROM ThemeReaction r " +
             "WHERE r.theme.themeCode = :themeCode " +
-              "AND r.active = true" +
+              "AND r.active = true " +
               "AND r.reaction IN ('SCRAP', 'SCRAPLIKE')")
-    Integer countScrapsByThemeCode(int themeCode);
+    Integer countScrapsByThemeCode(@Param("themeCode") int themeCode);
 
     @Query("SELECT " +
                   "DISTINCT t " +
@@ -60,9 +58,9 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
 
     @Query("SELECT t " +
              "FROM Theme t " +
-            "WHERE t.active = true" +
+            "WHERE t.active = true " +
               "AND (:search IS NULL OR t.name LIKE CONCAT('%', :search, '%'))")
-    List<Theme> findThemesBySearch(String search);
+    List<Theme> findThemesBySearch(@Param("search") String search);
 
     @Query("SELECT t " +
              "FROM Theme t " +
