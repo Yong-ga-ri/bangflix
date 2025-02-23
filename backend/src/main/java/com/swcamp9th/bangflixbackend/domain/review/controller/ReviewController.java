@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -194,7 +195,7 @@ public class ReviewController {
             description = "리뷰 코드를 포함한 JSON 데이터를 전달받아, 로그인한 회원이 해당 리뷰에 좋아요를 등록합니다."
     )
     public ResponseEntity<SuccessResponse<Void>> likeReview(
-            @RequestBody ReviewCodeDTO reviewCodeDTO,
+            @Valid @RequestBody ReviewCodeDTO reviewCodeDTO,
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         int memberCode = userService.findMemberCodeByLoginId(loginId);
@@ -221,7 +222,7 @@ public class ReviewController {
             description = "리뷰 코드를 포함한 JSON 데이터를 전달받아, 로그인한 회원이 해당 리뷰의 좋아요를 취소합니다."
     )
     public ResponseEntity<SuccessResponse<Void>> deleteLikeReview(
-            @RequestBody ReviewCodeDTO reviewCodeDTO,
+            @Valid @RequestBody ReviewCodeDTO reviewCodeDTO,
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         int memberCode = userService.findMemberCodeByLoginId(loginId);
