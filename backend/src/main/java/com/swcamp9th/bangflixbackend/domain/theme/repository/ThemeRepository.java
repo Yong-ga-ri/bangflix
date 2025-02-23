@@ -57,7 +57,7 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
 
     @Query("SELECT t " +
              "FROM Theme t " +
-             "JOIN Store s " +
+             "JOIN t.store s " +
             "WHERE t.active = true " +
               "AND s.storeCode = :storeCode ")
     List<Theme> findThemeListByStoreCode(

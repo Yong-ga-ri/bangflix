@@ -183,7 +183,7 @@ public class ReviewServiceImpl implements ReviewService {
             reviewLikeRepository.save(newReviewLike);
         } else {
             ReviewLike reviewLike = reviewLikeOptional.get();
-            if(reviewLike.getActive()) {
+            if(reviewLike.isActive()) {
                 throw new ReviewAlreadyLiked();
             } else{
                 reviewLike.setActive(true);
@@ -198,7 +198,7 @@ public class ReviewServiceImpl implements ReviewService {
         ReviewLike reviewLike = reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode())
                 .orElseThrow(ReviewNotLikedException::new);
 
-        if(reviewLike.getActive()) {
+        if(reviewLike.isActive()) {
             reviewLike.setActive(false);
             reviewLikeRepository.save(reviewLike);
         } else{
@@ -288,7 +288,6 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    @Transactional
     @Override
     public List<ReviewDTO> toReviewDTOList(
             List<Review> reviewList,
