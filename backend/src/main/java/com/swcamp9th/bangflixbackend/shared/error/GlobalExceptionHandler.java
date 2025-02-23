@@ -1,6 +1,7 @@
-package com.swcamp9th.bangflixbackend.shared.exception.handler;
+package com.swcamp9th.bangflixbackend.shared.error;
 
-import com.swcamp9th.bangflixbackend.shared.exception.*;
+import com.swcamp9th.bangflixbackend.domain.user.exception.ExpiredTokenException;
+import com.swcamp9th.bangflixbackend.shared.error.exception.BusinessException;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import io.jsonwebtoken.JwtException;
 import io.lettuce.core.RedisException;
@@ -15,27 +16,16 @@ import java.io.IOException;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 400: 잘못된 요청 예외 처리
-    @ExceptionHandler({
-            AlreadyLikedException.class,
-            LikeNotFoundException.class,
-            DuplicateException.class,
-            InvalidEmailCodeException.class,
-            LoginException.class,
-            MemberNotFoundException.class,
-            ThemeNotFoundException.class,
-            FileUploadException.class,
-            ReviewNotFoundException.class
-    })
-    public ResponseEntity<ResponseMessage<Object>> handleBadRequestException(Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(new ResponseMessage<>(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null));
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ResponseMessage<Object>> handleBusinessException(BusinessException e) {
+        final ErrorCode errorCode = e.getErrorCode();
+        return ResponseEntity.status(errorCode.getStatus())
+                .body(new ResponseMessage<>(errorCode.getStatus(), errorCode.getMessage(), null));
     }
 
     // 401: 지정한 리소스에 대한 권한이 없다
     @ExceptionHandler({
-            InvalidUserException.class,
-            ExpiredTokenExcepiton.class,
+            ExpiredTokenException.class,
             JwtException.class
     })
     public ResponseEntity<ResponseMessage<Object>> handleInvalidUserException(Exception e) {
@@ -43,7 +33,7 @@ public class GlobalExceptionHandler {
             .body(new ResponseMessage<>(HttpStatus.UNAUTHORIZED.value(), e.getMessage(), null));
     }
 
-//    // 500: 내부 서버 에러
+    // 500: 내부 서버 에러
     @ExceptionHandler({
             MailSendException.class,
             RedisException.class,
@@ -53,7 +43,7 @@ public class GlobalExceptionHandler {
             IndexOutOfBoundsException.class,
             UnsupportedOperationException.class,
             IllegalStateException.class,
-            ArithmeticException.class
+            ArithmeticException.class,
     })
     public ResponseEntity<ResponseMessage<Object>> handleInternalServerErrorException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

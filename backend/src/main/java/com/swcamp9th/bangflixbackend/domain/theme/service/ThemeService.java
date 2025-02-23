@@ -6,6 +6,7 @@ import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
 import java.util.List;
 
+import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import org.springframework.data.domain.Pageable;
 
@@ -70,7 +71,7 @@ public interface ThemeService {
      * @param memberCode 로그인한 회원의 고유 코드
      * @return 해당 테마의 상세 정보를 담은 ThemeDTO
      */
-    ThemeDTO findTheme(Integer themeCode, int memberCode);
+    ThemeDTO findTheme(int themeCode, int memberCode);
 
     /**
      * 게스트용 테마 상세 조회 API.
@@ -78,7 +79,15 @@ public interface ThemeService {
      * @param themeCode 조회할 테마의 고유 코드
      * @return 해당 테마의 상세 정보를 담은 ThemeDTO
      */
-    ThemeDTO findTheme(Integer themeCode);
+    ThemeDTO findThemeDTOByThemeCode(int themeCode);
+
+    /**
+     * 게스트용 테마 상세 조회 API.
+     *
+     * @param themeCode 조회할 테마의 고유 코드
+     * @return 해당 테마의 상세 정보를 담은 ThemeDTO
+     */
+    Theme findThemeByThemeCode(int themeCode);
 
     /**
      * 회원용 테마 조회 API (필터링 및 검색).
@@ -86,13 +95,13 @@ public interface ThemeService {
      * 페이징, 정렬 필터, 선택적 장르, 및 검색어를 기반으로 회원에게 개인화된 테마 목록을 조회합니다.
      *
      * @param pageable   페이징 정보
-     * @param filter     정렬 필터 (예: "like", "scrap", "review"). 값이 없으면 기본 생성 순으로 정렬됩니다.
+     * @param sort     정렬 기준 (예: "like", "scrap", "review"). 값이 없으면 최신 순으로 정렬됩니다.
      * @param genres     선택적 장르 리스트 (여러 개 가능)
-     * @param content    검색어 (테마 이름에 포함된 문자열)
+     * @param search    검색어 (테마 이름에 포함된 문자열)
      * @param memberCode 로그인한 회원의 고유 코드
      * @return 조회된 테마 목록을 담은 ThemeDTO 리스트
      */
-    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content, int memberCode);
+    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String sort, List<String> genres, String search, int memberCode);
 
     /**
      * 게스트용 테마 조회 API (필터링 및 검색).
@@ -100,12 +109,12 @@ public interface ThemeService {
      * 페이징, 정렬 필터, 선택적 장르, 및 검색어를 기반으로 테마 목록을 조회합니다.
      *
      * @param pageable 페이징 정보
-     * @param filter   정렬 필터 (예: "like", "scrap", "review"). 값이 없으면 기본 생성 순으로 정렬됩니다.
+     * @param sort   정렬 (예: "like", "scrap", "review"). 값이 없으면 최신 순으로 정렬됩니다.
      * @param genres   선택적 장르 리스트 (여러 개 가능)
-     * @param content  검색어 (테마 이름에 포함된 문자열)
+     * @param search  검색어 (테마 이름에 포함된 문자열)
      * @return 조회된 테마 목록을 담은 ThemeDTO 리스트
      */
-    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String filter, List<String> genres, String content);
+    List<ThemeDTO> findThemeByGenresAndSearchOrderBySort(Pageable pageable, String sort, List<String> genres, String search);
 
     /**
      * 회원용 업체별 테마 조회 API.
@@ -113,22 +122,22 @@ public interface ThemeService {
      * 업체 고유 코드(storeCode)를 기준으로, 회원의 개인화 정보가 반영된 업체 테마 목록을 조회합니다.
      *
      * @param pageable   페이징 정보
-     * @param filter     정렬 필터 (예: "like", "scrap", "review"). 값이 없으면 기본적으로 최신순 정렬됩니다.
+     * @param sort     정렬 (예: "like", "scrap", "review"). 값이 없으면 기본적으로 최신순 정렬됩니다.
      * @param storeCode  업체 고유 코드
      * @param memberCode 로그인한 회원의 고유 코드
      * @return 해당 업체의 테마 정보를 담은 ThemeDTO 리스트
      */
-    List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String filter, Integer storeCode, int memberCode);
+    List<ThemeDTO> findThemeDTOListByStoreCode(Pageable pageable, String sort, int storeCode, int memberCode);
 
     /**
      * 게스트용 업체별 테마 조회 API.
      *
      * @param pageable  페이징 정보
-     * @param filter    정렬 필터 (예: "like", "scrap", "review"). 값이 없으면 기본적으로 최신순 정렬됩니다.
+     * @param sort    정렬 (예: "like", "scrap", "review"). 값이 없으면 기본적으로 최신순 정렬됩니다.
      * @param storeCode 업체 고유 코드
      * @return 해당 업체의 테마 정보를 담은 ThemeDTO 리스트
      */
-    List<ThemeDTO> findThemeByStoreOrderBySort(Pageable pageable, String filter, Integer storeCode);
+    List<ThemeDTO> findThemeDTOListByStoreCode(Pageable pageable, String sort, int storeCode);
 
     /**
      * 회원용 테마 반응 조회 API.

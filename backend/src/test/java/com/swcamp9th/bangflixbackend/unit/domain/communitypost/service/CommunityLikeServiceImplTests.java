@@ -1,6 +1,5 @@
 package com.swcamp9th.bangflixbackend.unit.domain.communitypost.service;
 
-import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentDTO;
 import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityLikeCountDTO;
 import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityLikeCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityLike;

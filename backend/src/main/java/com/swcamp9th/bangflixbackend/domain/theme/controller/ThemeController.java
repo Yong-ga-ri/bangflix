@@ -69,7 +69,7 @@ public class ThemeController {
         ThemeDTO themeDTO;
 
         if (loginId == null) {  // for guests
-            themeDTO = themeService.findTheme(themeCode);
+            themeDTO = themeService.findThemeDTOByThemeCode(themeCode);
         } else {    // for members
             int memberCode = userService.findMemberCodeByLoginId(loginId);
             themeDTO = themeService.findTheme(themeCode, memberCode);
@@ -86,7 +86,6 @@ public class ThemeController {
      */
     @GetMapping("/genres")
     @SecurityRequirement(name = "Authorization")
-    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "전체 장르 조회 API",
             description = "현재 데이터베이스에 존재하는 모든 장르 정보를 조회합니다.")
     public ResponseEntity<ResponseMessage<List<GenreDTO>>> findGenres() {
@@ -97,7 +96,7 @@ public class ThemeController {
     /**
      * 테마 필터링 및 검색 조회 API.
      * <p>
-     * 페이징 정보와 정렬 필터, 선택적 장르 리스트, 그리고 검색어(content)를 기반으로 테마를 필터링 및 검색합니다.
+     * 페이징 정보와 정렬 필터, 선택적 장르 리스트, 그리고 검색어(search)를 기반으로 테마를 필터링 및 검색합니다.
      * 정렬 필터는 'like'(좋아요 수), 'scrap'(스크랩 수), 'review'(리뷰 수) 중 하나를 사용할 수 있으며,
      * 값이 없으면 기본적으로 테마 생성 순으로 정렬됩니다.
      * 여러 장르가 선택되면 OR 조건으로 조합되어 해당 장르에 해당하는 테마를 반환합니다.
@@ -112,7 +111,7 @@ public class ThemeController {
     @GetMapping("")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "테마 필터링 및 검색 조회 API",
-            description = "페이징, 정렬 필터, 선택적 장르, 및 검색어(content)를 기반으로 테마를 조회합니다. "
+            description = "페이징, 정렬 필터, 선택적 장르, 및 검색어(search)를 기반으로 테마를 조회합니다. "
                     + "정렬 필터는 'like', 'scrap', 'review' 중 하나이며, 지정하지 않으면 기본 생성 순으로 정렬됩니다.")
     public ResponseEntity<ResponseMessage<List<ThemeDTO>>> findThemeByGenresAndSearchOrderBySort(
         @PageableDefault(size = 10, page = 0) Pageable pageable,
@@ -157,10 +156,10 @@ public class ThemeController {
         List<ThemeDTO> themeDTOList;
 
         if (loginId == null) {  // for guests
-            themeDTOList = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode);
+            themeDTOList = themeService.findThemeDTOListByStoreCode(pageable, filter, storeCode);
         } else {    // for members
             int memberCode = userService.findMemberCodeByLoginId(loginId);
-            themeDTOList = themeService.findThemeByStoreOrderBySort(pageable, filter, storeCode, memberCode);
+            themeDTOList = themeService.findThemeDTOListByStoreCode(pageable, filter, storeCode, memberCode);
         }
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "테마 조회 성공", themeDTOList));

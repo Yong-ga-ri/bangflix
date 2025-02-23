@@ -1,5 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.store.controller;
 
+import com.swcamp9th.bangflixbackend.domain.review.service.ReviewService;
 import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.store.dto.StoreDTO;
@@ -10,21 +11,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
 
 @RestController
 @RequestMapping("/api/v1/stores")
 public class StoreController {
 
     private final StoreService storeService;
+    private final ReviewService reviewService;
 
     @Autowired
-    public StoreController(StoreService storeService) {
+    public StoreController(
+            StoreService storeService,
+            ReviewService reviewService
+    ) {
         this.storeService = storeService;
+        this.reviewService = reviewService;
     }
 
     @GetMapping("/{storeCode}")
@@ -48,7 +52,7 @@ public class StoreController {
     ) {
 
         // 서비스에서 필터를 사용해 조회
-        ReviewDTO storeBestReview  = storeService.findBestReviewByStore(storeCode);
+        ReviewDTO storeBestReview  = reviewService.getBestReviewByStoreCode(storeCode);
 
         return ResponseEntity.ok(new ResponseMessage<>(200, storeCode + "번 업체 베스트 리뷰 조회 성공", storeBestReview));
     }

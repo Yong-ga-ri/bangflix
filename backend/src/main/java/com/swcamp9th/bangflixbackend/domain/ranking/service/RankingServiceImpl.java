@@ -83,7 +83,7 @@ public class RankingServiceImpl implements RankingService {
     @Override
     @Transactional
     public ReviewRankingDateDTO findReviewRankingDate(Integer year) {
-        List<String> dates = reviewRankingRepository.findDistinctDatesByYear(year).orElse(null);
+        List<String> dates = reviewRankingRepository.findDistinctDatesByYear(year);
 
         if (dates == null || dates.isEmpty()) return null;
 
@@ -99,7 +99,7 @@ public class RankingServiceImpl implements RankingService {
             date = findReviewRankingDate(LocalDateTime.now().getYear()).getReviewRankingDates().get(0);
 
         Member member = userRepository.findById(loginId).orElseThrow();
-        List<ReviewRanking> reviewRankings = reviewRankingRepository.findReviewByCreatedAtDate(date).orElse(null);
+        List<ReviewRanking> reviewRankings = reviewRankingRepository.findReviewByCreatedAtDate(date);
 
         if(reviewRankings == null || reviewRankings.isEmpty())
             return null;
@@ -109,7 +109,7 @@ public class RankingServiceImpl implements RankingService {
             return review;
         }).toList();
 
-        List<ReviewDTO> reviewDTOS = reviewService.getReviewDTOS(reviews, member.getMemberCode());
+        List<ReviewDTO> reviewDTOS = reviewService.toReviewDTOList(reviews, member.getMemberCode());
 
         String finalDate = date;
 
@@ -135,7 +135,7 @@ public class RankingServiceImpl implements RankingService {
                 }
             ).toList();
 
-        return reviewService.getReviewDTOS(reviews, member.getMemberCode());
+        return reviewService.toReviewDTOList(reviews, member.getMemberCode());
     }
 
     @Override

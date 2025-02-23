@@ -1,8 +1,10 @@
-package com.swcamp9th.bangflixbackend.shared.email.service;
+package com.swcamp9th.bangflixbackend.domain.user.service;
 
 import com.swcamp9th.bangflixbackend.domain.user.dto.EmailCodeRequestDto;
-import com.swcamp9th.bangflixbackend.shared.exception.InvalidEmailCodeException;
+import com.swcamp9th.bangflixbackend.domain.user.exception.InvalidEmailCodeException;
 import com.swcamp9th.bangflixbackend.security.service.RedisService;
+import com.swcamp9th.bangflixbackend.domain.user.exception.EmailAuthenticationFailedException;
+import com.swcamp9th.bangflixbackend.domain.user.exception.EmailSendException;
 import io.lettuce.core.RedisException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -64,15 +66,14 @@ public class EmailService {
 
     // 메일 발송
     @Transactional
-    public String sendSimpleMessage(String sendEmail) throws MessagingException {
+    public String sendSimpleMessage(String sendEmail) {
         String number = createNumber(); // 랜덤 인증번호 생성
 
-        MimeMessage message = createMail(sendEmail, number); // 메일 생성
         try {
+            MimeMessage message = createMail(sendEmail, number); // 메일 생성
             javaMailSender.send(message); // 메일 발송
-        } catch (MailException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("메일 발송 중 오류가 발생했습니다.");
+        } catch (MailException | MessagingException e) {
+            throw new EmailSendException();
         }
 
         // 레디스에 저장
@@ -89,11 +90,9 @@ public class EmailService {
             redisEmailCode = redisService.getEmailCode(emailCodeRequestDto.getEmail());
 
             if (redisEmailCode == null) {
-                throw new InvalidEmailCodeException("이메일 인증 코드가 존재하지 않거나 만료되었습니다");
+                throw new EmailAuthenticationFailedException();
             }
 
-            // Redis에서 해당 이메일 코드 삭제
-//            redisService.deleteEmailCode(emailCodeRequestDto.getEmail());
         } catch (RedisException e) {
             throw new InvalidEmailCodeException("Redis에서 이메일 코드가 정상적으로 삭제되지 않았습니다");
         } catch (Exception e) {

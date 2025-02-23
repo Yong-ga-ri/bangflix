@@ -43,7 +43,7 @@ public class CommunityController {
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @RequestPart CommunityPostCreateDTO newPost,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
-    ) throws IOException {
+    ) {
         communityPostService.createPost(loginId, newPost, images);
         return ResponseEntity.ok(
                 new ResponseMessage<>(200, "게시글 등록 성공", null)

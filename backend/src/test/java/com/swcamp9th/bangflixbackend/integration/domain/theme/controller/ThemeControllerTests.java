@@ -58,7 +58,7 @@ class ThemeControllerTests {
         ThemeDTO dummyTheme = new ThemeDTO();
         dummyTheme.setName("Test Theme");
 
-        when(themeService.findTheme(themeCode)).thenReturn(dummyTheme);
+        when(themeService.findThemeDTOByThemeCode(themeCode)).thenReturn(dummyTheme);
 
         mockMvc.perform(get("/api/v1/themes/{themeCode}", themeCode))
                 .andExpect(status().isOk())
@@ -163,7 +163,7 @@ class ThemeControllerTests {
         theme.setName("Store Theme Guest");
         List<ThemeDTO> themeDTOList = Arrays.asList(theme);
 
-        when(themeService.findThemeByStoreOrderBySort(any(Pageable.class), eq("review"), eq(storeCode)))
+        when(themeService.findThemeDTOListByStoreCode(any(Pageable.class), eq("review"), eq(storeCode)))
                 .thenReturn(themeDTOList);
 
         mockMvc.perform(get("/api/v1/themes/store/{storeCode}", storeCode)
@@ -186,7 +186,7 @@ class ThemeControllerTests {
         List<ThemeDTO> themeDTOList = Arrays.asList(theme);
 
         when(userService.findMemberCodeByLoginId(loginId)).thenReturn(memberCode);
-        when(themeService.findThemeByStoreOrderBySort(any(Pageable.class), eq("like"), eq(storeCode), eq(memberCode)))
+        when(themeService.findThemeDTOListByStoreCode(any(Pageable.class), eq("like"), eq(storeCode), eq(memberCode)))
                 .thenReturn(themeDTOList);
 
         mockMvc.perform(get("/api/v1/themes/store/{storeCode}", storeCode)

@@ -27,11 +27,11 @@ public class ThemeReaction {
 
     @Id
     @Column(name = "member_code", nullable = false)
-    private Integer memberCode;
+    private int memberCode;
 
     @Id
     @Column(name = "theme_code", nullable = false)
-    private Integer themeCode;
+    private int themeCode;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -50,6 +50,4 @@ public class ThemeReaction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_code", insertable = false, updatable = false)
     private Member member;
-
-
 }

@@ -25,23 +25,23 @@ public interface ReviewService {
      * 기본적으로 최신순(생성일 내림차순) 정렬하며, 선택적 정렬 필터("highScore" 또는 "lowScore")에 따라 정렬 방식이 변경됩니다.
      *
      * @param themeCode 조회할 테마의 코드
-     * @param filter 정렬 필터 (예: "highScore", "lowScore") - null인 경우 기본 최신순 정렬
+     * @param sort 정렬 필터 (예: "highScore", "lowScore") - null인 경우 기본 최신순 정렬
      * @param pageable 페이징 정보(페이지 번호, 크기 등)
      * @return 조회된 리뷰 목록을 ReviewDTO 리스트로 반환
      */
-    List<ReviewDTO> findReviewsWithFilters(Integer themeCode, String filter, Pageable pageable);
+    List<ReviewDTO> findReviewsBy(int themeCode, String sort, Pageable pageable);
 
     /**
      * 특정 테마에 대한 리뷰 목록을 회원용으로 조회합니다.
      * 로그인한 회원의 memberCode에 기반하여 맞춤형 리뷰 데이터를 제공할 수 있습니다.
      *
      * @param themeCode 조회할 테마의 코드
-     * @param filter 정렬 필터 (예: "highScore", "lowScore") - null인 경우 기본 최신순 정렬
+     * @param sort 정렬 필터 (예: "highScore", "lowScore") - null인 경우 기본 최신순 정렬
      * @param pageable 페이징 정보(페이지 번호, 크기 등)
      * @param memberCode 로그인한 회원의 고유 코드
      * @return 조회된 리뷰 목록을 ReviewDTO 리스트로 반환
      */
-    List<ReviewDTO> findReviewsWithFilters(Integer themeCode, String filter, Pageable pageable, int memberCode);
+    List<ReviewDTO> findReviewsBy(int themeCode, String sort, Pageable pageable, int memberCode);
 
     /**
      * 특정 테마에 대한 리뷰 통계 정보를 조회합니다.
@@ -50,7 +50,7 @@ public interface ReviewService {
      * @param themeCode 조회할 테마의 코드
      * @return 리뷰 통계 정보를 담은 StatisticsReviewDTO
      */
-    StatisticsReviewDTO findReviewStatistics(Integer themeCode);
+    StatisticsReviewDTO findReviewStatistics(int themeCode);
 
     /**
      * Review 엔티티 리스트를 ReviewDTO 리스트로 변환합니다.
@@ -58,7 +58,7 @@ public interface ReviewService {
      * @param sublist 변환할 Review 엔티티 리스트
      * @return 변환된 ReviewDTO 리스트
      */
-    List<ReviewDTO> getReviewDTOS(List<Review> sublist);
+    List<ReviewDTO> toReviewDTOList(List<Review> sublist);
 
     /**
      * 회원용으로 Review 엔티티 리스트를 ReviewDTO 리스트로 변환합니다.
@@ -68,15 +68,7 @@ public interface ReviewService {
      * @param memberCode 로그인한 회원의 고유 코드
      * @return 변환된 ReviewDTO 리스트
      */
-    List<ReviewDTO> getReviewDTOS(List<Review> sublist, int memberCode);
-
-    /**
-     * 단일 Review 엔티티를 회원용 ReviewDTO로 변환합니다.
-     *
-     * @param review 변환할 Review 엔티티
-     * @return 변환된 ReviewDTO
-     */
-    ReviewDTO getReviewDTO(Review review);
+    List<ReviewDTO> toReviewDTOList(List<Review> sublist, int memberCode);
 
     /**
      * 로그인한 회원의 리뷰 리포트 데이터를 조회합니다.
@@ -95,6 +87,8 @@ public interface ReviewService {
      * @return 회원이 작성한 리뷰 목록을 ReviewDTO 리스트로 반환
      */
     List<ReviewDTO> findReviewByMemberCode(int memberCode, Pageable pageable);
+
+    ReviewDTO getBestReviewByStoreCode(int storeCode);
 
     /**
      * 특정 리뷰에 대해 로그인한 회원이 좋아요를 등록합니다.
