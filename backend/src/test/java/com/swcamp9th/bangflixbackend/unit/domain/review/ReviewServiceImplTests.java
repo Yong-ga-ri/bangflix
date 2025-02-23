@@ -202,7 +202,7 @@ class ReviewServiceImplTests {
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class))).thenReturn(Collections.emptyList());
 
         // when
-        List<ReviewDTO> result = reviewService.findReviewsWithFilters(themeCode, null, pageable, member.getMemberCode());
+        List<ReviewDTO> result = reviewService.findReviewsBy(themeCode, null, pageable, member.getMemberCode());
 
         // then
         assertThat(result).hasSize(1);
@@ -239,7 +239,7 @@ class ReviewServiceImplTests {
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class))).thenReturn(Collections.emptyList());
 
         // when
-        List<ReviewDTO> result = reviewService.findReviewsWithFilters(themeCode, "highScore", pageable, member.getMemberCode());
+        List<ReviewDTO> result = reviewService.findReviewsBy(themeCode, "highScore", pageable, member.getMemberCode());
 
         // then
         assertThat(result).hasSize(2);
@@ -247,7 +247,7 @@ class ReviewServiceImplTests {
 
     @Test
     @DisplayName("findReviewsWithFilters: 멤버코드 미포함, 기본 최신순 정렬")
-    void testFindReviewsWithFilters_withoutMemberCode_defaultSort() {
+    void testFindReviewsBy_withoutMemberCode_defaultSort() {
 
         // given
         int themeCode = theme.getThemeCode();
@@ -258,7 +258,7 @@ class ReviewServiceImplTests {
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class))).thenReturn(Collections.emptyList());
 
         // when
-        List<ReviewDTO> result = reviewService.findReviewsWithFilters(themeCode, null, pageable);
+        List<ReviewDTO> result = reviewService.findReviewsBy(themeCode, null, pageable);
 
         // then
         assertThat(result).hasSize(1);

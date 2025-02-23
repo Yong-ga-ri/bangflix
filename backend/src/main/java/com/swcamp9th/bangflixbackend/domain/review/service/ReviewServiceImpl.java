@@ -71,24 +71,24 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     @Override
     public void createReview(
-            CreateReviewDTO newReview,
+            CreateReviewDTO newReviewDTO,
             List<MultipartFile> images,
             Member member
     ) {
 
         // 리뷰 저장
-        Review review = modelMapper.map(newReview, Review.class);
+        Review review = modelMapper.map(newReviewDTO, Review.class);
         review.setTheme(
-                themeService.findThemeByThemeCode(newReview.getThemeCode())
+                themeService.findThemeByThemeCode(newReviewDTO.getThemeCode())
         );
         review.setMember(member);
         review.setActive(true);
         review.setCreatedAt(LocalDateTime.now());
-        Review insertReview = reviewRepository.save(review);
+        Review createdReview = reviewRepository.save(review);
 
         // 리뷰 파일 저장
         if(images != null) {
-            saveReviewFile(images, insertReview);
+            saveReviewFile(images, createdReview);
         }
 
         // 멤버 포인트 올리기
@@ -98,19 +98,16 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     @Override
     public void deleteReview(ReviewCodeDTO reviewCodeDTO, int memberCode) {
-
-        // 기존 리뷰 조회
         Review existingReview = reviewRepository.findById(reviewCodeDTO.getReviewCode())
                 .orElseThrow(ReviewNotFoundException::new);
-
         existingReview.setActive(false);
         reviewRepository.save(existingReview);
     }
 
     @Transactional
     @Override
-    public List<ReviewDTO> findReviewsWithFilters(
-            Integer themeCode,
+    public List<ReviewDTO> findReviewsBy(
+            int themeCode,
             String sort,
             Pageable pageable,
             int memberCode
@@ -122,16 +119,15 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public List<ReviewDTO> findReviewsWithFilters(
-            Integer themeCode,
-            String filter,
+    public List<ReviewDTO> findReviewsBy(
+            int themeCode,
+            String sort,
             Pageable pageable
     ) {
         List<Review> reviews = reviewRepository.findReviewListByThemeCode(pageable, themeCode);
-        sortReviewList(filter, reviews);
+        sortReviewList(sort, reviews);
         return toReviewDTOList(reviews);
     }
-
 
     @Transactional
     @Override
@@ -150,16 +146,15 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     @Override
     public List<ReviewDTO> findReviewByMemberCode(int memberCode, Pageable pageable) {
-        List<Review> review = reviewRepository.findByMemberCode(pageable, memberCode);
-
-        if(review == null || review.isEmpty())
-            return null;
-        return toReviewDTOList(review, memberCode);
+        return toReviewDTOList(
+                reviewRepository.findByMemberCode(pageable, memberCode)
+                , memberCode
+        );
     }
 
     @Transactional
     @Override
-    public StatisticsReviewDTO findReviewStatistics(Integer themeCode) {
+    public StatisticsReviewDTO findReviewStatistics(int themeCode) {
 
         StatisticsReviewDTO statisticsReviewDTO = reviewRepository.findStatisticsByThemeCode(themeCode)
                 .orElse(null);
@@ -234,21 +229,23 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    public List<String> findImagePathsByReviewCode(Integer reviewCode) {
+    public List<String> findImagePathsByReviewCode(int reviewCode) {
         return reviewFileRepository.findByReview_ReviewCode(reviewCode)
                 .stream()
                 .map(ReviewFile::getUrl)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private Integer findReviewLikesByReviewCode(Integer reviewCode) {
+    private int findReviewLikesByReviewCode(int reviewCode) {
         return reviewLikeRepository.countReviewLikesByReviewCode(reviewCode);
     }
 
-    private List<String> findMemberTendencyGenre(Integer memberCode) {
-        return reviewTendencyGenreRepository
-            .findMemberGenreByMemberCode(memberCode).stream()
-            .map(reviewTendencyGenre -> reviewTendencyGenre.getGenre().getName()).collect(Collectors.toCollection(ArrayList::new));
+    private List<String> findMemberTendencyGenre(int memberCode) {
+        return reviewTendencyGenreRepository.findMemberGenreByMemberCode(memberCode).stream()
+                .map(reviewTendencyGenre ->
+                        reviewTendencyGenre.getGenre().getName()
+                )
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
@@ -265,7 +262,15 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
-    private static void sortReviewList(String sort, List<Review> reviews) {
+    private boolean checkMemberLikeReview(int memberCode, int reviewCode) {
+        reviewLikeRepository.
+        return true;
+    }
+
+    private void sortReviewList(
+            String sort,
+            List<Review> reviews
+    ) {
         if (sort == null) sort = "";
         switch (sort) {
             case "highScore":
@@ -290,8 +295,11 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public List<ReviewDTO> toReviewDTOList(List<Review> reviewList, int memberCode) {
-        List<ReviewDTO> result = reviewList.stream()
+    public List<ReviewDTO> toReviewDTOList(
+            List<Review> reviewList,
+            int memberCode
+    ) {
+        return reviewList.stream()
                 .map(review -> {
                     ReviewDTO reviewDTO = toBaseReviewDTO(review);
                     ReviewLike reviewLike = reviewLikeRepository.findByReviewCodeAndMemberCode(review.getReviewCode(), memberCode).orElse(null);
@@ -300,13 +308,12 @@ public class ReviewServiceImpl implements ReviewService {
 
                     return reviewDTO;
                 }).collect(Collectors.toCollection(ArrayList::new));
-
-        return result;
     }
 
-    @Transactional
     @Override
-    public List<ReviewDTO> toReviewDTOList(List<Review> reviewList) {
+    public List<ReviewDTO> toReviewDTOList(
+            List<Review> reviewList
+    ) {
         return reviewList.stream()
                 .map(this::toBaseReviewDTO)
                 .collect(Collectors.toCollection(ArrayList::new));

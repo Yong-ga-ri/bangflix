@@ -134,10 +134,10 @@ public class ReviewController {
         List<ReviewDTO> reviews;
 
         if (loginId == null) {  // for guests
-            reviews = reviewService.findReviewsWithFilters(themeCode, filter, pageable);
+            reviews = reviewService.findReviewsBy(themeCode, filter, pageable);
         } else {    // for members
             int memberCode = userService.findMemberCodeByLoginId(loginId);
-            reviews = reviewService.findReviewsWithFilters(themeCode, filter, pageable, memberCode);
+            reviews = reviewService.findReviewsBy(themeCode, filter, pageable, memberCode);
         }
 
         return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 조회 성공", reviews));
