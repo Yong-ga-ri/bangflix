@@ -84,7 +84,7 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
 
     @Query("SELECT tg.genreCode " +
              "FROM ThemeGenre tg " +
-             "JOIN Theme t " +
+             "JOIN Theme t ON tg.theme.themeCode = t.themeCode " +
             "WHERE tg.themeCode IN :themeCodes")
     List<Integer> findGenresByThemeCode(
             @Param("themeCodes") List<Integer> themeCodes
