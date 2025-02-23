@@ -71,14 +71,6 @@ public interface ReviewService {
     List<ReviewDTO> toReviewDTOList(List<Review> sublist, int memberCode);
 
     /**
-     * 단일 Review 엔티티를 회원용 ReviewDTO로 변환합니다.
-     *
-     * @param review 변환할 Review 엔티티
-     * @return 변환된 ReviewDTO
-     */
-    ReviewDTO getReviewDTO(Review review);
-
-    /**
      * 로그인한 회원의 리뷰 리포트 데이터를 조회합니다.
      * 리포트에는 리뷰 개수, 좋아요 수 등 회원의 리뷰 활동 통계가 포함됩니다.
      *

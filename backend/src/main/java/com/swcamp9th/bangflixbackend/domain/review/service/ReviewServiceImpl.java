@@ -132,93 +132,6 @@ public class ReviewServiceImpl implements ReviewService {
         return toReviewDTOList(reviews);
     }
 
-    @Transactional
-    @Override
-    public List<ReviewDTO> toReviewDTOList(List<Review> sublist, int memberCode) {
-        List<ReviewDTO> result = sublist.stream()
-            .map(review -> {
-                ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
-
-                // 이미지 경로 추가
-                reviewDTO.setImagePaths(findImagePathsByReviewCode(review.getReviewCode()));
-                reviewDTO.setLikes(findReviewLikesByReviewCode(review.getReviewCode()));
-                reviewDTO.setMemberNickname(review.getMember().getNickname());
-                reviewDTO.setReviewCode(review.getReviewCode());
-                reviewDTO.setMemberCode(review.getMember().getMemberCode());
-                reviewDTO.setMemberImage(review.getMember().getImage());
-                List<String> genres = findMemberTendencyGenre(review.getMember().getMemberCode());
-                reviewDTO.setThemeCode(review.getTheme().getThemeCode());
-                reviewDTO.setThemeImage(review.getTheme().getPosterImage());
-                reviewDTO.setThemeName(review.getTheme().getName());
-                ReviewLike reviewLike = reviewLikeRepository.findByReviewCodeAndMemberCode(review.getReviewCode(), memberCode).orElse(null);
-
-                if (reviewLike != null)
-                    reviewDTO.setIsLike(true);
-                else
-                    reviewDTO.setIsLike(false);
-
-                if(!genres.isEmpty())
-                    reviewDTO.setGenres(genres);
-
-                return reviewDTO;
-            }).collect(Collectors.toCollection(ArrayList::new));
-
-        return result;
-    }
-
-    @Transactional
-    @Override
-    public List<ReviewDTO> toReviewDTOList(List<Review> sublist) {
-        List<ReviewDTO> result = sublist.stream()
-                .map(review -> {
-                    ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
-
-                    // 이미지 경로 추가
-                    reviewDTO.setImagePaths(findImagePathsByReviewCode(review.getReviewCode()));
-                    reviewDTO.setLikes(findReviewLikesByReviewCode(review.getReviewCode()));
-                    reviewDTO.setMemberNickname(review.getMember().getNickname());
-                    reviewDTO.setReviewCode(review.getReviewCode());
-                    reviewDTO.setMemberCode(review.getMember().getMemberCode());
-                    reviewDTO.setMemberImage(review.getMember().getImage());
-                    List<String> genres = findMemberTendencyGenre(review.getMember().getMemberCode());
-                    reviewDTO.setThemeCode(review.getTheme().getThemeCode());
-                    reviewDTO.setThemeImage(review.getTheme().getPosterImage());
-                    reviewDTO.setThemeName(review.getTheme().getName());
-                    reviewDTO.setIsLike(false);
-
-
-                    if(!genres.isEmpty())
-                        reviewDTO.setGenres(genres);
-
-                    return reviewDTO;
-                }).collect(Collectors.toCollection(ArrayList::new));
-
-        return result;
-    }
-
-    @Transactional
-    @Override
-    public ReviewDTO getReviewDTO(Review review) {
-
-        ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
-
-        // 이미지 경로 추가
-        reviewDTO.setImagePaths(findImagePathsByReviewCode(review.getReviewCode()));
-        reviewDTO.setLikes(findReviewLikesByReviewCode(review.getReviewCode()));
-        reviewDTO.setMemberNickname(review.getMember().getNickname());
-        reviewDTO.setReviewCode(review.getReviewCode());
-        reviewDTO.setMemberCode(review.getMember().getMemberCode());
-        reviewDTO.setMemberImage(review.getMember().getImage());
-        List<String> genres = findMemberTendencyGenre(review.getMember().getMemberCode());
-        reviewDTO.setThemeCode(review.getTheme().getThemeCode());
-        reviewDTO.setThemeImage(review.getTheme().getPosterImage());
-        reviewDTO.setThemeName(review.getTheme().getName());
-
-        if(!genres.isEmpty())
-            reviewDTO.setGenres(genres);
-
-        return reviewDTO;
-    }
 
     @Transactional
     @Override
@@ -329,7 +242,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private Integer findReviewLikesByReviewCode(Integer reviewCode) {
-        return reviewLikeRepository.findByReviewCode(reviewCode).size();
+        return reviewLikeRepository.countReviewLikesByReviewCode(reviewCode);
     }
 
     private List<String> findMemberTendencyGenre(Integer memberCode) {
@@ -348,7 +261,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review review = reviewRepository.findById(reviewLike.get(0).getReviewCode()).orElse(null);
 
-        return getReviewDTO(review);
+        return toBaseReviewDTO(review);
 
     }
 
@@ -374,4 +287,49 @@ public class ReviewServiceImpl implements ReviewService {
                 break;
         }
     }
+
+    @Transactional
+    @Override
+    public List<ReviewDTO> toReviewDTOList(List<Review> reviewList, int memberCode) {
+        List<ReviewDTO> result = reviewList.stream()
+                .map(review -> {
+                    ReviewDTO reviewDTO = toBaseReviewDTO(review);
+                    ReviewLike reviewLike = reviewLikeRepository.findByReviewCodeAndMemberCode(review.getReviewCode(), memberCode).orElse(null);
+                    if (reviewLike != null)
+                        reviewDTO.setIsLike(true);
+
+                    return reviewDTO;
+                }).collect(Collectors.toCollection(ArrayList::new));
+
+        return result;
+    }
+
+    @Transactional
+    @Override
+    public List<ReviewDTO> toReviewDTOList(List<Review> reviewList) {
+        return reviewList.stream()
+                .map(this::toBaseReviewDTO)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private ReviewDTO toBaseReviewDTO(Review review) {
+        ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
+
+        // 이미지 경로 추가
+        reviewDTO.setImagePaths(findImagePathsByReviewCode(review.getReviewCode()));
+        reviewDTO.setLikes(findReviewLikesByReviewCode(review.getReviewCode()));
+        reviewDTO.setMemberNickname(review.getMember().getNickname());
+        reviewDTO.setReviewCode(review.getReviewCode());
+        reviewDTO.setMemberCode(review.getMember().getMemberCode());
+        reviewDTO.setMemberImage(review.getMember().getImage());
+        List<String> genres = findMemberTendencyGenre(review.getMember().getMemberCode());
+        if(!genres.isEmpty())
+            reviewDTO.setGenres(genres);
+        reviewDTO.setThemeCode(review.getTheme().getThemeCode());
+        reviewDTO.setThemeImage(review.getTheme().getPosterImage());
+        reviewDTO.setThemeName(review.getTheme().getName());
+        reviewDTO.setIsLike(false);
+        return reviewDTO;
+    }
+
 }
