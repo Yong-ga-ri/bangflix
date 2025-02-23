@@ -14,13 +14,15 @@ import org.springframework.data.repository.query.Param;
 
 public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLikeId> {
 
-    @Query("SELECT r " +
-             "FROM ReviewLike r " +
-             "JOIN FETCH r.review " +
-             "JOIN FETCH r.member " +
-            "WHERE r.active = true " +
-              "AND r.review.reviewCode = :reviewCode " +
-              "AND r.member.memberCode = :memberCode ")
+    @Query("SELECT rl " +
+             "FROM ReviewLike rl " +
+             "JOIN FETCH rl.review r " +
+             "JOIN FETCH rl.member m " +
+            "WHERE rl.active = true " +
+              "AND r.active = true " +
+              "AND m.active = true " +
+              "AND r.reviewCode = :reviewCode " +
+              "AND m.memberCode = :memberCode ")
     Optional<ReviewLike> findByMemberCodeAndReviewCode(
             @Param("memberCode") int memberCode,
             @Param("reviewCode") int reviewCode
@@ -52,7 +54,7 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
             "ORDER BY COUNT(rl) DESC")
     Page<ReviewLike> findReviewByReviewLikes(Pageable pageable);
 
-    @Query("SELECT rl.review " +
+    @Query("SELECT rl " +
              "FROM ReviewLike rl " +
              "JOIN FETCH rl.review r " +
              "JOIN FETCH r.theme t " +
@@ -65,19 +67,20 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
             "GROUP BY rl.review " +
             "ORDER BY " +
                   "COUNT(rl) DESC, " +
-                  "rl.review.createdAt DESC")
+                  "r.createdAt DESC")
     Optional<ReviewLike> findBestReviewByStoreCode(
             @Param("storeCode") int storeCode
     );
 
-    @Query("SELECT r " +
-             "FROM ReviewLike r " +
-             "JOIN FETCH r.review " +
-             "JOIN FETCH r.member " +
-            "WHERE r.active = true " +
-              "AND r.review.reviewCode = :reviewCode " +
-              "AND r.member.memberCode = :memberCode ")
-    Boolean existReviewLikeByReviewCodeAndMemberCode (
+    @Query("SELECT " +
+                  "CASE WHEN (COUNT(rl) > 0) THEN true ELSE false END " +
+             "FROM ReviewLike rl " +
+            "WHERE rl.active = true " +
+              "AND rl.review.active = true " +
+              "AND rl.review.member.active = true " +
+              "AND rl.review.reviewCode = :reviewCode " +
+              "AND rl.member.memberCode = :memberCode ")
+    boolean existReviewLikeByReviewCodeAndMemberCode (
             @Param("reviewCode") int reviewCode,
             @Param("memberCode") int memberCode
     );
