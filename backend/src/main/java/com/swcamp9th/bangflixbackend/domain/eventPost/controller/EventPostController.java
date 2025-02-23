@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.eventPost.controller;
 
-import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.Response;
 import com.swcamp9th.bangflixbackend.domain.eventPost.dto.EventListDTO;
 import com.swcamp9th.bangflixbackend.domain.eventPost.dto.EventPostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.eventPost.dto.EventPostDTO;
@@ -37,13 +37,13 @@ public class EventPostController {
     @PostMapping(value = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "이벤트 게시글 등록 API")
-    public ResponseEntity<ResponseMessage<Object>> createEventPost(
+    public ResponseEntity<Response<Object>> createEventPost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @Valid @RequestPart EventPostCreateDTO newEvent,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
         eventPostService.createEventPost(loginId, newEvent, images);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "게시글 등록 성공", null));
+        return ResponseEntity.ok(new Response<>(200, "게시글 등록 성공", null));
     }
 
 
@@ -51,42 +51,42 @@ public class EventPostController {
     @PutMapping(value = "/post/{eventPostCode}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "이벤트 게시글 수정 API")
-    public ResponseEntity<ResponseMessage<Object>> updateEventPost(
+    public ResponseEntity<Response<Object>> updateEventPost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int eventPostCode,
             @Valid @RequestPart EventPostUpdateDTO modifiedEvent,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
 
         eventPostService.updateEventPost(loginId, eventPostCode, modifiedEvent, images);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "게시글 수정 성공", null));
+        return ResponseEntity.ok(new Response<>(200, "게시글 수정 성공", null));
     }
 
     /* 이벤트 게시글 삭제 */
     @DeleteMapping("/post/{eventPostCode}")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "이벤트 게시글 삭제 API")
-    public ResponseEntity<ResponseMessage<Object>> deleteEventPost(@RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
-                                                                   @PathVariable int eventPostCode) {
+    public ResponseEntity<Response<Object>> deleteEventPost(@RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
+                                                            @PathVariable int eventPostCode) {
 
         eventPostService.deleteEventPost(loginId, eventPostCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "게시글 삭제 성공", null));
+        return ResponseEntity.ok(new Response<>(200, "게시글 삭제 성공", null));
     }
 
     /* 할인테마/신규테마 이벤트 게시글 목록 조회 */
     @GetMapping("")
     @Operation(summary = "이벤트 게시글 목록 조회 API (discount/newTheme 각 최신순 상위 5개 조회)")
-    public ResponseEntity<ResponseMessage<List<EventListDTO>>> getEventList() {
+    public ResponseEntity<Response<List<EventListDTO>>> getEventList() {
 
         List<EventListDTO> categoryAndEventList = eventPostService.getEventList();
-        return ResponseEntity.ok(new ResponseMessage<>(200, "이벤트 게시글 목록 조회 성공", categoryAndEventList));
+        return ResponseEntity.ok(new Response<>(200, "이벤트 게시글 목록 조회 성공", categoryAndEventList));
     }
 
     /* 이벤트 게시글 상세 조회 */
     @GetMapping("/post/{eventPostCode}")
     @Operation(summary = "이벤트 게시글 상세 조회 API")
-    public ResponseEntity<ResponseMessage<EventPostDTO>> getEventPost(@PathVariable int eventPostCode) {
+    public ResponseEntity<Response<EventPostDTO>> getEventPost(@PathVariable int eventPostCode) {
 
         EventPostDTO eventPost = eventPostService.findEventByCode(eventPostCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "이벤트 게시글 상세 조회 성공", eventPost));
+        return ResponseEntity.ok(new Response<>(200, "이벤트 게시글 상세 조회 성공", eventPost));
     }
 }

@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor
-public class ResponseMessage<T> {
+public class Response<T> {
     private int status;
     private String msg;
     private T result;

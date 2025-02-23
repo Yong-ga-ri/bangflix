@@ -2,7 +2,7 @@ package com.swcamp9th.bangflixbackend.shared.error;
 
 import com.swcamp9th.bangflixbackend.domain.user.exception.ExpiredTokenException;
 import com.swcamp9th.bangflixbackend.shared.error.exception.BusinessException;
-import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.Response;
 import io.jsonwebtoken.JwtException;
 import io.lettuce.core.RedisException;
 import org.springframework.http.HttpStatus;
@@ -17,10 +17,14 @@ import java.io.IOException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ResponseMessage<Object>> handleBusinessException(BusinessException e) {
+    public ResponseEntity<Response<Object>> handleBusinessException(BusinessException e) {
         final ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity.status(errorCode.getStatus())
-                .body(new ResponseMessage<>(errorCode.getStatus(), errorCode.getMessage(), null));
+                .body(new Response<>(
+                        errorCode.getStatus(),
+                        errorCode.getMessage(),
+                        null
+                ));
     }
 
     // 401: 지정한 리소스에 대한 권한이 없다
@@ -28,9 +32,9 @@ public class GlobalExceptionHandler {
             ExpiredTokenException.class,
             JwtException.class
     })
-    public ResponseEntity<ResponseMessage<Object>> handleInvalidUserException(Exception e) {
+    public ResponseEntity<Response<Object>> handleInvalidUserException(Exception e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(new ResponseMessage<>(HttpStatus.UNAUTHORIZED.value(), e.getMessage(), null));
+            .body(new Response<>(HttpStatus.UNAUTHORIZED.value(), e.getMessage(), null));
     }
 
     // 500: 내부 서버 에러
@@ -45,8 +49,8 @@ public class GlobalExceptionHandler {
             IllegalStateException.class,
             ArithmeticException.class,
     })
-    public ResponseEntity<ResponseMessage<Object>> handleInternalServerErrorException(Exception e) {
+    public ResponseEntity<Response<Object>> handleInternalServerErrorException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ResponseMessage<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
+                .body(new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
     }
 }

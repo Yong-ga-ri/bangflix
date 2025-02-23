@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.comment.controller;
 
-import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.Response;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentDTO;
 import com.swcamp9th.bangflixbackend.domain.comment.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,13 +31,13 @@ public class CommentController {
     @GetMapping
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "특정 사용자가 작성한 댓글 리스트 조회")
-    public ResponseEntity<ResponseMessage<List<CommentDTO>>> getCommentsByMe(
+    public ResponseEntity<Response<List<CommentDTO>>> getCommentsByMe(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         List<CommentDTO> foundComments = commentService.getCommentsById(loginId);
 
         if (foundComments.isEmpty()) foundComments = null;
 
-        return ResponseEntity.ok(new ResponseMessage<>(200, "댓글 조회 성공", foundComments));
+        return ResponseEntity.ok(new Response<>(200, "댓글 조회 성공", foundComments));
     }
 }
