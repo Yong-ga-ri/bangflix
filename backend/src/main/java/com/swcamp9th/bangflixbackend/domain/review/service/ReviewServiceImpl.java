@@ -149,8 +149,8 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewDTO> findReviewByMemberCode(int memberCode, Pageable pageable) {
         return toReviewDTOList(
-                reviewRepository.findByMemberCode(pageable, memberCode)
-                , memberCode
+                reviewRepository.findByMemberCode(pageable, memberCode),
+                memberCode
         );
     }
 
