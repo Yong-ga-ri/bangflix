@@ -26,13 +26,11 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
             @Param("reviewCode") int reviewCode
     );
 
-    @Query("SELECT r " +
-             "FROM ReviewLike r " +
-             "JOIN FETCH r.review " +
-             "JOIN FETCH r.member " +
-            "WHERE r.active = true " +
-              "AND r.review.reviewCode = :reviewCode ")
-    List<ReviewLike> findByReviewCode(
+    @Query("SELECT COUNT(rl) " +
+             "FROM ReviewLike rl " +
+            "WHERE rl.active = true " +
+              "AND rl.review.reviewCode = :reviewCode ")
+    Integer countReviewLikesByReviewCode(
             @Param("reviewCode") int reviewCode
     );
 
@@ -77,5 +75,6 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
               "AND r.member.memberCode = :memberCode ")
     Optional<ReviewLike> findByReviewCodeAndMemberCode(
             @Param("reviewCode") int reviewCode,
-            @Param("memberCode") int memberCode);
+            @Param("memberCode") int memberCode
+    );
 }
