@@ -1,6 +1,7 @@
 package com.swcamp9th.bangflixbackend.domain.noticepost.controller;
 
 import com.swcamp9th.bangflixbackend.shared.response.NoticePageResponse;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseCode;
 import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostDTO;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,38 +40,44 @@ public class NoticePostController {
     @PostMapping(value = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "공지사항 게시글 등록 API")
-    public ResponseEntity<SuccessResponse<Object>> createNoticePost(
+    public ResponseEntity<SuccessResponse<Void>> createNoticePost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @Valid @RequestPart NoticePostCreateDTO newNotice,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
 
         noticePostService.createNoticePost(newNotice, images, loginId);
-        return ResponseEntity.ok(new SuccessResponse<>(200, "게시글 등록 성공", null));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
     /* 공지사항 게시글 수정 */
     @PutMapping(value = "/post/{noticePostCode}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "공지사항 게시글 수정 API")
-    public ResponseEntity<SuccessResponse<Object>> updateNoticePost(
+    public ResponseEntity<SuccessResponse<Void>> updateNoticePost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int noticePostCode,
             @Valid @RequestPart NoticePostUpdateDTO updatedNotice,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
 
         noticePostService.updateNoticePost(noticePostCode, updatedNotice, images, loginId);
-        return ResponseEntity.ok(new SuccessResponse<>(200, "게시글 수정 성공", null));
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(SuccessResponse.empty(ResponseCode.UPDATED));
     }
 
     /* 공지사항 게시글 삭제 */
     @DeleteMapping("/post/{noticePostCode}")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "공지사항 게시글 삭제 API")
-    public ResponseEntity<SuccessResponse<Object>> deleteNoticePost(@PathVariable int noticePostCode,
+    public ResponseEntity<SuccessResponse<Void>> deleteNoticePost(@PathVariable int noticePostCode,
                                                                     @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
         noticePostService.deleteNoticePost(noticePostCode, loginId);
-        return ResponseEntity.ok(new SuccessResponse<>(200, "게시글 삭제 성공", null));
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 
     /* 공지사항 게시글 목록 조회(페이지네이션) */
@@ -81,7 +89,9 @@ public class NoticePostController {
         if (noticePageInfo.getNoticePosts().isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.ok(new SuccessResponse<>(200, "게시글 목록 조회 성공", noticePageInfo));
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(SuccessResponse.of(ResponseCode.OK, noticePageInfo));
         }
     }
 
@@ -89,7 +99,10 @@ public class NoticePostController {
     @GetMapping("/post/{noticePostCode}")
     @Operation(summary = "공지사항 게시글 상세 조회 API")
     public ResponseEntity<SuccessResponse<NoticePostDTO>> getNoticePost(@PathVariable int noticePostCode) {
-        NoticePostDTO noticePost = noticePostService.findNoticeByCode(noticePostCode);
-        return ResponseEntity.ok(new SuccessResponse<>(200, "게시글 조회 성공", noticePost));
+        NoticePostDTO noticePostDTO = noticePostService.findNoticeByCode(noticePostCode);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, noticePostDTO));
     }
 }

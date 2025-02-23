@@ -1,5 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.comment.controller;
 
+import com.swcamp9th.bangflixbackend.shared.response.ResponseCode;
 import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentDTO;
 import com.swcamp9th.bangflixbackend.domain.comment.service.CommentService;
@@ -7,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +40,8 @@ public class CommentController {
 
         if (foundComments.isEmpty()) foundComments = null;
 
-        return ResponseEntity.ok(new SuccessResponse<>(200, "댓글 조회 성공", foundComments));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, foundComments));
     }
 }

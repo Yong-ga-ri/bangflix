@@ -18,6 +18,14 @@ public class SuccessResponse<T> {
         );
     }
 
+    public static <T> SuccessResponse<T> of(ResponseCode responseCode, String message, T data) {
+        return new SuccessResponse<>(
+                responseCode.getCode(),
+                message,
+                data
+        );
+    }
+
     public static SuccessResponse<Void> empty(ResponseCode responseCode, String message) {
         return new SuccessResponse<>(
                 responseCode.getCode(),
@@ -34,7 +42,7 @@ public class SuccessResponse<T> {
         );
     }
 
-    public SuccessResponse(int status, String message, T data) {
+    private SuccessResponse(int status, String message, T data) {
         this.status = status;
         this.msg = message;
         this.result = data;

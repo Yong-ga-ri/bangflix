@@ -1,5 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.ranking.controller;
 
+import com.swcamp9th.bangflixbackend.shared.response.ResponseCode;
 import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import com.swcamp9th.bangflixbackend.domain.ranking.dto.MemberRankingDTO;
 import com.swcamp9th.bangflixbackend.domain.ranking.dto.ReviewRankingDTO;
@@ -12,6 +13,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,11 +39,13 @@ public class RankingController {
     @PostMapping("/test")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "수동으로 리뷰 랭킹 선정하는 API. 테스트용이므로 프론트에서 사용 안하시면 됩니다")
-    public ResponseEntity<SuccessResponse<Object>> testCreateTop5Review() {
+    public ResponseEntity<SuccessResponse<Void>> testCreateTop5Review() {
 
         rankingService.createReviewRanking();
 
-        return ResponseEntity.ok(new SuccessResponse<>(200, "Top5 리뷰 생성", null));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
     @GetMapping("/reviews/dates/{year}")
@@ -52,7 +56,9 @@ public class RankingController {
 
         ReviewRankingDateDTO reviewRankingDateDTO = rankingService.findReviewRankingDate(year);
 
-        return ResponseEntity.ok(new SuccessResponse<>(200, year + "년도 리뷰 랭킹 선정일 조회 성공", reviewRankingDateDTO));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, reviewRankingDateDTO));
     }
 
     @GetMapping("/reviews/date")
@@ -62,12 +68,11 @@ public class RankingController {
         @RequestParam(required = false) String date,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
-        List<ReviewRankingDTO> reviews = rankingService.findReviewRanking(date, loginId);
+        List<ReviewRankingDTO> reviewRankingDTOList = rankingService.findReviewRanking(date, loginId);
 
-        if(reviews == null)
-            return ResponseEntity.ok(new SuccessResponse<>(200, "리뷰 랭킹이 없습니다", null));
-
-        return ResponseEntity.ok(new SuccessResponse<>(200, "리뷰 랭킹 조회 성공", reviews));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, reviewRankingDTOList));
     }
 
     @GetMapping("/reviews")
@@ -78,9 +83,11 @@ public class RankingController {
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
 
-        List<ReviewDTO> reviews = rankingService.findAllReviewRanking(pageable, loginId);
+        List<ReviewDTO> reviewDTOList = rankingService.findAllReviewRanking(pageable, loginId);
 
-        return ResponseEntity.ok(new SuccessResponse<>(200, "실시간 리뷰 랭킹 조회 성공", reviews));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, reviewDTOList));
     }
 
     @GetMapping("/members")
@@ -90,8 +97,10 @@ public class RankingController {
         @PageableDefault(size = 100, page = 0) Pageable pageable
     ) {
 
-        List<MemberRankingDTO> members = rankingService.findAllMemberRanking(pageable);
+        List<MemberRankingDTO> memberRankingDTOList = rankingService.findAllMemberRanking(pageable);
 
-        return ResponseEntity.ok(new SuccessResponse<>(200, "실시간 멤버 랭킹 조회 성공", members));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, memberRankingDTOList));
     }
 }
