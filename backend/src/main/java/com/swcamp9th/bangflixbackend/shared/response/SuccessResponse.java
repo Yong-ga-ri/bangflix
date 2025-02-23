@@ -7,8 +7,8 @@ import lombok.ToString;
 @ToString
 public class SuccessResponse<T> {
     private final int status;
-    private final String message;
-    private final T data;
+    private final String msg;
+    private final T result;
 
     public static <T> SuccessResponse<T> of(ResponseCode responseCode, T data) {
         return new SuccessResponse<>(
@@ -36,7 +36,7 @@ public class SuccessResponse<T> {
 
     public SuccessResponse(int status, String message, T data) {
         this.status = status;
-        this.message = message;
-        this.data = data;
+        this.msg = message;
+        this.result = data;
     }
 }
