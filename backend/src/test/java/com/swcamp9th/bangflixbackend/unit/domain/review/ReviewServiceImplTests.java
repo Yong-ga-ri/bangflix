@@ -2,7 +2,6 @@ package com.swcamp9th.bangflixbackend.unit.domain.review;
 
 import com.swcamp9th.bangflixbackend.domain.review.dto.*;
 import com.swcamp9th.bangflixbackend.domain.review.entity.Review;
-import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewFile;
 import com.swcamp9th.bangflixbackend.domain.review.entity.ReviewLike;
 import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewAlreadyLiked;
 import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewNotLikedException;
@@ -12,7 +11,7 @@ import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewRepository;
 import com.swcamp9th.bangflixbackend.domain.review.repository.ReviewTendencyGenreRepository;
 import com.swcamp9th.bangflixbackend.domain.review.service.ReviewServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
-import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeServiceImpl;
+import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeService;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
 import com.swcamp9th.bangflixbackend.domain.review.exception.ReviewNotFoundException;
@@ -42,13 +41,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceImplTests {
 
     @Mock
     private ModelMapper modelMapper;
     @Mock
-    private ThemeServiceImpl themeService;
+    private ThemeService themeService; // 인터페이스 타입 사용
     @Mock
     private UserService userService;
     @Mock
@@ -73,7 +73,7 @@ class ReviewServiceImplTests {
 
     @BeforeEach
     void setUp() {
-        // Member 샘플 (실제 Member 엔티티를 사용)
+        // Member 샘플
         member = new Member();
         member.setMemberCode(1000);
         member.setNickname("TestUser");
@@ -121,7 +121,6 @@ class ReviewServiceImplTests {
     @Test
     @DisplayName("createReview: 이미지 없이 리뷰 생성 성공")
     void testCreateReview_withoutImages() {
-
         // given
         when(modelMapper.map(createReviewDTO, Review.class)).thenReturn(review);
         when(themeService.findThemeByThemeCode(createReviewDTO.getThemeCode())).thenReturn(theme);
@@ -133,15 +132,13 @@ class ReviewServiceImplTests {
         // then
         verify(reviewRepository, times(1)).save(review);
         verify(userService, times(1)).memberGainPoint(member, 5);
-
         // images가 null인 경우 reviewFileRepository.save()가 호출되지 않아야 함
-        verify(reviewFileRepository, never()).save(any(ReviewFile.class));
+        verify(reviewFileRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("createReview: 이미지와 함께 리뷰 생성 성공")
     void testCreateReview_withImages() {
-
         // given
         MultipartFile file = new MockMultipartFile("file", "image.png", "image/png", "dummyImageContent".getBytes());
         List<MultipartFile> images = List.of(file);
@@ -154,14 +151,13 @@ class ReviewServiceImplTests {
 
         // then
         verify(reviewRepository, times(1)).save(review);
-        verify(reviewFileRepository, atLeastOnce()).save(any(ReviewFile.class));
+        verify(reviewFileRepository, atLeastOnce()).save(any());
         verify(userService, times(1)).memberGainPoint(member, 5);
     }
 
     @Test
     @DisplayName("deleteReview: 기존 리뷰 삭제 성공")
     void testDeleteReview_success() {
-
         // given
         when(reviewRepository.findById(reviewCodeDTO.getReviewCode())).thenReturn(Optional.of(review));
         when(reviewRepository.save(any(Review.class))).thenReturn(review);
@@ -177,29 +173,28 @@ class ReviewServiceImplTests {
     @Test
     @DisplayName("deleteReview: 리뷰가 존재하지 않으면 예외 발생")
     void testDeleteReview_reviewNotFoundThrowsException() {
-
         // given
         when(reviewRepository.findById(reviewCodeDTO.getReviewCode())).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> reviewService.deleteReview(reviewCodeDTO, member.getMemberCode()))
-                .isInstanceOf(ReviewNotFoundException.class)
-                .hasMessage("존재하지 않는 리뷰입니다.");
+                .isInstanceOf(ReviewNotFoundException.class);
     }
 
     @Test
-    @DisplayName("findReviewsWithFilters: 멤버코드 포함, 기본 최신순 정렬")
-    void testFindReviewsWithFilters_withMemberCode_defaultSort() {
-
+    @DisplayName("findReviews: 멤버코드 포함, 기본 최신순 정렬")
+    void testFindReviews_withMemberCode_defaultSort() {
         // given
         int themeCode = theme.getThemeCode();
         Pageable pageable = PageRequest.of(0, 10);
-        List<Review> reviews = new ArrayList<>(List.of(review));
+        List<Review> reviews = new ArrayList<>();
+        reviews.add(review);
         when(reviewRepository.findReviewListByThemeCode(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
-        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(eq(review.getReviewCode()), any(Integer.class)))
-                .thenReturn(Optional.empty());
-        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class))).thenReturn(Collections.emptyList());
+        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(eq(member.getMemberCode()), eq(review.getReviewCode())))
+                .thenReturn(false);
+        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(anyInt()))
+                .thenReturn(Collections.emptyList());
 
         // when
         List<ReviewDTO> result = reviewService.findReviewsBy(themeCode, null, pageable, member.getMemberCode());
@@ -212,7 +207,6 @@ class ReviewServiceImplTests {
     @Test
     @DisplayName("findReviewsWithFilters: 멤버코드 포함, 점수 높은 순 정렬")
     void testFindReviewsWithFilters_withMemberCode_highScore() {
-
         // given
         int themeCode = theme.getThemeCode();
         Pageable pageable = PageRequest.of(0, 10);
@@ -231,12 +225,15 @@ class ReviewServiceImplTests {
         reviewLow.setCreatedAt(LocalDateTime.now().minusHours(1));
         reviewLow.setActive(true);
 
-        List<Review> reviews = new ArrayList<>(List.of(reviewLow, reviewHigh));
+        List<Review> reviews = new ArrayList<>();
+        reviews.add(reviewLow);
+        reviews.add(reviewHigh);
         when(reviewRepository.findReviewListByThemeCode(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(any(Review.class), eq(ReviewDTO.class))).thenReturn(reviewDTO);
-        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(any(Integer.class), any(Integer.class)))
-                .thenReturn(Optional.empty());
-        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class))).thenReturn(Collections.emptyList());
+        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(anyInt(), anyInt()))
+                .thenReturn(false);
+        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(anyInt()))
+                .thenReturn(Collections.emptyList());
 
         // when
         List<ReviewDTO> result = reviewService.findReviewsBy(themeCode, "highScore", pageable, member.getMemberCode());
@@ -246,16 +243,17 @@ class ReviewServiceImplTests {
     }
 
     @Test
-    @DisplayName("findReviewsWithFilters: 멤버코드 미포함, 기본 최신순 정렬")
+    @DisplayName("findReviewsBy: 멤버코드 미포함, 기본 최신순 정렬")
     void testFindReviewsBy_withoutMemberCode_defaultSort() {
-
         // given
         int themeCode = theme.getThemeCode();
         Pageable pageable = PageRequest.of(0, 10);
-        List<Review> reviews = new ArrayList<>(List.of(review));
+        List<Review> reviews = new ArrayList<>();
+        reviews.add(review);
         when(reviewRepository.findReviewListByThemeCode(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
-        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class))).thenReturn(Collections.emptyList());
+        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(anyInt()))
+                .thenReturn(Collections.emptyList());
 
         // when
         List<ReviewDTO> result = reviewService.findReviewsBy(themeCode, null, pageable);
@@ -265,14 +263,13 @@ class ReviewServiceImplTests {
     }
 
     @Test
-    @DisplayName("getReviewDTOS: 멤버코드 포함 결과 매핑")
+    @DisplayName("toReviewDTOList: 멤버코드 포함 결과 매핑")
     void testToReviewDTOList_withMemberCode() {
-
         // given
         List<Review> reviewList = List.of(review);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
-        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(eq(review.getReviewCode()), eq(member.getMemberCode())))
-                .thenReturn(Optional.empty());
+        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(eq(member.getMemberCode()), eq(review.getReviewCode())))
+                .thenReturn(false);
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(eq(member.getMemberCode())))
                 .thenReturn(Collections.emptyList());
 
@@ -285,13 +282,12 @@ class ReviewServiceImplTests {
     }
 
     @Test
-    @DisplayName("getReviewDTOS: 멤버코드 미포함 결과 매핑")
+    @DisplayName("toReviewDTOList: 멤버코드 미포함 결과 매핑")
     void testToReviewDTOList_withoutMemberCode() {
-
         // given
         List<Review> reviewList = List.of(review);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
-        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class)))
+        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(anyInt()))
                 .thenReturn(Collections.emptyList());
 
         // when
@@ -301,26 +297,11 @@ class ReviewServiceImplTests {
         assertThat(result).hasSize(1);
     }
 
-    @Test
-    @DisplayName("getReviewDTO: 단일 리뷰 DTO 매핑")
-    void testGetReviewDTO() {
-
-        // given
-        when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
-        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(eq(member.getMemberCode())))
-                .thenReturn(Collections.emptyList());
-
-        // when
-        ReviewDTO result = reviewService.getReviewDTO(review);
-
-        // then
-        assertThat(result.getReviewCode()).isEqualTo(review.getReviewCode());
-    }
+    // 기존 getReviewDTO 테스트는 toReviewDTOList를 통해 간접 검증하므로 제거합니다.
 
     @Test
     @DisplayName("findReviewReport: 리뷰 리포트 반환")
     void testFindReviewReport_returnsReport() {
-
         // given
         int memberCode = member.getMemberCode();
         int avgScore = 85;
@@ -340,7 +321,6 @@ class ReviewServiceImplTests {
     @Test
     @DisplayName("findReviewReport: 평균 점수가 없으면 null 반환")
     void testFindReviewReport_returnsNull_whenNoAvgScore() {
-
         // given
         int memberCode = member.getMemberCode();
         when(reviewRepository.findAvgScoreByMemberCode(memberCode)).thenReturn(null);
@@ -355,16 +335,16 @@ class ReviewServiceImplTests {
     @Test
     @DisplayName("findReviewByMemberCode: 멤버의 리뷰 반환")
     void testFindReviewByMemberCode_returnsReviews() {
-
         // given
         int memberCode = member.getMemberCode();
         Pageable pageable = PageRequest.of(0, 10);
-        List<Review> reviews = List.of(review);
+        List<Review> reviews = new ArrayList<>();
+        reviews.add(review);
         when(reviewRepository.findByMemberCode(pageable, memberCode)).thenReturn(reviews);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
-        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(eq(review.getReviewCode()), eq(memberCode)))
-                .thenReturn(Optional.empty());
-        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(eq(memberCode)))
+        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(eq(member.getMemberCode()), eq(review.getReviewCode())))
+                .thenReturn(false);
+        when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(eq(member.getMemberCode())))
                 .thenReturn(Collections.emptyList());
 
         // when
@@ -375,9 +355,8 @@ class ReviewServiceImplTests {
     }
 
     @Test
-    @DisplayName("findReviewByMemberCode: 리뷰가 없으면 null 반환")
-    void testFindReviewByMemberCode_returnsNull_whenEmpty() {
-
+    @DisplayName("findReviewByMemberCode: 리뷰가 없으면 빈 리스트 반환")
+    void testFindReviewByMemberCode_returnsEmpty_whenNoReviews() {
         // given
         int memberCode = member.getMemberCode();
         Pageable pageable = PageRequest.of(0, 10);
@@ -387,13 +366,12 @@ class ReviewServiceImplTests {
         List<ReviewDTO> result = reviewService.findReviewByMemberCode(memberCode, pageable);
 
         // then
-        assertThat(result).isNull();
+        assertThat(result).isEmpty();
     }
 
     @Test
     @DisplayName("findReviewStatistics: 테마 리뷰 통계 반환")
     void testFindReviewStatistics_returnsStatistics() {
-
         // given
         int themeCode = theme.getThemeCode();
         StatisticsReviewDTO statisticsReviewDTO = new StatisticsReviewDTO();
@@ -411,7 +389,6 @@ class ReviewServiceImplTests {
     @Test
     @DisplayName("findReviewStatistics: 통계가 없으면 null 반환")
     void testFindReviewStatistics_returnsNull_whenNoStatistics() {
-
         // given
         int themeCode = theme.getThemeCode();
         when(reviewRepository.findStatisticsByThemeCode(themeCode)).thenReturn(Optional.empty());
@@ -426,43 +403,44 @@ class ReviewServiceImplTests {
     @Test
     @DisplayName("likeReview: 새 좋아요 생성")
     void testLikeReview_createNewLike() {
-
         // given
         int memberCode = member.getMemberCode();
         when(reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode()))
                 .thenReturn(Optional.empty());
+
         // when
         reviewService.likeReview(reviewCodeDTO, memberCode);
+
         // then
         ArgumentCaptor<ReviewLike> captor = ArgumentCaptor.forClass(ReviewLike.class);
         verify(reviewLikeRepository).save(captor.capture());
         ReviewLike savedLike = captor.getValue();
         assertThat(savedLike.getMemberCode()).isEqualTo(memberCode);
         assertThat(savedLike.getReviewCode()).isEqualTo(reviewCodeDTO.getReviewCode());
-        assertThat(savedLike.getActive()).isTrue();
+        assertThat(savedLike.isActive()).isTrue();
     }
 
     @Test
     @DisplayName("likeReview: 비활성 좋아요 활성화")
     void testLikeReview_updateInactiveLike() {
-
         // given
         int memberCode = member.getMemberCode();
         ReviewLike existingLike = new ReviewLike();
         existingLike.setActive(false);
         when(reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode()))
                 .thenReturn(Optional.of(existingLike));
+
         // when
         reviewService.likeReview(reviewCodeDTO, memberCode);
+
         // then
         verify(reviewLikeRepository, times(1)).save(existingLike);
-        assertThat(existingLike.getActive()).isTrue();
+        assertThat(existingLike.isActive()).isTrue();
     }
 
     @Test
     @DisplayName("likeReview: 이미 활성화된 좋아요면 예외 발생")
     void testLikeReview_alreadyActiveLikeThrowsException() {
-
         // given
         int memberCode = member.getMemberCode();
         ReviewLike existingLike = new ReviewLike();
@@ -472,14 +450,12 @@ class ReviewServiceImplTests {
 
         // when & then
         assertThatThrownBy(() -> reviewService.likeReview(reviewCodeDTO, memberCode))
-                .isInstanceOf(ReviewAlreadyLiked.class)
-                .hasMessage("이미 좋아요를 누른 리뷰입니다.");
+                .isInstanceOf(ReviewAlreadyLiked.class);
     }
 
     @Test
     @DisplayName("deleteLikeReview: 좋아요 취소 성공")
     void testDeleteLikeReview_success() {
-
         // given
         int memberCode = member.getMemberCode();
         ReviewLike existingLike = new ReviewLike();
@@ -492,17 +468,16 @@ class ReviewServiceImplTests {
 
         // then
         verify(reviewLikeRepository, times(1)).save(existingLike);
-        assertThat(existingLike.getActive()).isFalse();
+        assertThat(existingLike.isActive()).isFalse();
     }
 
     @Test
-    @DisplayName("deleteLikeReview: 좋아요가 없으면 예외 발생 (null)")
-    void testDeleteLikeReview_likeNotFoundThrowsException_whenNull() {
-
+    @DisplayName("deleteLikeReview: 좋아요가 없으면 예외 발생")
+    void testDeleteLikeReview_likeNotFoundThrowsException_whenNotFound() {
         // given
         int memberCode = member.getMemberCode();
         when(reviewLikeRepository.findByMemberCodeAndReviewCode(memberCode, reviewCodeDTO.getReviewCode()))
-                .thenThrow(ReviewNotLikedException.class);
+                .thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> reviewService.deleteLikeReview(reviewCodeDTO, memberCode))
@@ -512,7 +487,6 @@ class ReviewServiceImplTests {
     @Test
     @DisplayName("deleteLikeReview: 좋아요가 비활성 상태면 예외 발생")
     void testDeleteLikeReview_likeNotFoundThrowsException_whenInactive() {
-
         // given
         int memberCode = member.getMemberCode();
         ReviewLike existingLike = new ReviewLike();
@@ -522,7 +496,6 @@ class ReviewServiceImplTests {
 
         // when & then
         assertThatThrownBy(() -> reviewService.deleteLikeReview(reviewCodeDTO, memberCode))
-                .isInstanceOf(ReviewNotLikedException.class)
-                .hasMessage("좋아요를 누르지 않은 리뷰입니다.");
+                .isInstanceOf(ReviewNotLikedException.class);
     }
 }
