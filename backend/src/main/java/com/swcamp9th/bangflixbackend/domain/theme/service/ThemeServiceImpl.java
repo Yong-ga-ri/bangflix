@@ -56,11 +56,11 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public ThemeDTO findThemeDTOByThemeCode(Integer themeCode) {
+    public ThemeDTO findThemeDTOByThemeCode(int themeCode) {
         return createBaseThemeDTO(findThemeByThemeCode(themeCode));
     }
 
-    public Theme findThemeByThemeCode(Integer themeCode) {
+    public Theme findThemeByThemeCode(int themeCode) {
         return themeRepository.findById(themeCode)
                 .orElseThrow(ThemeNotFoundException::new);
     }
@@ -388,7 +388,6 @@ public class ThemeServiceImpl implements ThemeService {
         themeReactionRepository.findReactionByThemeCodeAndMemberCode(themeCode, memberCode)
                 .ifPresent(reaction -> ReactionMapper.applyReaction(themeDto, reaction.getReaction()));
     }
-
 
     private void sortThemeList(List<ThemeDTO> themesDTO, String sort) {
         if (sort == null) {

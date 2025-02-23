@@ -79,7 +79,7 @@ public interface ThemeService {
      * @param themeCode 조회할 테마의 고유 코드
      * @return 해당 테마의 상세 정보를 담은 ThemeDTO
      */
-    ThemeDTO findThemeDTOByThemeCode(Integer themeCode);
+    ThemeDTO findThemeDTOByThemeCode(int themeCode);
 
     /**
      * 게스트용 테마 상세 조회 API.
@@ -87,7 +87,7 @@ public interface ThemeService {
      * @param themeCode 조회할 테마의 고유 코드
      * @return 해당 테마의 상세 정보를 담은 ThemeDTO
      */
-    Theme findThemeByThemeCode(Integer themeCode);
+    Theme findThemeByThemeCode(int themeCode);
 
     /**
      * 회원용 테마 조회 API (필터링 및 검색).
