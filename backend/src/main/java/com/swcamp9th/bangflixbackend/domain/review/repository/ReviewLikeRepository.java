@@ -52,17 +52,21 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
             "ORDER BY COUNT(rl) DESC")
     Page<ReviewLike> findReviewByReviewLikes(Pageable pageable);
 
-    @Query("SELECT DISTINCT rl " +
+    @Query("SELECT rl.review " +
              "FROM ReviewLike rl " +
-             "JOIN FETCH rl.review " +
-             "JOIN FETCH rl.review.theme " +
-             "JOIN FETCH rl.review.theme.store " +
+             "JOIN FETCH rl.review r " +
+             "JOIN FETCH r.theme t " +
+             "JOIN FETCH t.store s " +
             "WHERE rl.active = true " +
-              "AND rl.review.theme.store.storeCode = :storeCode " +
+              "AND r.active = true " +
+              "AND t.active = true " +
+              "AND s.active = true " +
+              "AND s.storeCode = :storeCode " +
+            "GROUP BY rl.review " +
             "ORDER BY " +
                   "COUNT(rl) DESC, " +
                   "rl.review.createdAt DESC")
-    List<ReviewLike> findBestReviewByStoreCode(
+    Optional<ReviewLike> findBestReviewByStoreCode(
             @Param("storeCode") int storeCode
     );
 
@@ -73,7 +77,7 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
             "WHERE r.active = true " +
               "AND r.review.reviewCode = :reviewCode " +
               "AND r.member.memberCode = :memberCode ")
-    Optional<ReviewLike> findByReviewCodeAndMemberCode(
+    Boolean existReviewLikeByReviewCodeAndMemberCode (
             @Param("reviewCode") int reviewCode,
             @Param("memberCode") int memberCode
     );

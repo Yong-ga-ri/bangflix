@@ -197,7 +197,7 @@ class ReviewServiceImplTests {
         List<Review> reviews = new ArrayList<>(List.of(review));
         when(reviewRepository.findReviewListByThemeCode(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
-        when(reviewLikeRepository.findByReviewCodeAndMemberCode(eq(review.getReviewCode()), any(Integer.class)))
+        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(eq(review.getReviewCode()), any(Integer.class)))
                 .thenReturn(Optional.empty());
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class))).thenReturn(Collections.emptyList());
 
@@ -234,7 +234,7 @@ class ReviewServiceImplTests {
         List<Review> reviews = new ArrayList<>(List.of(reviewLow, reviewHigh));
         when(reviewRepository.findReviewListByThemeCode(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(any(Review.class), eq(ReviewDTO.class))).thenReturn(reviewDTO);
-        when(reviewLikeRepository.findByReviewCodeAndMemberCode(any(Integer.class), any(Integer.class)))
+        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(any(Integer.class), any(Integer.class)))
                 .thenReturn(Optional.empty());
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class))).thenReturn(Collections.emptyList());
 
@@ -271,7 +271,7 @@ class ReviewServiceImplTests {
         // given
         List<Review> reviewList = List.of(review);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
-        when(reviewLikeRepository.findByReviewCodeAndMemberCode(eq(review.getReviewCode()), eq(member.getMemberCode())))
+        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(eq(review.getReviewCode()), eq(member.getMemberCode())))
                 .thenReturn(Optional.empty());
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(eq(member.getMemberCode())))
                 .thenReturn(Collections.emptyList());
@@ -362,7 +362,7 @@ class ReviewServiceImplTests {
         List<Review> reviews = List.of(review);
         when(reviewRepository.findByMemberCode(pageable, memberCode)).thenReturn(reviews);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
-        when(reviewLikeRepository.findByReviewCodeAndMemberCode(eq(review.getReviewCode()), eq(memberCode)))
+        when(reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(eq(review.getReviewCode()), eq(memberCode)))
                 .thenReturn(Optional.empty());
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(eq(memberCode)))
                 .thenReturn(Collections.emptyList());

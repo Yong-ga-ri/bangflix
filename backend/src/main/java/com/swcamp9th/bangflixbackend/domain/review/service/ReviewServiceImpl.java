@@ -137,10 +137,12 @@ public class ReviewServiceImpl implements ReviewService {
         if(avgScore == null)
             return null;
 
-        Pageable pageable = PageRequest.of(0, 3);
-        List<String> genres = reviewRepository.findTopGenresByMemberCode(pageable, memberCode);
-        ReviewReportDTO reviewReportDTO = new ReviewReportDTO(avgScore, genres);
-        return reviewReportDTO;
+        return new ReviewReportDTO(
+                avgScore,
+                reviewRepository.findTopGenresByMemberCode(
+                        PageRequest.of(0, 3),
+                        memberCode)
+                );
     }
 
     @Transactional
@@ -242,29 +244,22 @@ public class ReviewServiceImpl implements ReviewService {
 
     private List<String> findMemberTendencyGenre(int memberCode) {
         return reviewTendencyGenreRepository.findMemberGenreByMemberCode(memberCode).stream()
-                .map(reviewTendencyGenre ->
-                        reviewTendencyGenre.getGenre().getName()
-                )
+                .map(reviewTendencyGenre -> reviewTendencyGenre.getGenre().getName())
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
     @Transactional
     public ReviewDTO getBestReviewByStoreCode(int storeCode) {
-        List<ReviewLike> reviewLike = reviewLikeRepository.findBestReviewByStoreCode(storeCode);
-
-        if(reviewLike.isEmpty())
-            return null;
-
-        Review review = reviewRepository.findById(reviewLike.get(0).getReviewCode()).orElse(null);
-
-        return toBaseReviewDTO(review);
-
+        return reviewLikeRepository.findBestReviewByStoreCode(storeCode)
+                .map(ReviewLike::getReviewCode)
+                .flatMap(reviewRepository::findById)
+                .map(this::toBaseReviewDTO)
+                .orElse(null);
     }
 
     private boolean checkMemberLikeReview(int memberCode, int reviewCode) {
-        reviewLikeRepository.
-        return true;
+        return reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(reviewCode, memberCode);
     }
 
     private void sortReviewList(
@@ -302,10 +297,9 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewList.stream()
                 .map(review -> {
                     ReviewDTO reviewDTO = toBaseReviewDTO(review);
-                    ReviewLike reviewLike = reviewLikeRepository.findByReviewCodeAndMemberCode(review.getReviewCode(), memberCode).orElse(null);
-                    if (reviewLike != null)
+                    if (checkMemberLikeReview(review.getReviewCode(), memberCode)) {
                         reviewDTO.setIsLike(true);
-
+                    }
                     return reviewDTO;
                 }).collect(Collectors.toCollection(ArrayList::new));
     }
