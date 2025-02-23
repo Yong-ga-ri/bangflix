@@ -251,9 +251,12 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public ReviewDTO getBestReviewByStoreCode(int storeCode) {
-        return reviewLikeRepository.findBestReviewByStoreCode(storeCode)
-                .map(ReviewLike::getReviewCode)
-                .flatMap(reviewRepository::findById)
+        return reviewLikeRepository.findTop1BestReviewByStoreCode(storeCode)
+                .stream()
+                .findFirst()
+                .map(reviewLike ->
+                        reviewRepository.findById(reviewLike.getReviewCode())
+                                .orElseThrow(ReviewNotFoundException::new))
                 .map(this::toBaseReviewDTO)
                 .orElse(null);
     }

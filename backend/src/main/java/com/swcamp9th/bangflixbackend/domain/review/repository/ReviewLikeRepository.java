@@ -68,7 +68,7 @@ public interface ReviewLikeRepository extends JpaRepository<ReviewLike, ReviewLi
             "ORDER BY " +
                   "COUNT(rl) DESC, " +
                   "r.createdAt DESC")
-    Optional<ReviewLike> findBestReviewByStoreCode(
+    List<ReviewLike> findTop1BestReviewByStoreCode(
             @Param("storeCode") int storeCode
     );
 
