@@ -38,7 +38,7 @@ public class CommunityLikeController {
         communityLikeService.addLike(loginId, newLike);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 

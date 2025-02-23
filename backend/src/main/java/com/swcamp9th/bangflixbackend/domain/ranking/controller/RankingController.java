@@ -44,7 +44,7 @@ public class RankingController {
         rankingService.createReviewRanking();
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 

@@ -47,7 +47,7 @@ public class EventPostController {
         eventPostService.createEventPost(loginId, newEvent, images);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
@@ -64,7 +64,7 @@ public class EventPostController {
 
         eventPostService.updateEventPost(loginId, eventPostCode, modifiedEvent, images);
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.UPDATED));
     }
 
@@ -78,7 +78,7 @@ public class EventPostController {
         eventPostService.deleteEventPost(loginId, eventPostCode);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 

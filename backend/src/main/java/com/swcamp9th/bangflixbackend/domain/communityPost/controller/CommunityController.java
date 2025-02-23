@@ -48,7 +48,7 @@ public class CommunityController {
         communityPostService.createPost(loginId, newPost, images);
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
@@ -68,7 +68,7 @@ public class CommunityController {
         communityPostService.updatePost(loginId, communityPostCode, modifiedPost, images);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.UPDATED));
     }
 
@@ -83,7 +83,7 @@ public class CommunityController {
         communityPostService.deletePost(loginId, communityPostCode);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 

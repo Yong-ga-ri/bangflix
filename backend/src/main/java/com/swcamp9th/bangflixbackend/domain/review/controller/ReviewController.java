@@ -81,7 +81,7 @@ public class ReviewController {
         reviewService.createReview(newReview, images, member);
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
@@ -109,7 +109,7 @@ public class ReviewController {
         reviewService.deleteReview(reviewCodeDTO, memberCode);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 
@@ -202,7 +202,7 @@ public class ReviewController {
         reviewService.likeReview(reviewCodeDTO, memberCode);
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
@@ -229,7 +229,7 @@ public class ReviewController {
         reviewService.deleteLikeReview(reviewCodeDTO, memberCode);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 

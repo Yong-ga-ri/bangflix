@@ -35,7 +35,7 @@ public class UserController {
         userService.logout(refreshTokenRequestDto.getRefreshToken());
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.DELETED, "로그아웃 성공"));
     }
 
@@ -61,7 +61,7 @@ public class UserController {
         userService.updateUserInfo(userId, updateUserInfoRequestDto, imgFile);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.UPDATED));
     }
 

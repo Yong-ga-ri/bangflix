@@ -38,7 +38,7 @@ public class AuthController {
             userService.signup(signupRequestDto, imgFile);
         }
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
@@ -84,7 +84,7 @@ public class AuthController {
         emailService.sendSimpleMessage(emailRequestDto.getEmail());
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED, "인증 이메일 발송에 성공했습니다"));
     }
 
@@ -94,7 +94,7 @@ public class AuthController {
         emailService.findEmailCode(emailCodeRequestDto);
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED, "이메일 인증에 성공했습니다"));
 
     }

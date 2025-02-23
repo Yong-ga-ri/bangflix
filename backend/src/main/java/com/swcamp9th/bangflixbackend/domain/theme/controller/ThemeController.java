@@ -200,7 +200,7 @@ public class ThemeController {
         );
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
@@ -228,7 +228,7 @@ public class ThemeController {
         themeService.deleteThemeReaction(memberCode, themeReactionDTO);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 
@@ -248,7 +248,7 @@ public class ThemeController {
     @Operation(summary = "회원별 테마 반응 조회 API",
             description = "로그인한 회원이 좋아요 또는 스크랩한 테마를 조회합니다. "
                     + "reaction 파라미터에 'like' 또는 'scrap'을 전달합니다.")
-    public ResponseEntity<SuccessResponse<Object>> findThemeByMemberReaction(
+    public ResponseEntity<SuccessResponse<List<FindThemeByReactionDTO>>> findThemeByMemberReaction(
         @RequestParam String reaction,
         @PageableDefault(size = 10) Pageable pageable,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
@@ -306,7 +306,7 @@ public class ThemeController {
     @Operation(summary = "테마 추천 API",
             description = "선택적 테마 코드(themeCodes)를 기준으로 추천 테마를 조회합니다. "
                     + "테마 코드가 없으면 기본 추천 로직에 따라 결과를 반환합니다.")
-    public ResponseEntity<SuccessResponse<Object>> recommendTheme(
+    public ResponseEntity<SuccessResponse<List<ThemeDTO>>> recommendTheme(
             @RequestParam(required = false) List<Integer> themeCodes
     ) {
         List<ThemeDTO> themeDTOList = themeService.recommendTheme(themeCodes);

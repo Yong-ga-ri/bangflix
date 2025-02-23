@@ -47,7 +47,7 @@ public class NoticePostController {
 
         noticePostService.createNoticePost(newNotice, images, loginId);
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
@@ -63,7 +63,7 @@ public class NoticePostController {
 
         noticePostService.updateNoticePost(noticePostCode, updatedNotice, images, loginId);
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.UPDATED));
     }
 
@@ -76,7 +76,7 @@ public class NoticePostController {
 
         noticePostService.deleteNoticePost(noticePostCode, loginId);
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 

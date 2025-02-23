@@ -43,7 +43,7 @@ public class CommunityPostController {
         commentService.createComment(loginId, communityPostCode, newComment);
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
@@ -60,7 +60,7 @@ public class CommunityPostController {
         commentService.updateComment(loginId, communityPostCode, commentCode, modifiedComment);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.UPDATED));
     }
 
@@ -76,7 +76,7 @@ public class CommunityPostController {
         commentService.deleteComment(loginId, communityPostCode, commentCode);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 
