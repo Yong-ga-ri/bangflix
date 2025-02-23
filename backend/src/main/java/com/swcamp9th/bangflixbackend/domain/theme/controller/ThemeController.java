@@ -104,7 +104,7 @@ public class ThemeController {
      * @param pageable 페이징 정보 (기본 10개씩 반환)
      * @param filter   정렬 필터 (like, scrap, review 등)
      * @param genres   선택적 장르 리스트 (여러 개 가능)
-     * @param search  검색어 (테마 이름에 포함된 문자열)
+     * @param content  검색어 (테마 이름에 포함된 문자열)
      * @param loginId  (선택적) 인증 토큰에서 추출한 로그인 아이디. 게스트의 경우 null.
      * @return 필터링 및 검색 조건에 맞는 테마 목록(ThemeDTO 리스트)과 성공 메시지가 포함된 응답
      */
