@@ -1,6 +1,7 @@
 package com.swcamp9th.bangflixbackend.domain.theme.controller;
 
 import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseCode;
 import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -74,7 +76,9 @@ public class ThemeController {
             int memberCode = userService.findMemberCodeByLoginId(loginId);
             themeDTO = themeService.findTheme(themeCode, memberCode);
         }
-        return ResponseEntity.ok(new SuccessResponse<>(200, themeCode + "번 테마 조회 성공", themeDTO));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, themeDTO));
     }
 
     /**
@@ -89,8 +93,10 @@ public class ThemeController {
     @Operation(summary = "전체 장르 조회 API",
             description = "현재 데이터베이스에 존재하는 모든 장르 정보를 조회합니다.")
     public ResponseEntity<SuccessResponse<List<GenreDTO>>> findGenres() {
-        List<GenreDTO> genres = themeService.findGenres();
-        return ResponseEntity.ok(new SuccessResponse<>(200, "전체 장르 조회 성공", genres));
+        List<GenreDTO> genreDTOList = themeService.findGenres();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, genreDTOList));
     }
 
     /**
@@ -128,7 +134,9 @@ public class ThemeController {
             int memberCode = userService.findMemberCodeByLoginId(loginId);
             themeDTOList = themeService.findThemeByGenresAndSearchOrderBySort(pageable, filter, genres, content, memberCode);
         }
-        return ResponseEntity.ok(new SuccessResponse<>(200, "테마 조회 성공", themeDTOList));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, themeDTOList));
     }
 
     /**
@@ -161,8 +169,9 @@ public class ThemeController {
             int memberCode = userService.findMemberCodeByLoginId(loginId);
             themeDTOList = themeService.findThemeDTOListByStoreCode(pageable, filter, storeCode, memberCode);
         }
-
-        return ResponseEntity.ok(new SuccessResponse<>(200, "테마 조회 성공", themeDTOList));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, themeDTOList));
     }
 
     /**
@@ -181,7 +190,7 @@ public class ThemeController {
     @Operation(summary = "테마 반응 생성 API",
             description = "ThemeReactionDTO를 전달받아 로그인한 회원이 해당 테마에 좋아요 또는 스크랩 반응을 등록합니다. "
                     + "reaction 값은 'like' 또는 'scrap' 문자열로 입력합니다.")
-    public ResponseEntity<SuccessResponse<Object>> createThemeReaction(
+    public ResponseEntity<SuccessResponse<Void>> createThemeReaction(
         @RequestBody ThemeReactionDTO themeReactionDTO,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
@@ -190,8 +199,9 @@ public class ThemeController {
                 themeReactionDTO
         );
 
-        return ResponseEntity.ok(new SuccessResponse<>(200,
-            "테마 " + themeReactionDTO.getReaction() + " 추가 성공", null));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
     /**
@@ -210,15 +220,16 @@ public class ThemeController {
     @Operation(summary = "테마 반응 취소 API",
             description = "ThemeReactionDTO를 전달받아 로그인한 회원이 해당 테마에 등록한 좋아요 또는 스크랩 반응을 취소합니다. "
                     + "reaction 값은 'like' 또는 'scrap' 문자열로 입력합니다.")
-    public ResponseEntity<SuccessResponse<Object>> deleteThemeReaction(
+    public ResponseEntity<SuccessResponse<Void>> deleteThemeReaction(
         @RequestBody ThemeReactionDTO themeReactionDTO,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         int memberCode = userService.findMemberCodeByLoginId(loginId);
         themeService.deleteThemeReaction(memberCode, themeReactionDTO);
 
-        return ResponseEntity.ok(new SuccessResponse<>(200,
-            "테마 " + themeReactionDTO.getReaction() + " 삭제 성공", null));
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 
     /**
@@ -244,10 +255,11 @@ public class ThemeController {
     ) {
         int memberCode = userService.findMemberCodeByLoginId(loginId);
 
-        List<FindThemeByReactionDTO> themes = themeService.findThemeByMemberReaction(pageable, memberCode, reaction);
+        List<FindThemeByReactionDTO> themeDTOList = themeService.findThemeByMemberReaction(pageable, memberCode, reaction);
 
-        return ResponseEntity.ok(new SuccessResponse<>(200,
-            "유저 별 " + reaction + " 테마 조회 성공", themes));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, themeDTOList));
     }
 
     /**
@@ -267,15 +279,17 @@ public class ThemeController {
     public ResponseEntity<SuccessResponse<List<ThemeDTO>>> findThemeByWeek(
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
-        List<ThemeDTO> themes;
+        List<ThemeDTO> themeDTOList;
         if (loginId == null) {
-            themes = themeService.findThemeByWeek();
+            themeDTOList = themeService.findThemeByWeek();
         } else {
             int memberCode = userService.findMemberCodeByLoginId(loginId);
-            themes = themeService.findThemeByWeek(memberCode);
+            themeDTOList = themeService.findThemeByWeek(memberCode);
         }
 
-        return ResponseEntity.ok(new SuccessResponse<>(200, "이번 주 베스트 테마 조회 성공", themes));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, themeDTOList));
     }
 
     /**
@@ -295,9 +309,11 @@ public class ThemeController {
     public ResponseEntity<SuccessResponse<Object>> recommendTheme(
             @RequestParam(required = false) List<Integer> themeCodes
     ) {
-        List<ThemeDTO> themes = themeService.recommendTheme(themeCodes);
+        List<ThemeDTO> themeDTOList = themeService.recommendTheme(themeCodes);
 
-        return ResponseEntity.ok(new SuccessResponse<>(200, "추천 테마 조회 성공", themes));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, themeDTOList));
     }
 
     /**
@@ -319,11 +335,8 @@ public class ThemeController {
                 userService.findMemberCodeByLoginId(loginId)
         );
 
-        return ResponseEntity.ok(
-                new SuccessResponse<>(
-                        200,
-                        "사용자 스크랩 테마 목록 조회 성공",
-                        themeDTOList
-                        ));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, themeDTOList));
     }
 }
