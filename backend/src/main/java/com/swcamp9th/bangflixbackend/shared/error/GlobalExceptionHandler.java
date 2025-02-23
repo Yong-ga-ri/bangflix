@@ -2,10 +2,9 @@ package com.swcamp9th.bangflixbackend.shared.error;
 
 import com.swcamp9th.bangflixbackend.domain.user.exception.ExpiredTokenException;
 import com.swcamp9th.bangflixbackend.shared.error.exception.BusinessException;
-import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import io.jsonwebtoken.JwtException;
 import io.lettuce.core.RedisException;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,28 +12,25 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.io.IOException;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<SuccessResponse<Object>> handleBusinessException(BusinessException e) {
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
         final ErrorCode errorCode = e.getErrorCode();
+        log.error(errorCode.getMessage());
         return ResponseEntity.status(errorCode.getStatus())
-                .body(new SuccessResponse<>(
-                        errorCode.getStatus(),
-                        errorCode.getMessage(),
-                        null
-                ));
+                .body(ErrorResponse.of(errorCode));
     }
 
-    // 401: 지정한 리소스에 대한 권한이 없다
     @ExceptionHandler({
             ExpiredTokenException.class,
             JwtException.class
     })
-    public ResponseEntity<SuccessResponse<Object>> handleInvalidUserException(Exception e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(new SuccessResponse<>(HttpStatus.UNAUTHORIZED.value(), e.getMessage(), null));
+    public ResponseEntity<ErrorResponse> handleInvalidUserException(Exception e) {
+        return ResponseEntity.status(ErrorCode.INVALID_USER.getStatus())
+            .body(ErrorResponse.of(ErrorCode.INVALID_USER, e.getMessage()));
     }
 
     // 500: 내부 서버 에러
@@ -49,8 +45,9 @@ public class GlobalExceptionHandler {
             IllegalStateException.class,
             ArithmeticException.class,
     })
-    public ResponseEntity<SuccessResponse<Object>> handleInternalServerErrorException(Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new SuccessResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage(), null));
+    public ResponseEntity<ErrorResponse> handleInternalServerErrorException(Exception e) {
+        log.error(e.getMessage());
+        return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus())
+                .body(ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 }

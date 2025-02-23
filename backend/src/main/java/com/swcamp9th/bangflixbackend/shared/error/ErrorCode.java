@@ -53,6 +53,9 @@ public enum ErrorCode {
 
     // Comment
     COMMENT_NOT_FOUND(404, "존재하지 않는 댓글입니다."),
+
+    // Internal Server Error
+    INTERNAL_SERVER_ERROR(500, "시스템 에러입니다. 관리자에게 문의하세요.")
     ;
 
     private final int status;
