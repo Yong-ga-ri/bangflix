@@ -96,13 +96,13 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
             @Param("memberCode") int memberCode
     );
 
-    @Query("SELECT DISTINCT g.name " +
-             "FROM Review r " +
-             "JOIN r.theme t " +
-             "JOIN ThemeGenre tg " +
-             "JOIN Genre g " +
-            "WHERE t.active = true " +
-              "AND r.member.memberCode = :memberCode " +
+    @Query("SELECT g.name " +
+            "FROM Review r " +
+            "INNER JOIN r.theme t " +
+            "INNER JOIN ThemeGenre tg ON t.themeCode = tg.theme.themeCode " +
+            "INNER JOIN Genre g ON tg.genre.genreCode = g.genreCode " +
+            "WHERE r.member.memberCode = :memberCode AND t.active = true " +
+            "GROUP BY g.name " +
             "ORDER BY COUNT(g) DESC")
     List<String> findTopGenresByMemberCode(
             Pageable pageable,
