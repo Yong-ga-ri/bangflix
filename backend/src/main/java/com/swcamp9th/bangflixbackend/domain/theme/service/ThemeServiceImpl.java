@@ -33,9 +33,7 @@ public class ThemeServiceImpl implements ThemeService {
 
     private final ModelMapper modelMapper;
     private final StoreService storeService;
-
     private final GenreRepository genreRepository;
-
     private final ThemeRepository themeRepository;
     private final ThemeReactionRepository themeReactionRepository;
 
@@ -67,7 +65,10 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public ThemeDTO findTheme(Integer themeCode, int memberCode) {
+    public ThemeDTO findTheme(
+            int themeCode,
+            int memberCode
+    ) {
         Theme theme = themeRepository.findById(themeCode)
                 .orElseThrow(ThemeNotFoundException::new);
 
@@ -112,7 +113,11 @@ public class ThemeServiceImpl implements ThemeService {
         return themeDTOList;
     }
 
-    private List<Theme> fetchThemesBy(Pageable pageable, List<String> genres, String search) {
+    private List<Theme> fetchThemesBy(
+            Pageable pageable,
+            List<String> genres,
+            String search
+    ) {
         return themeRepository.findThemesBy(genres, search, pageable);
     }
 
@@ -194,7 +199,10 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public void deleteThemeReaction(int memberCode, ThemeReactionDTO themeReactionDTO) {
+    public void deleteThemeReaction(
+            int memberCode,
+            ThemeReactionDTO themeReactionDTO
+    ) {
         ThemeReaction themeReaction =
                 themeReactionRepository.findReactionByThemeCodeAndMemberCode(themeReactionDTO.getThemeCode(), memberCode)
                 .orElseThrow(ReactionNotFoundException::new);
@@ -341,7 +349,9 @@ public class ThemeServiceImpl implements ThemeService {
         return genreRepository.findGenreNames(mostFrequentNumbers);
     }
 
-    private List<ThemeDTO> createThemeDTOList(List<Theme> themes, int memberCode) {
+    private List<ThemeDTO> createThemeDTOList(
+            List<Theme> themes,
+            int memberCode) {
 
         List<ThemeDTO> themeDTOList = new ArrayList<>();
 
@@ -356,7 +366,9 @@ public class ThemeServiceImpl implements ThemeService {
         return themeDTOList;
     }
 
-    private List<ThemeDTO> createThemeDTOList(List<Theme> themes) {
+    private List<ThemeDTO> createThemeDTOList(
+            List<Theme> themes
+    ) {
         List<ThemeDTO> themeDTOList = new ArrayList<>();
 
         themes.stream()
@@ -366,7 +378,10 @@ public class ThemeServiceImpl implements ThemeService {
         return themeDTOList;
     }
 
-    private ThemeDTO createThemeDTO(Theme theme, Integer memberCode) {
+    private ThemeDTO createThemeDTO(
+            Theme theme,
+            int memberCode
+    ) {
         ThemeDTO themeDto = createBaseThemeDTO(theme);
         applyReaction(theme.getThemeCode(), memberCode, themeDto);
         return themeDto;
@@ -384,12 +399,19 @@ public class ThemeServiceImpl implements ThemeService {
         return themeDto;
     }
 
-    private void applyReaction(int themeCode, int memberCode, ThemeDTO themeDto) {
+    private void applyReaction(
+            int themeCode,
+            int memberCode,
+            ThemeDTO themeDto
+    ) {
         themeReactionRepository.findReactionByThemeCodeAndMemberCode(themeCode, memberCode)
                 .ifPresent(reaction -> ReactionMapper.applyReaction(themeDto, reaction.getReaction()));
     }
 
-    private void sortThemeList(List<ThemeDTO> themesDTO, String sort) {
+    private void sortThemeList(
+            List<ThemeDTO> themesDTO,
+            String sort
+    ) {
         if (sort == null) {
             sort = "NONE";
         }

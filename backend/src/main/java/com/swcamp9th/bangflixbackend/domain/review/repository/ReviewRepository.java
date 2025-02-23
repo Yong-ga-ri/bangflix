@@ -19,7 +19,7 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
             "WHERE r.theme.themeCode = :themeCode " +
               "AND r.active = true " +
             "ORDER BY r.createdAt desc ")
-    List<Review> findByThemeCodeAndActiveTrueWithFetchJoin(
+    List<Review> findReviewListByThemeCode(
             Pageable pageable,
             @Param("themeCode") int themeCode
     );

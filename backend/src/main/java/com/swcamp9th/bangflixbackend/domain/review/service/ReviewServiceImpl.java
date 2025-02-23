@@ -92,7 +92,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         // 멤버 포인트 올리기
-        userService.memberGetPoint(member, 5);
+        userService.memberGainPoint(member, 5);
     }
 
     @Transactional
@@ -111,36 +111,13 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewDTO> findReviewsWithFilters(
             Integer themeCode,
-            String filter,
+            String sort,
             Pageable pageable,
             int memberCode
     ) {
-
-        // 테마 코드로 리뷰를 모두 조회
-        List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(pageable, themeCode);
-        if (filter == null) filter = "";
-
-        switch (filter) {
-            case "highScore":
-
-                // 점수 높은 순 정렬
-                reviews.sort(Comparator.comparing(Review::getTotalScore).reversed()
-                        .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
-                break;
-            case "lowScore":
-
-                // 점수 낮은 순 정렬
-                reviews.sort(Comparator.comparing(Review::getTotalScore)
-                        .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
-                break;
-            default:
-
-                // 필터가 일치하지 않으면 최신순으로 정렬 (기본값)
-                reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
-                break;
-        }
-
-        return getReviewDTOS(reviews, memberCode);
+        List<Review> reviews = reviewRepository.findReviewListByThemeCode(pageable, themeCode);
+        sortReviewList(sort, reviews);
+        return toReviewDTOList(reviews, memberCode);
     }
 
     @Transactional
@@ -150,38 +127,14 @@ public class ReviewServiceImpl implements ReviewService {
             String filter,
             Pageable pageable
     ) {
-
-        // 테마 코드로 리뷰를 모두 조회
-        List<Review> reviews = reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(pageable, themeCode);
-
-        if (filter == null) filter = "";
-
-        switch (filter) {
-            case "highScore":
-
-                // 점수 높은 순 정렬
-                reviews.sort(Comparator.comparing(Review::getTotalScore).reversed()
-                        .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
-                break;
-            case "lowScore":
-
-                // 점수 낮은 순 정렬
-                reviews.sort(Comparator.comparing(Review::getTotalScore)
-                        .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
-                break;
-            default:
-
-                // 최신순으로 정렬 (기본값)
-                reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
-                break;
-        }
-
-        return getReviewDTOS(reviews);
+        List<Review> reviews = reviewRepository.findReviewListByThemeCode(pageable, themeCode);
+        sortReviewList(filter, reviews);
+        return toReviewDTOList(reviews);
     }
 
     @Transactional
     @Override
-    public List<ReviewDTO> getReviewDTOS(List<Review> sublist, int memberCode) {
+    public List<ReviewDTO> toReviewDTOList(List<Review> sublist, int memberCode) {
         List<ReviewDTO> result = sublist.stream()
             .map(review -> {
                 ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
@@ -215,7 +168,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Transactional
     @Override
-    public List<ReviewDTO> getReviewDTOS(List<Review> sublist) {
+    public List<ReviewDTO> toReviewDTOList(List<Review> sublist) {
         List<ReviewDTO> result = sublist.stream()
                 .map(review -> {
                     ReviewDTO reviewDTO = modelMapper.map(review, ReviewDTO.class);
@@ -288,7 +241,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         if(review == null || review.isEmpty())
             return null;
-        return getReviewDTOS(review, memberCode);
+        return toReviewDTOList(review, memberCode);
     }
 
     @Transactional
@@ -370,7 +323,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     public List<String> findImagePathsByReviewCode(Integer reviewCode) {
         return reviewFileRepository.findByReview_ReviewCode(reviewCode)
-            .stream().map(ReviewFile::getUrl).collect(Collectors.toCollection(ArrayList::new));
+                .stream()
+                .map(ReviewFile::getUrl)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Integer findReviewLikesByReviewCode(Integer reviewCode) {
@@ -395,5 +350,28 @@ public class ReviewServiceImpl implements ReviewService {
 
         return getReviewDTO(review);
 
+    }
+
+    private static void sortReviewList(String sort, List<Review> reviews) {
+        if (sort == null) sort = "";
+        switch (sort) {
+            case "highScore":
+
+                // 점수 높은 순 정렬
+                reviews.sort(Comparator.comparing(Review::getTotalScore).reversed()
+                        .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
+                break;
+            case "lowScore":
+
+                // 점수 낮은 순 정렬
+                reviews.sort(Comparator.comparing(Review::getTotalScore)
+                        .thenComparing(Comparator.comparing(Review::getCreatedAt).reversed()));
+                break;
+            default:
+
+                // 필터가 일치하지 않으면 최신순으로 정렬 (기본값)
+                reviews.sort(Comparator.comparing(Review::getCreatedAt).reversed());
+                break;
+        }
     }
 }

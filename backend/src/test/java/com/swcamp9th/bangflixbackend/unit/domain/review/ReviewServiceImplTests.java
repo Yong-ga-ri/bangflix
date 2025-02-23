@@ -132,7 +132,7 @@ class ReviewServiceImplTests {
 
         // then
         verify(reviewRepository, times(1)).save(review);
-        verify(userService, times(1)).memberGetPoint(member, 5);
+        verify(userService, times(1)).memberGainPoint(member, 5);
 
         // images가 null인 경우 reviewFileRepository.save()가 호출되지 않아야 함
         verify(reviewFileRepository, never()).save(any(ReviewFile.class));
@@ -155,7 +155,7 @@ class ReviewServiceImplTests {
         // then
         verify(reviewRepository, times(1)).save(review);
         verify(reviewFileRepository, atLeastOnce()).save(any(ReviewFile.class));
-        verify(userService, times(1)).memberGetPoint(member, 5);
+        verify(userService, times(1)).memberGainPoint(member, 5);
     }
 
     @Test
@@ -195,7 +195,7 @@ class ReviewServiceImplTests {
         int themeCode = theme.getThemeCode();
         Pageable pageable = PageRequest.of(0, 10);
         List<Review> reviews = new ArrayList<>(List.of(review));
-        when(reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(eq(pageable), eq(themeCode))).thenReturn(reviews);
+        when(reviewRepository.findReviewListByThemeCode(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
         when(reviewLikeRepository.findByReviewCodeAndMemberCode(eq(review.getReviewCode()), any(Integer.class)))
                 .thenReturn(Optional.empty());
@@ -206,7 +206,7 @@ class ReviewServiceImplTests {
 
         // then
         assertThat(result).hasSize(1);
-        verify(reviewRepository, times(1)).findByThemeCodeAndActiveTrueWithFetchJoin(eq(pageable), eq(themeCode));
+        verify(reviewRepository, times(1)).findReviewListByThemeCode(eq(pageable), eq(themeCode));
     }
 
     @Test
@@ -232,7 +232,7 @@ class ReviewServiceImplTests {
         reviewLow.setActive(true);
 
         List<Review> reviews = new ArrayList<>(List.of(reviewLow, reviewHigh));
-        when(reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(eq(pageable), eq(themeCode))).thenReturn(reviews);
+        when(reviewRepository.findReviewListByThemeCode(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(any(Review.class), eq(ReviewDTO.class))).thenReturn(reviewDTO);
         when(reviewLikeRepository.findByReviewCodeAndMemberCode(any(Integer.class), any(Integer.class)))
                 .thenReturn(Optional.empty());
@@ -253,7 +253,7 @@ class ReviewServiceImplTests {
         int themeCode = theme.getThemeCode();
         Pageable pageable = PageRequest.of(0, 10);
         List<Review> reviews = new ArrayList<>(List.of(review));
-        when(reviewRepository.findByThemeCodeAndActiveTrueWithFetchJoin(eq(pageable), eq(themeCode))).thenReturn(reviews);
+        when(reviewRepository.findReviewListByThemeCode(eq(pageable), eq(themeCode))).thenReturn(reviews);
         when(modelMapper.map(review, ReviewDTO.class)).thenReturn(reviewDTO);
         when(reviewTendencyGenreRepository.findMemberGenreByMemberCode(any(Integer.class))).thenReturn(Collections.emptyList());
 
@@ -266,7 +266,7 @@ class ReviewServiceImplTests {
 
     @Test
     @DisplayName("getReviewDTOS: 멤버코드 포함 결과 매핑")
-    void testGetReviewDTOS_withMemberCode() {
+    void testToReviewDTOList_withMemberCode() {
 
         // given
         List<Review> reviewList = List.of(review);
@@ -277,7 +277,7 @@ class ReviewServiceImplTests {
                 .thenReturn(Collections.emptyList());
 
         // when
-        List<ReviewDTO> result = reviewService.getReviewDTOS(reviewList, member.getMemberCode());
+        List<ReviewDTO> result = reviewService.toReviewDTOList(reviewList, member.getMemberCode());
 
         // then
         assertThat(result).hasSize(1);
@@ -286,7 +286,7 @@ class ReviewServiceImplTests {
 
     @Test
     @DisplayName("getReviewDTOS: 멤버코드 미포함 결과 매핑")
-    void testGetReviewDTOS_withoutMemberCode() {
+    void testToReviewDTOList_withoutMemberCode() {
 
         // given
         List<Review> reviewList = List.of(review);
@@ -295,7 +295,7 @@ class ReviewServiceImplTests {
                 .thenReturn(Collections.emptyList());
 
         // when
-        List<ReviewDTO> result = reviewService.getReviewDTOS(reviewList);
+        List<ReviewDTO> result = reviewService.toReviewDTOList(reviewList);
 
         // then
         assertThat(result).hasSize(1);

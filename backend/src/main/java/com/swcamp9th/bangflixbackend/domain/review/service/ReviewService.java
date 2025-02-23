@@ -58,7 +58,7 @@ public interface ReviewService {
      * @param sublist 변환할 Review 엔티티 리스트
      * @return 변환된 ReviewDTO 리스트
      */
-    List<ReviewDTO> getReviewDTOS(List<Review> sublist);
+    List<ReviewDTO> toReviewDTOList(List<Review> sublist);
 
     /**
      * 회원용으로 Review 엔티티 리스트를 ReviewDTO 리스트로 변환합니다.
@@ -68,7 +68,7 @@ public interface ReviewService {
      * @param memberCode 로그인한 회원의 고유 코드
      * @return 변환된 ReviewDTO 리스트
      */
-    List<ReviewDTO> getReviewDTOS(List<Review> sublist, int memberCode);
+    List<ReviewDTO> toReviewDTOList(List<Review> sublist, int memberCode);
 
     /**
      * 단일 Review 엔티티를 회원용 ReviewDTO로 변환합니다.

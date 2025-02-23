@@ -19,5 +19,5 @@ public interface UserService {
     MyPageResponseDto findMyPageInfoById(String userId);
     int findMemberCodeByLoginId(String loginId);
     Member findMemberByLoginId(String loginId);
-    void memberGetPoint(Member member, int point);
+    void memberGainPoint(Member member, int point);
 }

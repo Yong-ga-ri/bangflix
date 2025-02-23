@@ -265,7 +265,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void memberGetPoint(Member member, int point) {
+    public void memberGainPoint(Member member, int point) {
         member.gainPoint(point);
         userRepository.save(member);
     }

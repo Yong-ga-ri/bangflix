@@ -109,7 +109,7 @@ public class RankingServiceImpl implements RankingService {
             return review;
         }).toList();
 
-        List<ReviewDTO> reviewDTOS = reviewService.getReviewDTOS(reviews, member.getMemberCode());
+        List<ReviewDTO> reviewDTOS = reviewService.toReviewDTOList(reviews, member.getMemberCode());
 
         String finalDate = date;
 
@@ -135,7 +135,7 @@ public class RankingServiceImpl implements RankingService {
                 }
             ).toList();
 
-        return reviewService.getReviewDTOS(reviews, member.getMemberCode());
+        return reviewService.toReviewDTOList(reviews, member.getMemberCode());
     }
 
     @Override
