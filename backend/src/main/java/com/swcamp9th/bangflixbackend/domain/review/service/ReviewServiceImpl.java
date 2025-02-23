@@ -262,7 +262,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private boolean checkMemberLikeReview(int memberCode, int reviewCode) {
-        return reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(reviewCode, memberCode);
+        return reviewLikeRepository.existReviewLikeByReviewCodeAndMemberCode(memberCode, reviewCode);
     }
 
     private void sortReviewList(
