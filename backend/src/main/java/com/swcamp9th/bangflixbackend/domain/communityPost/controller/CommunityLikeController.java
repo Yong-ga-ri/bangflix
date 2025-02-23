@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.communitypost.controller;
 
-import com.swcamp9th.bangflixbackend.shared.response.Response;
+import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityLikeCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityLikeCountDTO;
 import com.swcamp9th.bangflixbackend.domain.communitypost.service.CommunityLikeService;
@@ -29,19 +29,19 @@ public class CommunityLikeController {
     @PostMapping
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 좋아요 / 좋아요 취소 API")
-    public ResponseEntity<Response<Object>> addLike(
+    public ResponseEntity<SuccessResponse<Object>> addLike(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @RequestBody CommunityLikeCreateDTO newLike
     ) {
         communityLikeService.addLike(loginId, newLike);
-        return ResponseEntity.ok(new Response<>(200, "좋아요 또는 좋아요 취소 성공", null));
+        return ResponseEntity.ok(new SuccessResponse<>(200, "좋아요 또는 좋아요 취소 성공", null));
     }
 
     /* 좋아요 개수 조회 */
     @GetMapping("/{communityPostCode}")
     @Operation(summary = "좋아요 개수 조회 API")
-    public ResponseEntity<Response<CommunityLikeCountDTO>> countLike(@PathVariable int communityPostCode) {
+    public ResponseEntity<SuccessResponse<CommunityLikeCountDTO>> countLike(@PathVariable int communityPostCode) {
         CommunityLikeCountDTO count = communityLikeService.countLike(communityPostCode);
-        return ResponseEntity.ok(new Response<>(200, "좋아요 개수 조회 성공", count));
+        return ResponseEntity.ok(new SuccessResponse<>(200, "좋아요 개수 조회 성공", count));
     }
 }

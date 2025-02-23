@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.communitypost.controller;
 
-import com.swcamp9th.bangflixbackend.shared.response.Response;
+import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import com.swcamp9th.bangflixbackend.domain.communitypost.service.CommunityPostService;
 import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityPostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityPostDTO;
@@ -38,14 +38,14 @@ public class CommunityController {
     )
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 등록 API")
-    public ResponseEntity<Response<Object>> createCommunityPost(
+    public ResponseEntity<SuccessResponse<Object>> createCommunityPost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @RequestPart CommunityPostCreateDTO newPost,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
         communityPostService.createPost(loginId, newPost, images);
         return ResponseEntity.ok(
-                new Response<>(200, "게시글 등록 성공", null)
+                new SuccessResponse<>(200, "게시글 등록 성공", null)
         );
     }
 
@@ -56,7 +56,7 @@ public class CommunityController {
     )
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 수정 API")
-    public ResponseEntity<Response<Object>> updateCommunityPost(
+    public ResponseEntity<SuccessResponse<Object>> updateCommunityPost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int communityPostCode,
             @Valid @RequestPart CommunityPostUpdateDTO modifiedPost,
@@ -64,7 +64,7 @@ public class CommunityController {
     ) {
         communityPostService.updatePost(loginId, communityPostCode, modifiedPost, images);
         return ResponseEntity.ok(
-                new Response<>(200, "게시글 수정 성공", null)
+                new SuccessResponse<>(200, "게시글 수정 성공", null)
         );
     }
 
@@ -72,13 +72,13 @@ public class CommunityController {
     @DeleteMapping("/post/{communityPostCode}")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 삭제 API")
-    public ResponseEntity<Response<Object>> deleteCommunityPost(
+    public ResponseEntity<SuccessResponse<Object>> deleteCommunityPost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int communityPostCode
     ) {
         communityPostService.deletePost(loginId, communityPostCode);
         return ResponseEntity.ok(
-                new Response<>(200, "게시글 삭제 성공", null)
+                new SuccessResponse<>(200, "게시글 삭제 성공", null)
         );
     }
 
@@ -86,12 +86,12 @@ public class CommunityController {
     @GetMapping
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 목록 조회 API")
-    public ResponseEntity<Response<List<CommunityPostDTO>>> getAllPosts(
+    public ResponseEntity<SuccessResponse<List<CommunityPostDTO>>> getAllPosts(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
         List<CommunityPostDTO> posts = communityPostService.getAllPosts(loginId);
         return ResponseEntity.ok(
-                new Response<>(200, "게시글 목록 조회 성공", posts)
+                new SuccessResponse<>(200, "게시글 목록 조회 성공", posts)
         );
     }
 
@@ -99,24 +99,24 @@ public class CommunityController {
     @GetMapping("/post/{communityPostCode}")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 상세 조회 API")
-    public ResponseEntity<Response<CommunityPostDTO>> findPost(
+    public ResponseEntity<SuccessResponse<CommunityPostDTO>> findPost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int communityPostCode
     ) {
         CommunityPostDTO post = communityPostService.findPostByCode(loginId, communityPostCode);
         return ResponseEntity.ok(
-                new Response<>(200, "게시글 조회 성공", post)
+                new SuccessResponse<>(200, "게시글 조회 성공", post)
         );
     }
 
     /* 게시글 구독 */
     @GetMapping("/post/subscribe/{communityPostCode}")
-    public ResponseEntity<Response<String>> subscribe(
+    public ResponseEntity<SuccessResponse<String>> subscribe(
             @PathVariable Integer communityPostCode,
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         return ResponseEntity.ok(
-                new Response<>(200, "구독 완료", "helloworld")
+                new SuccessResponse<>(200, "구독 완료", "helloworld")
         );
     }
 
@@ -124,12 +124,12 @@ public class CommunityController {
     @GetMapping("/my")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "내가 작성한 커뮤니티 게시글 목록 조회 API")
-    public ResponseEntity<Response<List<CommunityPostDTO>>> getMyPosts(
+    public ResponseEntity<SuccessResponse<List<CommunityPostDTO>>> getMyPosts(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
         List<CommunityPostDTO> myPostList = communityPostService.getMyPosts(loginId);
         return ResponseEntity.ok(
-                new Response<>(200, "내가 작성한 게시글 목록 조회 성공", myPostList)
+                new SuccessResponse<>(200, "내가 작성한 게시글 목록 조회 성공", myPostList)
         );
     }
 }

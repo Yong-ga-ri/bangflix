@@ -1,7 +1,7 @@
 package com.swcamp9th.bangflixbackend.domain.noticepost.controller;
 
 import com.swcamp9th.bangflixbackend.shared.response.NoticePageResponse;
-import com.swcamp9th.bangflixbackend.shared.response.Response;
+import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostDTO;
 import com.swcamp9th.bangflixbackend.domain.noticepost.dto.NoticePostUpdateDTO;
@@ -38,58 +38,58 @@ public class NoticePostController {
     @PostMapping(value = "/post", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "공지사항 게시글 등록 API")
-    public ResponseEntity<Response<Object>> createNoticePost(
+    public ResponseEntity<SuccessResponse<Object>> createNoticePost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @Valid @RequestPart NoticePostCreateDTO newNotice,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
 
         noticePostService.createNoticePost(newNotice, images, loginId);
-        return ResponseEntity.ok(new Response<>(200, "게시글 등록 성공", null));
+        return ResponseEntity.ok(new SuccessResponse<>(200, "게시글 등록 성공", null));
     }
 
     /* 공지사항 게시글 수정 */
     @PutMapping(value = "/post/{noticePostCode}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "공지사항 게시글 수정 API")
-    public ResponseEntity<Response<Object>> updateNoticePost(
+    public ResponseEntity<SuccessResponse<Object>> updateNoticePost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int noticePostCode,
             @Valid @RequestPart NoticePostUpdateDTO updatedNotice,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
 
         noticePostService.updateNoticePost(noticePostCode, updatedNotice, images, loginId);
-        return ResponseEntity.ok(new Response<>(200, "게시글 수정 성공", null));
+        return ResponseEntity.ok(new SuccessResponse<>(200, "게시글 수정 성공", null));
     }
 
     /* 공지사항 게시글 삭제 */
     @DeleteMapping("/post/{noticePostCode}")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "공지사항 게시글 삭제 API")
-    public ResponseEntity<Response<Object>> deleteNoticePost(@PathVariable int noticePostCode,
-                                                             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
+    public ResponseEntity<SuccessResponse<Object>> deleteNoticePost(@PathVariable int noticePostCode,
+                                                                    @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
         noticePostService.deleteNoticePost(noticePostCode, loginId);
-        return ResponseEntity.ok(new Response<>(200, "게시글 삭제 성공", null));
+        return ResponseEntity.ok(new SuccessResponse<>(200, "게시글 삭제 성공", null));
     }
 
     /* 공지사항 게시글 목록 조회(페이지네이션) */
     @GetMapping("")
     @Operation(summary = "공지사항 게시글 목록 조회 API (default size = 6)")
-    public ResponseEntity<Response<NoticePageResponse>> getNoticePostList(
+    public ResponseEntity<SuccessResponse<NoticePageResponse>> getNoticePostList(
             @PageableDefault(size = 6) Pageable pageable) {
         NoticePageResponse noticePageInfo = noticePostService.getAllNotices(pageable);
         if (noticePageInfo.getNoticePosts().isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.ok(new Response<>(200, "게시글 목록 조회 성공", noticePageInfo));
+            return ResponseEntity.ok(new SuccessResponse<>(200, "게시글 목록 조회 성공", noticePageInfo));
         }
     }
 
     /* 공지사항 게시글 상세 조회 */
     @GetMapping("/post/{noticePostCode}")
     @Operation(summary = "공지사항 게시글 상세 조회 API")
-    public ResponseEntity<Response<NoticePostDTO>> getNoticePost(@PathVariable int noticePostCode) {
+    public ResponseEntity<SuccessResponse<NoticePostDTO>> getNoticePost(@PathVariable int noticePostCode) {
         NoticePostDTO noticePost = noticePostService.findNoticeByCode(noticePostCode);
-        return ResponseEntity.ok(new Response<>(200, "게시글 조회 성공", noticePost));
+        return ResponseEntity.ok(new SuccessResponse<>(200, "게시글 조회 성공", noticePost));
     }
 }
