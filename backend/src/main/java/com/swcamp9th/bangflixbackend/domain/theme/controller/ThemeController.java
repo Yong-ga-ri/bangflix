@@ -74,7 +74,7 @@ public class ThemeController {
             themeDTO = themeService.findThemeDTOByThemeCode(themeCode);
         } else {    // for members
             int memberCode = userService.findMemberCodeByLoginId(loginId);
-            themeDTO = themeService.findTheme(themeCode, memberCode);
+            themeDTO = themeService.findThemeDTOByThemeCode(themeCode, memberCode);
         }
         return ResponseEntity
                 .status(HttpStatus.OK)

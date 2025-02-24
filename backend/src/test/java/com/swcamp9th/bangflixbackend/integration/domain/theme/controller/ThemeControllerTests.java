@@ -78,7 +78,7 @@ class ThemeControllerTests {
         dummyTheme.setName("Member Test Theme");
 
         when(userService.findMemberCodeByLoginId(loginId)).thenReturn(memberCode);
-        when(themeService.findTheme(themeCode, memberCode)).thenReturn(dummyTheme);
+        when(themeService.findThemeDTOByThemeCode(themeCode, memberCode)).thenReturn(dummyTheme);
 
         mockMvc.perform(get("/api/v1/themes/{themeCode}", themeCode)
                         .requestAttr(SERVLET_REQUEST_ATTRIBUTE_KEY, loginId))

@@ -71,7 +71,7 @@ public interface ThemeService {
      * @param memberCode 로그인한 회원의 고유 코드
      * @return 해당 테마의 상세 정보를 담은 ThemeDTO
      */
-    ThemeDTO findTheme(int themeCode, int memberCode);
+    ThemeDTO findThemeDTOByThemeCode(int themeCode, int memberCode);
 
     /**
      * 게스트용 테마 상세 조회 API.

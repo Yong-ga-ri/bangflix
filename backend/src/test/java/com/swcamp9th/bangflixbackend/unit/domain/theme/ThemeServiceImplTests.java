@@ -106,7 +106,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("테마 조회 - 유효한 테마 코드")
     @Test
-    void testFindTheme_validThemeCode() {
+    void testFindTheme_validThemeDTOByThemeCodeCode() {
         // given
         when(themeRepository.findById(1)).thenReturn(Optional.of(theme));
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
@@ -128,7 +128,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("테마 조회 - 존재하지 않는 테마 코드")
     @Test
-    void testFindTheme_invalidThemeCodeThrowsException() {
+    void testFindTheme_invalidThemeDTOByThemeCodeCodeThrowsException() {
         // given
         when(themeRepository.findById(1)).thenReturn(Optional.empty());
 
@@ -139,7 +139,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("테마 조회 - 회원 코드 포함 (반응 없음)")
     @Test
-    void testFindTheme_withMemberCode_noReaction() {
+    void testFindThemeDTOByTheme_Code_withMemberCode_noReaction() {
         // given
         int memberCode = 999;
         when(themeRepository.findById(1)).thenReturn(Optional.of(theme));
@@ -151,7 +151,7 @@ class ThemeServiceImplTests {
                 .thenReturn(Optional.empty());
 
         // when
-        ThemeDTO result = themeService.findTheme(1, memberCode);
+        ThemeDTO result = themeService.findThemeDTOByThemeCode(1, memberCode);
 
         // then
         assertThat(result.getLikeCount()).isEqualTo(7);
@@ -163,7 +163,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("테마 조회 - 회원 코드 포함 (반응 있음)")
     @Test
-    void testFindTheme_withMemberCode_withReaction() {
+    void testFindThemeDTOByTheme_Code_withMemberCode_withReaction() {
         // given
         int memberCode = 999;
         themeReaction.setReaction(ReactionType.SCRAPLIKE);
@@ -176,7 +176,7 @@ class ThemeServiceImplTests {
                 .thenReturn(Optional.of(themeReaction));
 
         // when
-        ThemeDTO result = themeService.findTheme(1, memberCode);
+        ThemeDTO result = themeService.findThemeDTOByThemeCode(1, memberCode);
 
         // then
         // SCRAPLIKE 인 경우 isLike, isScrap이 true여야 함 (ReactionMapper의 적용에 의존)
@@ -207,7 +207,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("테마 조회 - 회원 코드 포함 (반응 없음, 회원 코드 있음)")
     @Test
-    void testFindThemeByGenresAndSearchOrderBySort_withMemberCode() {
+    void testFindThemeDTOByThemeCodeByGenresAndSearchOrderBySort_withMemberCode() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
         String sort = "like";
@@ -257,7 +257,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("테마 조회 - 회원코드 미포함")
     @Test
-    void testFindThemeByGenresAndSearchOrderBySort_withoutMemberCode() {
+    void testFindThemeDTOByThemeCodeByGenresAndSearchOrderBySort_withoutMemberCode() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
         String sort = "scrap";
@@ -282,7 +282,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("업체별 테마 조회 - 회원 코드 포함")
     @Test
-    void testFindThemeByStoreOrderBySort_withMemberCode() {
+    void testFindThemeDTOByThemeCodeByStoreOrderBySort_withMemberCode() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
         String sort = "review";
@@ -327,7 +327,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("업체별 테마 조회 - 회원 코드 미포함")
     @Test
-    void testFindThemeByStoreOrderBySort_withoutMemberCode() {
+    void testFindThemeDTOByThemeCodeByStoreOrderBySort_withoutMemberCode() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
         String sort = null; // 기본 정렬
@@ -446,7 +446,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("사용자 반응으로 테마 조회 - 좋아요")
     @Test
-    void testFindThemeByMemberReaction_like() {
+    void testFindThemeDTOByThemeCodeByMemberReaction_like() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
         int memberCode = 999;
@@ -474,7 +474,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("사용자 반응으로 테마 조회 실패 - 잘못된 요청")
     @Test
-    void testFindThemeByMemberReaction_invalidReaction() {
+    void testFindThemeDTOByThemeCodeByMemberReaction_invalidReaction() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
         int memberCode = 999;
@@ -486,7 +486,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("사용자 코드로 테마 조회 - 최근 1주일 (회원 코드 포함)")
     @Test
-    void testFindThemeByWeek_withMemberCode() {
+    void testFindThemeDTOByThemeCodeByWeek_withMemberCode() {
         // given
         int memberCode = 999;
         Pageable pageable = PageRequest.of(0, 5);
@@ -510,7 +510,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("사용자 코드 없이 테마 조회 - 최근 1주일")
     @Test
-    void testFindThemeByWeek_withoutMemberCode() {
+    void testFindThemeDTOByThemeCodeByWeek_withoutMemberCode() {
         // given
         Pageable pageable = PageRequest.of(0, 5);
         List<Theme> themeList = List.of(theme);

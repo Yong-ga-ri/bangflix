@@ -65,7 +65,7 @@ public class ThemeServiceImpl implements ThemeService {
 
     @Override
     @Transactional
-    public ThemeDTO findTheme(
+    public ThemeDTO findThemeDTOByThemeCode(
             int themeCode,
             int memberCode
     ) {
