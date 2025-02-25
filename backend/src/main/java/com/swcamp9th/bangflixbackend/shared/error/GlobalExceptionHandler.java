@@ -110,7 +110,7 @@ public class GlobalExceptionHandler {
      *
      * @param e MailSendException, RedisException, IOException, NullPointerException,
      *          IllegalArgumentException, IndexOutOfBoundsException, UnsupportedOperationException,
-     *          IllegalStateException, ArithmeticException 중 하나의 RuntimeException 인스턴스
+     *          IllegalStateException, ArithmeticException 중 하나의 Exception 인스턴스
      * @return 에러 응답을 포함한 ResponseEntity
      */
     @ExceptionHandler({
@@ -124,7 +124,7 @@ public class GlobalExceptionHandler {
             IllegalStateException.class,
             ArithmeticException.class,
     })
-    public ResponseEntity<ErrorResponse> handleInternalServerErrorException(RuntimeException e) {
+    public ResponseEntity<ErrorResponse> handleInternalServerErrorException(Exception e) {
         log.error("internal server error: ", e);
 
         return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus())
