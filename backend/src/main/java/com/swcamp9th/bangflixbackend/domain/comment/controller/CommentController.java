@@ -1,12 +1,14 @@
 package com.swcamp9th.bangflixbackend.domain.comment.controller;
 
-import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseCode;
+import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentDTO;
 import com.swcamp9th.bangflixbackend.domain.comment.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,13 +33,15 @@ public class CommentController {
     @GetMapping
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "특정 사용자가 작성한 댓글 리스트 조회")
-    public ResponseEntity<ResponseMessage<List<CommentDTO>>> getCommentsByMe(
+    public ResponseEntity<SuccessResponse<List<CommentDTO>>> getCommentsByMe(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         List<CommentDTO> foundComments = commentService.getCommentsById(loginId);
 
         if (foundComments.isEmpty()) foundComments = null;
 
-        return ResponseEntity.ok(new ResponseMessage<>(200, "댓글 조회 성공", foundComments));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, foundComments));
     }
 }

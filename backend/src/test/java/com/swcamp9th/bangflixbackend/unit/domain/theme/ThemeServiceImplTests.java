@@ -1,8 +1,9 @@
 package com.swcamp9th.bangflixbackend.unit.domain.theme;
 
 
+import com.swcamp9th.bangflixbackend.domain.store.dto.StoreDTO;
 import com.swcamp9th.bangflixbackend.domain.store.entity.Store;
-import com.swcamp9th.bangflixbackend.domain.store.repository.StoreRepository;
+import com.swcamp9th.bangflixbackend.domain.store.service.StoreService;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
@@ -11,12 +12,13 @@ import com.swcamp9th.bangflixbackend.domain.theme.entity.Genre;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ThemeReaction;
+import com.swcamp9th.bangflixbackend.domain.theme.exception.ThemeNotFoundException;
+import com.swcamp9th.bangflixbackend.domain.theme.exception.UnexpectedReactionTypeException;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.GenreRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeReactionRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.repository.ThemeRepository;
 import com.swcamp9th.bangflixbackend.domain.theme.service.ThemeServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
-import com.swcamp9th.bangflixbackend.shared.exception.ThemeNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,13 +42,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+
 @ExtendWith(MockitoExtension.class)
 class ThemeServiceImplTests {
 
     @Mock
     private ModelMapper modelMapper;
     @Mock
-    private StoreRepository storeRepository;
+    private StoreService storeService; // StoreServiceImpl → StoreService 인터페이스 사용
     @Mock
     private GenreRepository genreRepository;
     @Mock
@@ -60,6 +63,7 @@ class ThemeServiceImplTests {
     private Theme theme;
     private ThemeDTO themeDTO;
     private Store store;
+    private StoreDTO storeDTO;
     private ThemeReaction themeReaction;
     private ThemeReactionDTO themeReactionDTO;
 
@@ -69,6 +73,11 @@ class ThemeServiceImplTests {
         store = new Store();
         store.setStoreCode(100);
         store.setName("Test Store");
+
+        // 샘플 StoreDTO (ModelMapper 매핑 시 사용)
+        storeDTO = new StoreDTO();
+        storeDTO.setStoreCode(100);
+        storeDTO.setName("Test Store");
 
         // 샘플 Theme
         theme = new Theme();
@@ -97,8 +106,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("테마 조회 - 유효한 테마 코드")
     @Test
-    void testFindTheme_validThemeCode() {
-
+    void testFindTheme_validThemeDTOByThemeCodeCode() {
         // given
         when(themeRepository.findById(1)).thenReturn(Optional.of(theme));
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
@@ -107,7 +115,7 @@ class ThemeServiceImplTests {
         when(themeRepository.countReviewsByThemeCode(1)).thenReturn(3);
 
         // when
-        ThemeDTO result = themeService.findTheme(1);
+        ThemeDTO result = themeService.findThemeDTOByThemeCode(1);
 
         // then
         assertThat(result).isNotNull();
@@ -120,21 +128,18 @@ class ThemeServiceImplTests {
 
     @DisplayName("테마 조회 - 존재하지 않는 테마 코드")
     @Test
-    void testFindTheme_invalidThemeCodeThrowsException() {
-
+    void testFindTheme_invalidThemeDTOByThemeCodeCodeThrowsException() {
         // given
         when(themeRepository.findById(1)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> themeService.findTheme(1))
-                .isInstanceOf(ThemeNotFoundException.class)
-                .hasMessage("존재하지 않는 테마입니다.");
+        assertThatThrownBy(() -> themeService.findThemeDTOByThemeCode(1))
+                .isInstanceOf(ThemeNotFoundException.class);
     }
 
     @DisplayName("테마 조회 - 회원 코드 포함 (반응 없음)")
     @Test
-    void testFindTheme_withMemberCode_noReaction() {
-
+    void testFindThemeDTOByTheme_Code_withMemberCode_noReaction() {
         // given
         int memberCode = 999;
         when(themeRepository.findById(1)).thenReturn(Optional.of(theme));
@@ -142,13 +147,11 @@ class ThemeServiceImplTests {
         when(themeRepository.countLikesByThemeCode(1)).thenReturn(7);
         when(themeRepository.countScrapsByThemeCode(1)).thenReturn(2);
         when(themeRepository.countReviewsByThemeCode(1)).thenReturn(4);
-
-        // reaction 조회 시 빈 Optional => isLike, isScrap remain false
         when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(1, memberCode))
                 .thenReturn(Optional.empty());
 
         // when
-        ThemeDTO result = themeService.findTheme(1, memberCode);
+        ThemeDTO result = themeService.findThemeDTOByThemeCode(1, memberCode);
 
         // then
         assertThat(result.getLikeCount()).isEqualTo(7);
@@ -160,12 +163,9 @@ class ThemeServiceImplTests {
 
     @DisplayName("테마 조회 - 회원 코드 포함 (반응 있음)")
     @Test
-    void testFindTheme_withMemberCode_withReaction() {
-
+    void testFindThemeDTOByTheme_Code_withMemberCode_withReaction() {
         // given
         int memberCode = 999;
-
-        // reaction가 존재하는 경우
         themeReaction.setReaction(ReactionType.SCRAPLIKE);
         when(themeRepository.findById(1)).thenReturn(Optional.of(theme));
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
@@ -176,10 +176,10 @@ class ThemeServiceImplTests {
                 .thenReturn(Optional.of(themeReaction));
 
         // when
-        ThemeDTO result = themeService.findTheme(1, memberCode);
+        ThemeDTO result = themeService.findThemeDTOByThemeCode(1, memberCode);
 
         // then
-        // SCRAPLIKE => isLike, isScrap true
+        // SCRAPLIKE 인 경우 isLike, isScrap이 true여야 함 (ReactionMapper의 적용에 의존)
         assertThat(result.getIsLike()).isTrue();
         assertThat(result.getIsScrap()).isTrue();
     }
@@ -187,7 +187,6 @@ class ThemeServiceImplTests {
     @DisplayName("장르 조회")
     @Test
     void testFindGenres() {
-
         // given
         Genre genre = new Genre();
         genre.setName("Comedy");
@@ -208,13 +207,12 @@ class ThemeServiceImplTests {
 
     @DisplayName("테마 조회 - 회원 코드 포함 (반응 없음, 회원 코드 있음)")
     @Test
-    void testFindThemeByGenresAndSearchOrderBySort_withMemberCode() {
-
+    void testFindThemeDTOByThemeCodeByGenresAndSearchOrderBySort_withMemberCode() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
-        String filter = "like";
+        String sort = "like";
         List<String> genres = List.of("Comedy", "Drama");
-        String content = "sample";
+        String search = "sample";
         int memberCode = 999;
 
         // 두 개의 테마 준비
@@ -229,15 +227,14 @@ class ThemeServiceImplTests {
         themeDTO2.setScrapCount(3);
         themeDTO2.setReviewCount(5);
 
-        // mocking: 검색 메서드 분기 (genres != null && content != null)
         List<Theme> themeList = List.of(theme, theme2);
-        when(themeRepository.findThemesByAllGenresAndSearch(genres, content)).thenReturn(themeList);
+        when(themeRepository.findThemesBy(genres, search, pageable)).thenReturn(themeList);
 
         // 각 Theme에 대한 매핑
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(modelMapper.map(theme2, ThemeDTO.class)).thenReturn(themeDTO2);
 
-        // count 값 mocking
+        // count 값 stubbing
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(7);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
         when(themeRepository.countReviewsByThemeCode(theme.getThemeCode())).thenReturn(4);
@@ -245,33 +242,30 @@ class ThemeServiceImplTests {
         when(themeRepository.countScrapsByThemeCode(theme2.getThemeCode())).thenReturn(3);
         when(themeRepository.countReviewsByThemeCode(theme2.getThemeCode())).thenReturn(5);
 
-        // reaction 조회 (없다고 가정)
-        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(any(), eq(memberCode)))
+        // reaction 조회 (없음)
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(anyInt(), eq(memberCode)))
                 .thenReturn(Optional.empty());
 
         // when
         List<ThemeDTO> result = themeService.findThemeByGenresAndSearchOrderBySort(
-                pageable, filter, genres, content, memberCode);
+                pageable, sort, genres, search, memberCode);
 
         // then
-        // 정렬: like 기준으로 내림차순 정렬되어야 함.
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getLikeCount()).isGreaterThanOrEqualTo(result.get(1).getLikeCount());
     }
 
     @DisplayName("테마 조회 - 회원코드 미포함")
     @Test
-    void testFindThemeByGenresAndSearchOrderBySort_withoutMemberCode() {
-
+    void testFindThemeDTOByThemeCodeByGenresAndSearchOrderBySort_withoutMemberCode() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
-        String filter = "scrap";
+        String sort = "scrap";
         List<String> genres = List.of("Action");
-        String content = null; // content null 분기
+        String search = null; // null search 분기
 
-        // 단일 테마 준비
         List<Theme> themeList = List.of(theme);
-        when(themeRepository.findThemesByAllGenres(genres)).thenReturn(themeList);
+        when(themeRepository.findThemesBy(genres, search, pageable)).thenReturn(themeList);
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(3);
@@ -279,7 +273,7 @@ class ThemeServiceImplTests {
 
         // when
         List<ThemeDTO> result = themeService.findThemeByGenresAndSearchOrderBySort(
-                pageable, filter, genres, content);
+                pageable, sort, genres, search);
 
         // then
         assertThat(result).hasSize(1);
@@ -288,11 +282,10 @@ class ThemeServiceImplTests {
 
     @DisplayName("업체별 테마 조회 - 회원 코드 포함")
     @Test
-    void testFindThemeByStoreOrderBySort_withMemberCode() {
-
+    void testFindThemeDTOByThemeCodeByStoreOrderBySort_withMemberCode() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
-        String filter = "review";
+        String sort = "review";
         int storeCode = 100;
         int memberCode = 999;
 
@@ -307,7 +300,7 @@ class ThemeServiceImplTests {
         themeDTO2.setReviewCount(15);
 
         List<Theme> themeList = List.of(theme, theme2);
-        when(themeRepository.findByStoreCode(storeCode)).thenReturn(themeList);
+        when(themeRepository.findThemeListByStoreCode(storeCode, pageable)).thenReturn(themeList);
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(modelMapper.map(theme2, ThemeDTO.class)).thenReturn(themeDTO2);
 
@@ -319,39 +312,37 @@ class ThemeServiceImplTests {
         when(themeRepository.countScrapsByThemeCode(theme2.getThemeCode())).thenReturn(4);
         when(themeRepository.countReviewsByThemeCode(theme2.getThemeCode())).thenReturn(15);
 
-        // reaction 조회 (없다고 가정)
-        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(any(), eq(memberCode)))
+        // reaction 조회 (없음)
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(anyInt(), eq(memberCode)))
                 .thenReturn(Optional.empty());
 
         // when
-        List<ThemeDTO> result = themeService.findThemeByStoreOrderBySort(
-                pageable, filter, storeCode, memberCode);
+        List<ThemeDTO> result = themeService.findThemeDTOListByStoreCode(
+                pageable, sort, storeCode, memberCode);
 
         // then
         assertThat(result).hasSize(2);
-        // reviewCount 기준 내림차순 정렬 확인
         assertThat(result.get(0).getReviewCount()).isGreaterThanOrEqualTo(result.get(1).getReviewCount());
     }
 
     @DisplayName("업체별 테마 조회 - 회원 코드 미포함")
     @Test
-    void testFindThemeByStoreOrderBySort_withoutMemberCode() {
-
+    void testFindThemeDTOByThemeCodeByStoreOrderBySort_withoutMemberCode() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
-        String filter = null; // 기본 정렬
+        String sort = null; // 기본 정렬
         int storeCode = 100;
 
         List<Theme> themeList = List.of(theme);
-        when(themeRepository.findByStoreCode(storeCode)).thenReturn(themeList);
+        when(themeRepository.findThemeListByStoreCode(storeCode, pageable)).thenReturn(themeList);
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
         when(themeRepository.countReviewsByThemeCode(theme.getThemeCode())).thenReturn(3);
 
         // when
-        List<ThemeDTO> result = themeService.findThemeByStoreOrderBySort(
-                pageable, filter, storeCode);
+        List<ThemeDTO> result = themeService.findThemeDTOListByStoreCode(
+                pageable, sort, storeCode);
 
         // then
         assertThat(result).hasSize(1);
@@ -360,12 +351,12 @@ class ThemeServiceImplTests {
     @DisplayName("테마 반응 생성 - 반응 추가")
     @Test
     void testCreateThemeReaction_newReaction() {
-
         // given : reaction 미존재 시 새로 저장
         Member dummyMember = new Member();
         dummyMember.setMemberCode(999);
         when(themeRepository.findById(themeReactionDTO.getThemeCode())).thenReturn(Optional.of(theme));
-        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(themeReactionDTO.getThemeCode(), dummyMember.getMemberCode()))
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(
+                themeReactionDTO.getThemeCode(), dummyMember.getMemberCode()))
                 .thenReturn(Optional.empty());
 
         // when
@@ -378,14 +369,14 @@ class ThemeServiceImplTests {
     @DisplayName("테마 반응 생성 - 반응 업데이트")
     @Test
     void testCreateThemeReaction_existingReactionUpdate() {
-
-        // given : reaction가 존재하는 경우 (예: 기존 reaction이 SCRAP이고 요청이 like인 경우 -> SCRAPLIKE로 업데이트)
+        // given : 기존 reaction이 SCRAP이고 요청이 like인 경우 → SCRAPLIKE로 업데이트
         Member dummyMember = new Member();
         dummyMember.setMemberCode(999);
         themeReaction = new ThemeReaction();
         themeReaction.setReaction(ReactionType.SCRAP);
         when(themeRepository.findById(themeReactionDTO.getThemeCode())).thenReturn(Optional.of(theme));
-        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(themeReactionDTO.getThemeCode(), dummyMember.getMemberCode()))
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(
+                themeReactionDTO.getThemeCode(), dummyMember.getMemberCode()))
                 .thenReturn(Optional.of(themeReaction));
 
         // when
@@ -401,8 +392,7 @@ class ThemeServiceImplTests {
     @DisplayName("테마 반응 생성 - 반응 업데이트 (좋아요 -> 좋아요 취소)")
     @Test
     void testDeleteThemeReaction_deleteLike() {
-
-        // given : 요청 reaction이 "like"이고 현재 reaction이 LIKE이면 삭제
+        // given : 요청 reaction "like"이고 현재 reaction이 LIKE이면 삭제
         int memberCode = 999;
         themeReaction = new ThemeReaction();
         themeReaction.setReaction(ReactionType.LIKE);
@@ -419,8 +409,7 @@ class ThemeServiceImplTests {
     @DisplayName("테마 반응 취소 - 반응 업데이트 (스크랩 -> 좋아요)")
     @Test
     void testDeleteThemeReaction_updateScrapLike_toScrap() {
-
-        // given : 요청 reaction "like"이고 현재 reaction이 SCRAPLIKE이면 좋아요 취소 -> SCRAP로 변경
+        // given : 요청 reaction "like"이고 현재 reaction이 SCRAPLIKE이면 좋아요 취소 → SCRAP으로 변경
         int memberCode = 999;
         themeReaction = new ThemeReaction();
         themeReaction.setReaction(ReactionType.SCRAPLIKE);
@@ -430,7 +419,7 @@ class ThemeServiceImplTests {
         // when
         themeService.deleteThemeReaction(memberCode, themeReactionDTO);
 
-        // then : save 호출되어 reaction이 SCRAP으로 변경되어야 함
+        // then : save 호출되어 reaction이 SCRAP으로 업데이트되어야 함
         ArgumentCaptor<ThemeReaction> captor = ArgumentCaptor.forClass(ThemeReaction.class);
         verify(themeReactionRepository).save(captor.capture());
         ThemeReaction updated = captor.getValue();
@@ -440,7 +429,6 @@ class ThemeServiceImplTests {
     @DisplayName("잘못된 요청 - 반응 업데이트")
     @Test
     void testDeleteThemeReaction_invalidReactionThrowsException() {
-
         // given : 요청 reaction이 올바르지 않은 경우
         int memberCode = 999;
         ThemeReactionDTO invalidDTO = new ThemeReactionDTO();
@@ -453,34 +441,31 @@ class ThemeServiceImplTests {
 
         // when & then
         assertThatThrownBy(() -> themeService.deleteThemeReaction(memberCode, invalidDTO))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(UnexpectedReactionTypeException.class);
     }
 
     @DisplayName("사용자 반응으로 테마 조회 - 좋아요")
     @Test
-    void testFindThemeByMemberReaction_like() {
-
+    void testFindThemeDTOByThemeCodeByMemberReaction_like() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
         int memberCode = 999;
-
-        // reaction "like" branch
-        when(themeReactionRepository.findThemeByMemberLike(pageable, memberCode))
+        when(themeReactionRepository.findLikeReactionsByMemberCode(pageable, memberCode))
                 .thenReturn(List.of(themeReaction));
 
         // store lookup
-        when(storeRepository.findByThemeCode(theme.getThemeCode())).thenReturn(store);
+        when(storeService.findStore(theme.getThemeCode())).thenReturn(storeDTO);
 
-        // modelMapper mapping from Theme -> FindThemeByReactionDTO
         FindThemeByReactionDTO reactionDTO = new FindThemeByReactionDTO();
-        reactionDTO.setStoreCode(store.getStoreCode());
-        reactionDTO.setStoreName(store.getName());
+        reactionDTO.setStoreCode(storeDTO.getStoreCode());
+        reactionDTO.setStoreName(storeDTO.getName());
         reactionDTO.setIsLike(true);
         reactionDTO.setIsScrap(true);
         when(modelMapper.map(theme, FindThemeByReactionDTO.class)).thenReturn(reactionDTO);
 
         // when
-        List<FindThemeByReactionDTO> result = themeService.findThemeByMemberReaction(pageable, memberCode, "like");
+        List<FindThemeByReactionDTO> result = themeService.findThemeByMemberReaction(
+                pageable, memberCode, "like");
 
         // then
         assertThat(result).hasSize(1);
@@ -489,18 +474,19 @@ class ThemeServiceImplTests {
 
     @DisplayName("사용자 반응으로 테마 조회 실패 - 잘못된 요청")
     @Test
-    void testFindThemeByMemberReaction_invalidReaction() {
+    void testFindThemeDTOByThemeCodeByMemberReaction_invalidReaction() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
         int memberCode = 999;
         // when & then
-        assertThatThrownBy(() -> themeService.findThemeByMemberReaction(pageable, memberCode, "invalid"))
-                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> themeService.findThemeByMemberReaction(
+                pageable, memberCode, "invalid"))
+                .isInstanceOf(UnexpectedReactionTypeException.class);
     }
 
-    @DisplayName("사용자 코드로 테마 조회 - 최근 1주일")
+    @DisplayName("사용자 코드로 테마 조회 - 최근 1주일 (회원 코드 포함)")
     @Test
-    void testFindThemeByWeek_withMemberCode() {
+    void testFindThemeDTOByThemeCodeByWeek_withMemberCode() {
         // given
         int memberCode = 999;
         Pageable pageable = PageRequest.of(0, 5);
@@ -511,7 +497,8 @@ class ThemeServiceImplTests {
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
         when(themeRepository.countReviewsByThemeCode(theme.getThemeCode())).thenReturn(3);
-        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode))
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(
+                theme.getThemeCode(), memberCode))
                 .thenReturn(Optional.empty());
 
         // when
@@ -523,7 +510,7 @@ class ThemeServiceImplTests {
 
     @DisplayName("사용자 코드 없이 테마 조회 - 최근 1주일")
     @Test
-    void testFindThemeByWeek_withoutMemberCode() {
+    void testFindThemeDTOByThemeCodeByWeek_withoutMemberCode() {
         // given
         Pageable pageable = PageRequest.of(0, 5);
         List<Theme> themeList = List.of(theme);
@@ -544,13 +531,11 @@ class ThemeServiceImplTests {
     @DisplayName("테마 추천 - 요청 테마 코드 없음")
     @Test
     void testRecommendTheme_withNullThemeCodes() {
-
         // given
         Pageable pageable = PageRequest.of(0, 5);
-
-        // recommendTheme(themeCodes == null) => 내부적으로 findThemeByGenresAndSearchOrderBySort 호출
         List<Theme> themeList = List.of(theme);
-        when(themeRepository.findAll()).thenReturn(themeList);
+        // themeCodes가 null이면 genres 인자는 null로 전달됨
+        when(themeRepository.findThemesBy(null, null, pageable)).thenReturn(themeList);
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
@@ -566,19 +551,20 @@ class ThemeServiceImplTests {
     @DisplayName("테마 추천 - 요청 테마 코드 있음")
     @Test
     void testRecommendTheme_withThemeCodes() {
-
         // given
         List<Integer> themeCodes = List.of(1, 2, 3);
+        Pageable pageable = PageRequest.of(0, 5);
 
-        // findGenresByThemeCode: returns genres (as Integer list)
-        when(themeRepository.findGenresByThemeCode(themeCodes)).thenReturn(List.of(10, 20, 10));
+        // getGenreNameListByThemeCodeList 내부 로직 stubbing
+        when(themeRepository.findGenresByThemeCode(themeCodes))
+                .thenReturn(List.of(10, 20, 10));
+        when(genreRepository.findGenreNames(List.of(10)))
+                .thenReturn(List.of("Comedy"));
 
-        // genreRepository.findGenreNames: for most frequent genres (here 10)
-        when(genreRepository.findGenreNames(List.of(10))).thenReturn(List.of("Comedy"));
-
-        // 내부 호출: findThemeByGenresAndSearchOrderBySort(pageable, "like", genreNames, null)
+        // recommendTheme 내부에서 findThemeByGenresAndSearchOrderBySort 호출: genres는 "Comedy", search는 null
         List<Theme> themeList = List.of(theme);
-        when(themeRepository.findThemesByAllGenres(anyList())).thenReturn(themeList);
+        when(themeRepository.findThemesBy(List.of("Comedy"), null, pageable))
+                .thenReturn(themeList);
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
@@ -596,16 +582,17 @@ class ThemeServiceImplTests {
     void testGetScrapedThemeByMemberCode() {
         // given
         int memberCode = 999;
-        // themeReactionRepository: SCRAP 또는 SCRAPLIKE 반응을 가진 항목들 반환
-        when(themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(eq(memberCode), any()))
+        when(themeReactionRepository.findThemeReactionsByMemberCodeAndReactionType(
+                eq(memberCode), any()))
                 .thenReturn(List.of(themeReaction));
-        // repository.findByThemeCodes: themeCodes를 통해 Theme 목록 반환
-        when(themeRepository.findByThemeCodes(anyList())).thenReturn(List.of(theme));
+        when(themeRepository.findByThemeCodes(anyList()))
+                .thenReturn(List.of(theme));
         when(modelMapper.map(theme, ThemeDTO.class)).thenReturn(themeDTO);
         when(themeRepository.countLikesByThemeCode(theme.getThemeCode())).thenReturn(5);
         when(themeRepository.countScrapsByThemeCode(theme.getThemeCode())).thenReturn(2);
         when(themeRepository.countReviewsByThemeCode(theme.getThemeCode())).thenReturn(3);
-        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(theme.getThemeCode(), memberCode))
+        when(themeReactionRepository.findReactionByThemeCodeAndMemberCode(
+                theme.getThemeCode(), memberCode))
                 .thenReturn(Optional.empty());
 
         // when

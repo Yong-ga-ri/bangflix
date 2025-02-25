@@ -112,7 +112,7 @@ class ReviewControllerTests {
         // given
         int themeCode = 1;
         List<ReviewDTO> reviews = new ArrayList<>();
-        given(reviewService.findReviewsWithFilters(eq(themeCode), eq("highScore"), any(Pageable.class)))
+        given(reviewService.findReviewsBy(eq(themeCode), eq("highScore"), any(Pageable.class)))
                 .willReturn(reviews);
 
         // when & then: 로그인 정보가 없는 guest 요청
@@ -124,7 +124,7 @@ class ReviewControllerTests {
                 .andExpect(jsonPath("$.msg").value("리뷰 조회 성공"))
                 .andExpect(jsonPath("$.result").isArray());
 
-        verify(reviewService).findReviewsWithFilters(eq(themeCode), eq("highScore"), any(Pageable.class));
+        verify(reviewService).findReviewsBy(eq(themeCode), eq("highScore"), any(Pageable.class));
     }
 
     @Test
@@ -134,7 +134,7 @@ class ReviewControllerTests {
         int memberCode = 2;
         List<ReviewDTO> reviews = new ArrayList<>();
         given(userService.findMemberCodeByLoginId(LOGIN_ID)).willReturn(memberCode);
-        given(reviewService.findReviewsWithFilters(eq(themeCode), eq("lowScore"), any(Pageable.class), eq(memberCode)))
+        given(reviewService.findReviewsBy(eq(themeCode), eq("lowScore"), any(Pageable.class), eq(memberCode)))
                 .willReturn(reviews);
 
         // when & then: 로그인한 회원 요청
@@ -147,7 +147,7 @@ class ReviewControllerTests {
                 .andExpect(jsonPath("$.msg").value("리뷰 조회 성공"))
                 .andExpect(jsonPath("$.result").isArray());
 
-        verify(reviewService).findReviewsWithFilters(eq(themeCode), eq("lowScore"), any(Pageable.class), eq(memberCode));
+        verify(reviewService).findReviewsBy(eq(themeCode), eq("lowScore"), any(Pageable.class), eq(memberCode));
     }
 
     @Test

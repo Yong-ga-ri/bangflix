@@ -9,8 +9,8 @@ import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityLi
 import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityPostRepository;
 import com.swcamp9th.bangflixbackend.domain.communitypost.service.CommunityPostServiceImpl;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
+import com.swcamp9th.bangflixbackend.domain.user.exception.MemberNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -104,8 +104,8 @@ class CommunityPostServiceImplTests {
 
         // When & Then
         assertThatThrownBy(() -> communityPostService.createPost("user123", request, null))
-                .isInstanceOf(InvalidUserException.class)
-                .hasMessage("회원가입이 필요합니다.");
+                .isInstanceOf(MemberNotFoundException.class)
+                .hasMessage("존재하지 않는 회원입니다.");
     }
 
     /**

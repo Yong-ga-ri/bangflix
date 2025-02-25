@@ -2,7 +2,8 @@ package com.swcamp9th.bangflixbackend.domain.review.controller;
 
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.service.UserService;
-import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseCode;
+import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import com.swcamp9th.bangflixbackend.domain.review.dto.CreateReviewDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewCodeDTO;
 import com.swcamp9th.bangflixbackend.domain.review.dto.ReviewDTO;
@@ -13,9 +14,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -69,16 +72,18 @@ public class ReviewController {
             description = "multipart/form-data 형식으로 요청합니다. review 키에는 리뷰 작성에 필요한 DTO 데이터가, "
                     + "images 키에는 첨부할 이미지 파일(MultipartFile)이 포함될 수 있습니다."
     )
-    public ResponseEntity<ResponseMessage<Object>> createReview(
+    public ResponseEntity<SuccessResponse<Void>> createReview(
         @RequestPart("review") CreateReviewDTO newReview,
         @RequestPart(value = "images", required = false) List<MultipartFile> images,
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         Member member = userService.findMemberByLoginId(loginId);
         reviewService.createReview(newReview, images, member);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 작성 성공", null));
-    }
 
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.empty(ResponseCode.CREATED));
+    }
 
     /**
      * 리뷰 삭제 API.
@@ -95,13 +100,16 @@ public class ReviewController {
             summary = "리뷰 삭제 API",
             description = "리뷰 코드를 포함한 JSON 데이터를 전달받습니다. 로그인한 회원의 정보(loginId)를 이용해 삭제 권한을 확인한 후 리뷰를 삭제합니다."
     )
-    public ResponseEntity<ResponseMessage<Object>> deleteReview(
+    public ResponseEntity<SuccessResponse<Void>> deleteReview(
             @RequestBody ReviewCodeDTO reviewCodeDTO,
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         int memberCode = userService.findMemberCodeByLoginId(loginId);
         reviewService.deleteReview(reviewCodeDTO, memberCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 삭제 성공", null));
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 
     /**
@@ -125,22 +133,24 @@ public class ReviewController {
                     + "필터가 없으면 기본적으로 최신순(생성일 내림차순)으로 정렬됩니다. "
                     + "로그인 여부에 따라 회원용과 게스트용 조회 로직이 분기됩니다."
     )
-    public ResponseEntity<ResponseMessage<List<ReviewDTO>>> findReviewList(
+    public ResponseEntity<SuccessResponse<List<ReviewDTO>>> findReviewList(
         @PathVariable("themeCode") Integer themeCode,
         @PageableDefault(size = 10, page = 0) Pageable pageable,
         @RequestParam(required = false) String filter,
         @RequestAttribute(value = SERVLET_REQUEST_ATTRIBUTE_KEY, required = false) String loginId
     ) {
-        List<ReviewDTO> reviews;
+        List<ReviewDTO> reviewDTOList;
 
         if (loginId == null) {  // for guests
-            reviews = reviewService.findReviewsWithFilters(themeCode, filter, pageable);
+            reviewDTOList = reviewService.findReviewsBy(themeCode, filter, pageable);
         } else {    // for members
             int memberCode = userService.findMemberCodeByLoginId(loginId);
-            reviews = reviewService.findReviewsWithFilters(themeCode, filter, pageable, memberCode);
+            reviewDTOList = reviewService.findReviewsBy(themeCode, filter, pageable, memberCode);
         }
 
-        return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 조회 성공", reviews));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, reviewDTOList));
     }
 
     /**
@@ -158,11 +168,14 @@ public class ReviewController {
             summary = "테마별 리뷰 통계 조회 API",
             description = "특정 테마에 대한 리뷰 통계 정보를 반환합니다. 응답 데이터는 다양한 통계 항목을 포함하므로, 클라이언트에서 필요한 데이터만 매핑하여 사용하세요."
     )
-    public ResponseEntity<ResponseMessage<StatisticsReviewDTO>> findReviewStatistics(
+    public ResponseEntity<SuccessResponse<StatisticsReviewDTO>> findReviewStatistics(
         @PathVariable("themeCode") Integer themeCode
     ) {
-        StatisticsReviewDTO reviewStatistics = reviewService.findReviewStatistics(themeCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 통계 조회 성공", reviewStatistics));
+        StatisticsReviewDTO statisticsReviewDTO = reviewService.findReviewStatistics(themeCode);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, statisticsReviewDTO));
     }
 
     /**
@@ -180,13 +193,16 @@ public class ReviewController {
             summary = "리뷰 좋아요 API",
             description = "리뷰 코드를 포함한 JSON 데이터를 전달받아, 로그인한 회원이 해당 리뷰에 좋아요를 등록합니다."
     )
-    public ResponseEntity<ResponseMessage<Object>> likeReview(
-            @RequestBody ReviewCodeDTO reviewCodeDTO,
+    public ResponseEntity<SuccessResponse<Void>> likeReview(
+            @Valid @RequestBody ReviewCodeDTO reviewCodeDTO,
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         int memberCode = userService.findMemberCodeByLoginId(loginId);
         reviewService.likeReview(reviewCodeDTO, memberCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 좋아요 성공", null));
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
     /**
@@ -204,13 +220,16 @@ public class ReviewController {
             summary = "리뷰 좋아요 취소 API",
             description = "리뷰 코드를 포함한 JSON 데이터를 전달받아, 로그인한 회원이 해당 리뷰의 좋아요를 취소합니다."
     )
-    public ResponseEntity<ResponseMessage<Object>> deleteLikeReview(
-            @RequestBody ReviewCodeDTO reviewCodeDTO,
+    public ResponseEntity<SuccessResponse<Void>> deleteLikeReview(
+            @Valid @RequestBody ReviewCodeDTO reviewCodeDTO,
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         int memberCode = userService.findMemberCodeByLoginId(loginId);
         reviewService.deleteLikeReview(reviewCodeDTO, memberCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "리뷰 좋아요 취소 성공", null));
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 
     /**
@@ -227,13 +246,16 @@ public class ReviewController {
             summary = "유저 리뷰 리포트 조회 API",
             description = "로그인한 회원의 리뷰 리포트를 생성하여 반환합니다. 응답 데이터는 다양한 통계 정보를 포함하므로, 클라이언트에서 필요한 데이터만 추출하여 사용하세요."
     )
-    public ResponseEntity<ResponseMessage<ReviewReportDTO>> findReviewReport(
+    public ResponseEntity<SuccessResponse<ReviewReportDTO>> findReviewReport(
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
         int memberCode = userService.findMemberCodeByLoginId(loginId);
 
         ReviewReportDTO reviewReportDTO = reviewService.findReviewReport(memberCode);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "유저 리뷰 report 조회 성공", reviewReportDTO));
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, reviewReportDTO));
     }
 
     /**
@@ -251,14 +273,17 @@ public class ReviewController {
             summary = "유저 작성 리뷰 조회 API",
             description = "로그인한 회원이 작성한 리뷰를 최신순(생성일 내림차순)으로 정렬하여 페이징 처리된 결과를 반환합니다."
     )
-    public ResponseEntity<ResponseMessage<List<ReviewDTO>>> findReviewByMember(
+    public ResponseEntity<SuccessResponse<List<ReviewDTO>>> findReviewByMember(
         @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
         @PageableDefault(size = 10, page = 0) Pageable pageable
     ) {
         int memberCode = userService.findMemberCodeByLoginId(loginId);
 
         // 서비스에서 필터를 사용해 조회
-        List<ReviewDTO> reviews = reviewService.findReviewByMemberCode(memberCode, pageable);
-        return ResponseEntity.ok(new ResponseMessage<>(200, "유저가 작성한 리뷰 조회 성공", reviews));
+        List<ReviewDTO> reviewDTOList = reviewService.findReviewByMemberCode(memberCode, pageable);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, reviewDTOList));
     }
 }

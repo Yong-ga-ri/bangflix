@@ -4,11 +4,12 @@ import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityLikeCount
 import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityLikeCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityLike;
 import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityPost;
+import com.swcamp9th.bangflixbackend.domain.communitypost.exception.CommunityPostNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityLikeRepository;
 import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityPostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.shared.exception.InvalidUserException;
+import com.swcamp9th.bangflixbackend.shared.error.exception.InvalidUserException;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,10 +47,10 @@ public class CommunityLikeServiceImpl implements CommunityLikeService {
 
         // 회원이 아니라면 예외 발생
         Member likeMember = userRepository.findById(loginId)
-                .orElseThrow(() -> new InvalidUserException("회원가입이 필요합니다."));
+                .orElseThrow(InvalidUserException::new);
 
         CommunityPost likePost = communityPostRepository.findById(newLike.getCommunityPostCode())
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(CommunityPostNotFoundException::new);
 
         addedLike.setMemberCode(likeMember.getMemberCode());
         addedLike.setCommunityPostCode(likePost.getCommunityPostCode());
@@ -72,7 +73,7 @@ public class CommunityLikeServiceImpl implements CommunityLikeService {
     @Override
     public CommunityLikeCountDTO countLike(int communityPostCode) {
         CommunityPost likePost = communityPostRepository.findById(communityPostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(CommunityPostNotFoundException::new);
 
         CommunityLikeCountDTO count = new CommunityLikeCountDTO();
         Long likeCount = 0L;

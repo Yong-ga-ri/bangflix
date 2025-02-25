@@ -22,17 +22,17 @@ public class ReviewLike {
 
     @Id
     @Column(name = "member_code", nullable = false)
-    private Integer memberCode;
+    private int memberCode;
 
     @Id
     @Column(name = "review_code", nullable = false)
-    private Integer reviewCode;
+    private int reviewCode;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "active", nullable = false)
-    private Boolean active;
+    private boolean active;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_code", insertable = false, updatable = false)

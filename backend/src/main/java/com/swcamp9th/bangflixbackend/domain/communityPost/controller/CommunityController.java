@@ -1,6 +1,7 @@
 package com.swcamp9th.bangflixbackend.domain.communitypost.controller;
 
-import com.swcamp9th.bangflixbackend.shared.response.ResponseMessage;
+import com.swcamp9th.bangflixbackend.shared.response.ResponseCode;
+import com.swcamp9th.bangflixbackend.shared.response.SuccessResponse;
 import com.swcamp9th.bangflixbackend.domain.communitypost.service.CommunityPostService;
 import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityPostCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.communitypost.dto.CommunityPostDTO;
@@ -10,12 +11,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 import static com.swcamp9th.bangflixbackend.shared.filter.RequestFilter.SERVLET_REQUEST_ATTRIBUTE_KEY;
@@ -39,15 +40,16 @@ public class CommunityController {
     )
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 등록 API")
-    public ResponseEntity<ResponseMessage<Object>> createCommunityPost(
+    public ResponseEntity<SuccessResponse<Void>> createCommunityPost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @RequestPart CommunityPostCreateDTO newPost,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
-    ) throws IOException {
+    ) {
         communityPostService.createPost(loginId, newPost, images);
-        return ResponseEntity.ok(
-                new ResponseMessage<>(200, "게시글 등록 성공", null)
-        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.empty(ResponseCode.CREATED));
     }
 
     /* 게시글 수정 */
@@ -57,80 +59,86 @@ public class CommunityController {
     )
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 수정 API")
-    public ResponseEntity<ResponseMessage<Object>> updateCommunityPost(
+    public ResponseEntity<SuccessResponse<Void>> updateCommunityPost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int communityPostCode,
             @Valid @RequestPart CommunityPostUpdateDTO modifiedPost,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
         communityPostService.updatePost(loginId, communityPostCode, modifiedPost, images);
-        return ResponseEntity.ok(
-                new ResponseMessage<>(200, "게시글 수정 성공", null)
-        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.empty(ResponseCode.UPDATED));
     }
 
     /* 게시글 삭제 */
     @DeleteMapping("/post/{communityPostCode}")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 삭제 API")
-    public ResponseEntity<ResponseMessage<Object>> deleteCommunityPost(
+    public ResponseEntity<SuccessResponse<Void>> deleteCommunityPost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int communityPostCode
     ) {
         communityPostService.deletePost(loginId, communityPostCode);
-        return ResponseEntity.ok(
-                new ResponseMessage<>(200, "게시글 삭제 성공", null)
-        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.empty(ResponseCode.DELETED));
     }
 
     /* 게시글 목록 조회 */
     @GetMapping
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 목록 조회 API")
-    public ResponseEntity<ResponseMessage<List<CommunityPostDTO>>> getAllPosts(
+    public ResponseEntity<SuccessResponse<List<CommunityPostDTO>>> getAllPosts(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
-        List<CommunityPostDTO> posts = communityPostService.getAllPosts(loginId);
-        return ResponseEntity.ok(
-                new ResponseMessage<>(200, "게시글 목록 조회 성공", posts)
-        );
+        List<CommunityPostDTO> postDTOList = communityPostService.getAllPosts(loginId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, postDTOList));
     }
 
     /* 게시글 상세 조회 */
     @GetMapping("/post/{communityPostCode}")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "커뮤니티 게시글 상세 조회 API")
-    public ResponseEntity<ResponseMessage<CommunityPostDTO>> findPost(
+    public ResponseEntity<SuccessResponse<CommunityPostDTO>> findPost(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId,
             @PathVariable int communityPostCode
     ) {
-        CommunityPostDTO post = communityPostService.findPostByCode(loginId, communityPostCode);
-        return ResponseEntity.ok(
-                new ResponseMessage<>(200, "게시글 조회 성공", post)
-        );
+        CommunityPostDTO postDTO = communityPostService.findPostByCode(loginId, communityPostCode);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, postDTO));
     }
 
     /* 게시글 구독 */
     @GetMapping("/post/subscribe/{communityPostCode}")
-    public ResponseEntity<ResponseMessage<String>> subscribe(
+    public ResponseEntity<SuccessResponse<Void>> subscribe(
             @PathVariable Integer communityPostCode,
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId
     ) {
-        return ResponseEntity.ok(
-                new ResponseMessage<>(200, "구독 완료", "helloworld")
-        );
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.empty(ResponseCode.OK));
     }
 
     /* 내가 작성한 게시글 목록 조회 */
     @GetMapping("/my")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "내가 작성한 커뮤니티 게시글 목록 조회 API")
-    public ResponseEntity<ResponseMessage<List<CommunityPostDTO>>> getMyPosts(
+    public ResponseEntity<SuccessResponse<List<CommunityPostDTO>>> getMyPosts(
             @RequestAttribute(SERVLET_REQUEST_ATTRIBUTE_KEY) String loginId) {
 
-        List<CommunityPostDTO> myPostList = communityPostService.getMyPosts(loginId);
-        return ResponseEntity.ok(
-                new ResponseMessage<>(200, "내가 작성한 게시글 목록 조회 성공", myPostList)
-        );
+        List<CommunityPostDTO> postDTOList = communityPostService.getMyPosts(loginId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(SuccessResponse.of(ResponseCode.OK, postDTOList));
     }
 }
