@@ -1,8 +1,10 @@
 package com.swcamp9th.bangflixbackend.domain.theme.repository;
 
+import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeCountDTO;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -65,18 +67,11 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
             Pageable pageable
     );
 
-    @EntityGraph(attributePaths = {"store"})
-    @Query("SELECT " +
-                  "DISTINCT t " +
-             "FROM Theme t " +
-             "JOIN ThemeReaction tr ON t.themeCode = tr.themeCode " +
-            "WHERE tr.createdAt > :oneWeekAgo " +
-              "AND tr.active = true " +
-              "AND t.active = true " +
-            "GROUP BY t " +
-            "ORDER BY " +
-                  "COUNT(tr) DESC, " +
-                  "t.themeCode DESC")
+    @Query("SELECT t FROM Theme t "
+            + "INNER JOIN ThemeReaction tr ON t.themeCode = tr.themeCode "
+            + "WHERE tr.createdAt > :oneWeekAgo AND tr.active = true AND t.active = true "
+            + "GROUP BY t.themeCode "
+            + "ORDER BY COUNT(tr) DESC, t.themeCode DESC")
     List<Theme> findByWeekOrderByLikes(
             @Param("oneWeekAgo") LocalDateTime oneWeekAgo,
             Pageable pageable
@@ -98,4 +93,25 @@ public interface ThemeRepository extends JpaRepository<Theme, Integer> {
     List<Theme> findByThemeCodes(
             @Param("themeCodes") List<Integer> themeCodes
     );
+
+    @Query("SELECT new com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeCountDTO(" +
+            "(SELECT COUNT(tr) " +
+               "FROM ThemeReaction tr " +
+              "WHERE tr.active = true " +
+                "AND tr.themeCode = :themeCode " +
+                "AND tr.reaction IN ('LIKE', 'SCRAPLIKE')), " +
+            "(SELECT COUNT(tr) " +
+               "FROM ThemeReaction tr " +
+              "WHERE tr.active = true " +
+                "AND tr.themeCode = :themeCode " +
+                "AND tr.reaction IN ('SCRAP', 'SCRAPLIKE')), " +
+            "(SELECT COUNT(r) " +
+               "FROM Review r " +
+              "WHERE r.active = true " +
+                "AND r.theme.themeCode = :themeCode)" +
+            ") " +
+             "FROM Theme t " +
+            "WHERE t.active = true " +
+              "AND t.themeCode = :themeCode")
+    Optional<ThemeCountDTO> findThemeCountsByThemeCode(@Param("themeCode") int themeCode);
 }

@@ -2,10 +2,7 @@ package com.swcamp9th.bangflixbackend.domain.theme.service;
 
 import com.swcamp9th.bangflixbackend.domain.store.dto.StoreDTO;
 import com.swcamp9th.bangflixbackend.domain.store.service.StoreService;
-import com.swcamp9th.bangflixbackend.domain.theme.dto.FindThemeByReactionDTO;
-import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeReactionDTO;
-import com.swcamp9th.bangflixbackend.domain.theme.dto.GenreDTO;
-import com.swcamp9th.bangflixbackend.domain.theme.dto.ThemeDTO;
+import com.swcamp9th.bangflixbackend.domain.theme.dto.*;
 import com.swcamp9th.bangflixbackend.domain.theme.dto.mapper.ReactionMapper;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.ReactionType;
 import com.swcamp9th.bangflixbackend.domain.theme.entity.Theme;
@@ -389,14 +386,19 @@ public class ThemeServiceImpl implements ThemeService {
 
     private ThemeDTO createBaseThemeDTO(Theme theme) {
         ThemeDTO themeDto = modelMapper.map(theme, ThemeDTO.class);
+        ThemeCountDTO reactions = getThemeReactions(theme.getThemeCode());
+        themeDto.setLikeCount(Math.toIntExact(reactions.getLikeCount()));
+        themeDto.setScrapCount(Math.toIntExact(reactions.getScrapCount()));
+        themeDto.setReviewCount(Math.toIntExact(reactions.getReviewCount()));
         themeDto.setStoreCode(theme.getStore().getStoreCode());
-        themeDto.setLikeCount(themeRepository.countLikesByThemeCode(theme.getThemeCode()));
-        themeDto.setScrapCount(themeRepository.countScrapsByThemeCode(theme.getThemeCode()));
-        themeDto.setReviewCount(themeRepository.countReviewsByThemeCode(theme.getThemeCode()));
         themeDto.setStoreName(theme.getStore().getName());
         themeDto.setIsLike(false);
         themeDto.setIsScrap(false);
         return themeDto;
+    }
+
+    private ThemeCountDTO getThemeReactions(int themeCode) {
+        return themeRepository.findThemeCountsByThemeCode(themeCode).orElseThrow(ThemeNotFoundException::new);
     }
 
     private void applyReaction(
