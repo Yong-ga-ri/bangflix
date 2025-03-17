@@ -7,7 +7,7 @@
 
     <Card style="overflow: hidden">
       <template #header>
-        <img class="theme-tumb" :src="props.theme.posterImage" alt="테마 프로필 이미지" />
+        <img class="theme-tumb" :src="posterImage" alt="테마 프로필 이미지" @error="onImageError" />
       </template>
       <template #content>
         <div class="content-container">
@@ -59,6 +59,9 @@ import { useUserStore } from '@/stores/user';
 import Button from 'primevue/button';
 import AppTypography from '../AppTypography.vue';
 import { $api } from '@/services/api/api';
+import defaultPosterImageUrl from '@/assets/default/default-poster.png';
+
+const defaultPosterImage = defaultPosterImageUrl;
 
 const userStore = useUserStore();
 
@@ -102,6 +105,14 @@ const clickScrap = changeTo => {
     if (changeTo) scrapCnt.value += 1;
     else scrapCnt.value -= 1;
   });
+};
+
+// 초기 이미지 주소를 ref로 설정
+const posterImage = ref(props.theme.posterImage || defaultPosterImage);
+
+// 이미지 로드 실패 시 기본 이미지로 대체하는 핸들러
+const onImageError = () => {
+  posterImage.value = defaultPosterImage;
 };
 
 onMounted(() => {
