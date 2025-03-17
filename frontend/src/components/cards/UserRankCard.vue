@@ -29,19 +29,19 @@
     <!-- 메달 -->
     <Image
       v-if="props.rank === 1"
-      src="/src/assets/icons/medal-gold.png"
+      src="https://forprototype.s3.ap-northeast-2.amazonaws.com/bangflix/medal-gold.png"
       class="item-medal"
       image-style="width: 50px"
     />
     <Image
       v-else-if="props.rank === 2"
-      src="/src/assets/icons/medal-silver.png"
+      src="https://forprototype.s3.ap-northeast-2.amazonaws.com/bangflix/medal-silver.png"
       class="item-medal"
       image-style="width: 50px"
     />
     <Image
       v-else-if="props.rank === 3"
-      src="/src/assets/icons/medal-bronze.png"
+      src="https://forprototype.s3.ap-northeast-2.amazonaws.com/bangflix/medal-bronze.png"
       class="item-medal"
       image-style="width: 50px"
     />
