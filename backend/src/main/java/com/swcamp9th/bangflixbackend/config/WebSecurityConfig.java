@@ -1,9 +1,8 @@
 package com.swcamp9th.bangflixbackend.config;
 
-import com.swcamp9th.bangflixbackend.common.filter.JwtExceptionFilter;
-import com.swcamp9th.bangflixbackend.security.config.CorsConfig;
+import com.swcamp9th.bangflixbackend.shared.filter.JwtExceptionFilter;
 import com.swcamp9th.bangflixbackend.security.jwt.JwtAuthorizationFilter;
-import com.swcamp9th.bangflixbackend.common.util.JwtUtil;
+import com.swcamp9th.bangflixbackend.shared.util.JwtUtil;
 import com.swcamp9th.bangflixbackend.security.user.UserDetailsServiceImpl;
 import jakarta.servlet.Filter;
 import org.springframework.context.annotation.Bean;
@@ -26,16 +25,12 @@ public class WebSecurityConfig {
 
 	private final JwtUtil jwtUtil;
 	private final UserDetailsServiceImpl userDetailsService;
-	private final AuthenticationConfiguration authenticationConfiguration;
-	private final CorsConfig corsConfig;
 
 
-	public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, CorsConfig corsConfig) {
+    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
 		this.jwtUtil = jwtUtil;
 		this.userDetailsService = userDetailsService;
-		this.authenticationConfiguration = authenticationConfiguration;
-		this.corsConfig = corsConfig;
-	}
+    }
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -73,15 +68,14 @@ public class WebSecurityConfig {
 						.requestMatchers("/api/v1/**").permitAll()
 //						.requestMatchers("/api/v1/auth/**").permitAll()
 						.requestMatchers("/swagger-ui/**", "/v3/**").permitAll()
-//						.requestMatchers(HttpMethod.GET, "/api/v1/themes/week").permitAll()
-//						.requestMatchers(HttpMethod.GET, "/api/v1/themes").permitAll()
-//						.requestMatchers(HttpMethod.GET, "/api/v1/community/**").permitAll()
-//						.requestMatchers(HttpMethod.GET, "/api/v1/event/**").permitAll()
-//						.requestMatchers(HttpMethod.GET, "/api/v1/notice/**").permitAll()
-//						.requestMatchers(HttpMethod.GET, "/api/v1/themes/recommend").permitAll()
-//						.requestMatchers(HttpMethod.GET, "/api/v1/themes/genres").permitAll()
-//						.requestMatchers(HttpMethod.GET, "/api/v1/community-like/**").permitAll()
-//						.requestMatchers("/uploadFiles/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/v1/themes/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/v1/stores/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/v1/community/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/v1/event/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/v1/notice/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/v1/community-like/**").permitAll()
+						.requestMatchers("/uploadFiles/**").permitAll()
 						.anyRequest().authenticated()
 		);
 

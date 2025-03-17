@@ -1,58 +1,54 @@
 package com.swcamp9th.bangflixbackend.domain.review.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class StatisticsReviewDTO {
     private Double avgTotalScore;
-    private Integer fiveScorePercent;
-    private Integer fourScorePercent;
-    private Integer threeScorePercent;
-    private Integer twoScorePercent;
-    private Integer oneScorePercent;
+    private Long fiveScorePercent;
+    private Long fourScorePercent;
+    private Long threeScorePercent;
+    private Long twoScorePercent;
+    private Long oneScorePercent;
 
-    private Integer oneLevelPercent;
-    private Integer twoLevelPercent;
-    private Integer threeLevelPercent;
-    private Integer fourLevelPercent;
-    private Integer fiveLevelPercent;
+    private Long oneLevelPercent;
+    private Long twoLevelPercent;
+    private Long threeLevelPercent;
+    private Long fourLevelPercent;
+    private Long fiveLevelPercent;
 
-    private Integer oneHorrorLevelPercent;
-    private Integer twoHorrorLevelPercent;
-    private Integer threeHorrorLevelPercent;
-    private Integer fourHorrorLevelPercent;
-    private Integer fiveHorrorLevelPercent;
+    private Long oneHorrorLevelPercent;
+    private Long twoHorrorLevelPercent;
+    private Long threeHorrorLevelPercent;
+    private Long fourHorrorLevelPercent;
+    private Long fiveHorrorLevelPercent;
 
-    private Integer oneActivePercent;
-    private Integer twoActivePercent;
-    private Integer threeActivePercent;
-    private Integer fourActivePercent;
-    private Integer fiveActivePercent;
+    private Long oneActivePercent;
+    private Long twoActivePercent;
+    private Long threeActivePercent;
+    private Long fourActivePercent;
+    private Long fiveActivePercent;
 
-    private Integer oneInteriorPercent;
-    private Integer twoInteriorPercent;
-    private Integer threeInteriorPercent;
-    private Integer fourInteriorPercent;
-    private Integer fiveInteriorPercent;
+    private Long oneInteriorPercent;
+    private Long twoInteriorPercent;
+    private Long threeInteriorPercent;
+    private Long fourInteriorPercent;
+    private Long fiveInteriorPercent;
 
-    private Integer oneProbabilityPercent;
-    private Integer twoProbabilityPercent;
-    private Integer threeProbabilityPercent;
-    private Integer fourProbabilityPercent;
-    private Integer fiveProbabilityPercent;
+    private Long oneProbabilityPercent;
+    private Long twoProbabilityPercent;
+    private Long threeProbabilityPercent;
+    private Long fourProbabilityPercent;
+    private Long fiveProbabilityPercent;
 
-    private Integer oneCompositionPercent;
-    private Integer twoCompositionPercent;
-    private Integer threeCompositionPercent;
-    private Integer fourCompositionPercent;
-    private Integer fiveCompositionPercent;
+    private Long oneCompositionPercent;
+    private Long twoCompositionPercent;
+    private Long threeCompositionPercent;
+    private Long fourCompositionPercent;
+    private Long fiveCompositionPercent;
 }

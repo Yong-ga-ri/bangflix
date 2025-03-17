@@ -1,22 +1,19 @@
 package com.swcamp9th.bangflixbackend.domain.theme.entity;
 
-import com.swcamp9th.bangflixbackend.domain.eventPost.entity.EventPost;
 import com.swcamp9th.bangflixbackend.domain.store.entity.Store;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "theme")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class Theme {
 
     @Id

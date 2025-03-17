@@ -11,6 +11,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Member {
 
     @Id
@@ -61,5 +62,9 @@ public class Member {
 
     public MemberRoleEnum getRole() {
         return isAdmin ? MemberRoleEnum.ADMIN : MemberRoleEnum.USER;
+    }
+
+    public void gainPoint(int point) {
+        this.point += point;
     }
 }

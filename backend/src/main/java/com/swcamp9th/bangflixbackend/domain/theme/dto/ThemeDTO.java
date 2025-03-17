@@ -1,6 +1,5 @@
 package com.swcamp9th.bangflixbackend.domain.theme.dto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +29,4 @@ public class ThemeDTO {
     private Integer reviewCount;
     private Boolean isLike;
     private Boolean isScrap;
-
-
 }

@@ -2,11 +2,15 @@ package com.swcamp9th.bangflixbackend.domain.user.service;
 
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.dto.*;
+import com.swcamp9th.bangflixbackend.domain.user.exception.DuplicateException;
+import com.swcamp9th.bangflixbackend.domain.user.exception.MemberNotFoundException;
+import com.swcamp9th.bangflixbackend.domain.user.exception.PasswordNotMatchedException;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.exception.DuplicateException;
-import com.swcamp9th.bangflixbackend.exception.ExpiredTokenExcepiton;
-import com.swcamp9th.bangflixbackend.redis.RedisService;
-import com.swcamp9th.bangflixbackend.common.util.JwtUtil;
+import com.swcamp9th.bangflixbackend.shared.error.ErrorCode;
+import com.swcamp9th.bangflixbackend.domain.user.exception.ExpiredTokenException;
+import com.swcamp9th.bangflixbackend.security.service.RedisService;
+import com.swcamp9th.bangflixbackend.shared.error.exception.FileUploadException;
+import com.swcamp9th.bangflixbackend.shared.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,22 +39,12 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public SignupResponseDto signupWithoutProfile(SignupRequestDto signupRequestDto) {
         if (userRepository.existsById(signupRequestDto.getId())) {
-            throw new DuplicateException("이미 존재하는 아이디입니다.");
+            throw new DuplicateException(ErrorCode.DUPLICATE_ID);
+        } else if (userRepository.existsByNickname(signupRequestDto.getNickname())) {
+            throw new DuplicateException(ErrorCode.DUPLICATE_NICKNAME);
+        } else if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
+            throw new DuplicateException(ErrorCode.DUPLICATE_EMAIL);
         }
-
-        if (userRepository.existsByNickname(signupRequestDto.getNickname())) {
-            throw new DuplicateException("이미 존재하는 닉네임입니다.");
-        }
-
-        if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
-            throw new DuplicateException("이미 존재하는 이메일입니다.");
-        }
-
-//        String uploadsDir = "src/main/resources/static/uploadFiles/DefaultProfileFile";
-//
-//        String fileName = "default_profile_img.png";
-//        String filePath = uploadsDir + "/" + fileName;
-//        String dbFilePath = "/uploadFiles/DefaultProfileFile/" + fileName;
 
         Member user = Member.builder()
                 .id(signupRequestDto.getId())
@@ -68,17 +62,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public SignupResponseDto signup(SignupRequestDto signupRequestDto, MultipartFile imgFile) throws IOException {
+    public SignupResponseDto signup(SignupRequestDto signupRequestDto, MultipartFile imgFile) {
         if (userRepository.existsById(signupRequestDto.getId())) {
-            throw new DuplicateException("이미 존재하는 아이디입니다.");
-        }
-
-        if (userRepository.existsByNickname(signupRequestDto.getNickname())) {
-            throw new DuplicateException("이미 존재하는 닉네임입니다.");
-        }
-
-        if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
-            throw new DuplicateException("이미 존재하는 이메일입니다.");
+            throw new DuplicateException(ErrorCode.DUPLICATE_ID);
+        } else if (userRepository.existsByNickname(signupRequestDto.getNickname())) {
+            throw new DuplicateException(ErrorCode.DUPLICATE_NICKNAME);
+        } else if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
+            throw new DuplicateException(ErrorCode.DUPLICATE_EMAIL);
         }
 
         String uploadsDir = "src/main/resources/static/uploadFiles/profileFile";
@@ -88,8 +78,12 @@ public class UserServiceImpl implements UserService {
         String dbFilePath = "/uploadFiles/profileFile/" + fileName;
 
         Path path = Paths.get(filePath);
-        Files.createDirectories(path.getParent());
-        Files.write(path, imgFile.getBytes());
+        try {
+            Files.createDirectories(path.getParent());
+            Files.write(path, imgFile.getBytes());
+        } catch (IOException e) {
+            throw new FileUploadException();
+        }
 
         Member user = Member.builder()
                 .id(signupRequestDto.getId())
@@ -109,10 +103,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public SignResponseDto login(SignRequestDto signRequestDto) {
         Member user = userRepository.findById(signRequestDto.getId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(MemberNotFoundException::new);
 
         if (!passwordEncoder.matches(signRequestDto.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new PasswordNotMatchedException();
         }
 
         String accessToken = jwtUtil.createAccessToken(user);
@@ -127,18 +121,18 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public ReissueTokenResponseDto refreshTokens(String refreshToken) {
         if (!jwtUtil.validateRefreshToken(refreshToken)) {
-            throw new ExpiredTokenExcepiton("유효하지 않은 리프레시 토큰입니다.");
+            throw new ExpiredTokenException(ErrorCode.TOKEN_INVALID.getMessage());
         }
 
         Claims claims = jwtUtil.getRefreshTokenClaims(refreshToken);
         String id = claims.getSubject();
 
         Member user = userRepository.findById(id)
-                .orElseThrow(() -> new ExpiredTokenExcepiton("사용자를 찾을 수 없습니다."));
+                .orElseThrow(MemberNotFoundException::new);
 
         // Redis에서 리프레시 토큰 조회
         if (!redisService.isRefreshTokenValid(id, refreshToken)) {
-            throw new ExpiredTokenExcepiton("리프레시 토큰이 일치하지 않습니다.");
+            throw new ExpiredTokenException(ErrorCode.TOKEN_INVALID.getMessage());
         }
 
         String newAccessToken = jwtUtil.createAccessToken(user);
@@ -149,14 +143,14 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void logout(String refreshToken) {
         if (!jwtUtil.validateRefreshToken(refreshToken)) {
-            throw new ExpiredTokenExcepiton("유효하지 않은 리프레시 토큰입니다.");
+            throw new ExpiredTokenException(ErrorCode.TOKEN_INVALID.getMessage());
         }
 
         Claims claims = jwtUtil.getRefreshTokenClaims(refreshToken);
         String username = claims.getSubject();
 
-        Member user = userRepository.findById(username)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        userRepository.findById(username)
+                .orElseThrow(MemberNotFoundException::new);
 
         // Redis에서 리프레시 토큰 삭제
         redisService.deleteRefreshToken(username);
@@ -166,7 +160,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserInfoResponseDto findUserInfoById(String id) {
         Member user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(MemberNotFoundException::new);
 
         return new UserInfoResponseDto(
                 user.getId(),
@@ -196,13 +190,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUserInfo(String id, UpdateUserInfoRequestDto updateUserInfoRequestDto, MultipartFile imgFile) throws IOException {
+    public void updateUserInfo(String id, UpdateUserInfoRequestDto updateUserInfoRequestDto, MultipartFile imgFile) {
         if (userRepository.existsByNickname(updateUserInfoRequestDto.getNickname())) {
-            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+            throw new DuplicateException(ErrorCode.DUPLICATE_NICKNAME);
         }
 
         if (userRepository.existsByEmail(updateUserInfoRequestDto.getEmail())) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+            throw new DuplicateException(ErrorCode.DUPLICATE_EMAIL);
         }
 
         // 수정할 멤버 찾기
@@ -220,7 +214,7 @@ public class UserServiceImpl implements UserService {
                 try {
                     Files.deleteIfExists(oldPath); // 파일이 존재하면 삭제
                 } catch (IOException e) {
-                    throw new IOException("이전 파일 삭제에 실패했습니다.", e);
+                    throw new FileUploadException();
                 }
             }
 
@@ -231,8 +225,12 @@ public class UserServiceImpl implements UserService {
             String dbFilePath = "/uploadFiles/profileFile/" + newFileName;
 
             Path path = Paths.get(filePath);
-            Files.createDirectories(path.getParent());
-            Files.write(path, imgFile.getBytes());
+            try {
+                Files.createDirectories(path.getParent());
+                Files.write(path, imgFile.getBytes());
+            } catch (IOException e) {
+                throw new FileUploadException();
+            }
             user.setImage(dbFilePath);
         }
 
@@ -251,5 +249,24 @@ public class UserServiceImpl implements UserService {
                 user.getPoint(),
                 user.getImage()
         );
+    }
+
+    @Override
+    public int findMemberCodeByLoginId(String loginId) {
+        return userRepository.findById(loginId)
+                .orElseThrow(MemberNotFoundException::new)
+                .getMemberCode();
+    }
+
+    @Override
+    public Member findMemberByLoginId(String loginId) {
+        return userRepository.findById(loginId)
+                .orElseThrow(MemberNotFoundException::new);
+    }
+
+    @Override
+    public void memberGainPoint(Member member, int point) {
+        member.gainPoint(point);
+        userRepository.save(member);
     }
 }

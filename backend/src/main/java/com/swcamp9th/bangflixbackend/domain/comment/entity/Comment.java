@@ -1,6 +1,6 @@
 package com.swcamp9th.bangflixbackend.domain.comment.entity;
 
-import com.swcamp9th.bangflixbackend.domain.communityPost.entity.CommunityPost;
+import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityPost;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,17 +1,19 @@
 package com.swcamp9th.bangflixbackend.domain.comment.service;
 
+import com.swcamp9th.bangflixbackend.domain.comment.exception.CommentNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentCountDTO;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentDTO;
 import com.swcamp9th.bangflixbackend.domain.comment.entity.Comment;
 import com.swcamp9th.bangflixbackend.domain.comment.repository.CommentRepository;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentCreateDTO;
 import com.swcamp9th.bangflixbackend.domain.comment.dto.CommentUpdateDTO;
-import com.swcamp9th.bangflixbackend.domain.communityPost.entity.CommunityPost;
-import com.swcamp9th.bangflixbackend.domain.communityPost.repository.CommunityPostRepository;
+import com.swcamp9th.bangflixbackend.domain.communitypost.entity.CommunityPost;
+import com.swcamp9th.bangflixbackend.domain.communitypost.exception.CommunityPostNotFoundException;
+import com.swcamp9th.bangflixbackend.domain.communitypost.repository.CommunityPostRepository;
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
+import com.swcamp9th.bangflixbackend.domain.user.exception.MemberNotFoundException;
 import com.swcamp9th.bangflixbackend.domain.user.repository.UserRepository;
-import com.swcamp9th.bangflixbackend.exception.InvalidUserException;
-import jakarta.persistence.EntityNotFoundException;
+import com.swcamp9th.bangflixbackend.shared.error.exception.InvalidUserException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,36 +22,44 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Service("commentService")
+@Service
 public class CommentServiceImpl implements CommentService {
 
     private final ModelMapper modelMapper;
+
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final CommunityPostRepository communityPostRepository;
 
+    private final UserRepository userRepository;
+
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository,
-                              ModelMapper modelMapper,
-                              UserRepository userRepository,
-                              CommunityPostRepository communityPostRepository) {
-        this.commentRepository = commentRepository;
+    public CommentServiceImpl(
+            ModelMapper modelMapper,
+            CommunityPostRepository communityPostRepository,
+            CommentRepository commentRepository,
+            UserRepository userRepository
+    ) {
         this.modelMapper = modelMapper;
-        this.userRepository = userRepository;
         this.communityPostRepository = communityPostRepository;
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
     @Override
-    public void createComment(String loginId, Integer communityPostCode, CommentCreateDTO newComment) {
+    public void createComment(
+            String loginId,
+            Integer communityPostCode,
+            CommentCreateDTO newComment
+    ) {
         Comment comment = new Comment();
 
         // 회원이 아니면 예외 발생
         Member author = userRepository.findById(loginId)
-                .orElseThrow(() -> new InvalidUserException("댓글 작성 권한이 없습니다."));
+                .orElseThrow(InvalidUserException::new);
 
         CommunityPost post = communityPostRepository.findById(communityPostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(CommunityPostNotFoundException::new);
 
         comment.setActive(true);
         comment.setCreatedAt(LocalDateTime.now());
@@ -63,22 +73,25 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public void updateComment(String loginId, Integer communityPostCode,
-                              Integer commentCode, CommentUpdateDTO modifiedComment) {
-
+    public void updateComment(
+            String loginId,
+            Integer communityPostCode,
+            Integer commentCode,
+            CommentUpdateDTO modifiedComment
+    ) {
         Comment originalComment = commentRepository.findById(commentCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+                .orElseThrow(CommentNotFoundException::new);
 
         CommunityPost post = communityPostRepository.findById(communityPostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(CommunityPostNotFoundException::new);
 
         // 회원이 아니라면 예외 발생
-        Member author = userRepository.findById(loginId).orElseThrow(
-                () -> new InvalidUserException("로그인이 필요합니다."));
+        Member author = userRepository.findById(loginId)
+                .orElseThrow(InvalidUserException::new);
 
         // 게시글 작성자가 아니라면 예외 발생
         if (!originalComment.getMember().getMemberCode().equals(author.getMemberCode())) {
-            throw new InvalidUserException("댓글 수정 권한이 없습니다.");
+            throw new InvalidUserException();
         }
 
         originalComment.setContent(modifiedComment.getContent());
@@ -91,18 +104,21 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public void deleteComment(String loginId, Integer communityPostCode, Integer commentCode) {
-
+    public void deleteComment(
+            String loginId,
+            Integer communityPostCode,
+            Integer commentCode
+    ) {
         Comment foundComment = commentRepository.findById(commentCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 댓글입니다."));
+                .orElseThrow(CommentNotFoundException::new);
 
         // 회원이 아니라면 예외 발생
         Member author = userRepository.findById(loginId).orElseThrow(
-                () -> new InvalidUserException("로그인이 필요합니다."));
+                InvalidUserException::new);
 
         // 게시글 작성자가 아니라면 예외 발생
         if (!foundComment.getMember().getMemberCode().equals(author.getMemberCode())) {
-            throw new InvalidUserException("댓글 삭제 권한이 없습니다.");
+            throw new InvalidUserException();
         }
 
         foundComment.setActive(false);
@@ -113,7 +129,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentDTO> getAllCommentsOfPost(Integer communityPostCode) {
         CommunityPost foundPost = communityPostRepository.findById(communityPostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(CommunityPostNotFoundException::new);
 
         List<Comment> commentList = commentRepository.findByCommunityPostAndActiveTrue(foundPost);
 
@@ -134,7 +150,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentCountDTO getCommentCount(Integer communityPostCode) {
         CommunityPost foundPost = communityPostRepository.findById(communityPostCode)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(CommunityPostNotFoundException::new);
 
         List<Comment> comments = commentRepository.findByCommunityPostAndActiveTrue(foundPost);
         Long commentCount = 0L;
@@ -154,11 +170,11 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentDTO> getCommentsById(String loginId) {
 
         Member member = userRepository.findById(loginId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."));
+                .orElseThrow(InvalidUserException::new);
 
         return commentRepository.findByMemberAndActiveTrue(member).stream()
-                .map(
-                        comment -> modelMapper.map(comment, CommentDTO.class)
+                .map(comment ->
+                        modelMapper.map(comment, CommentDTO.class)
                 ).toList();
     }
 

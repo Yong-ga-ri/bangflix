@@ -2,7 +2,6 @@ package com.swcamp9th.bangflixbackend.security.user;
 
 import com.swcamp9th.bangflixbackend.domain.user.entity.Member;
 import com.swcamp9th.bangflixbackend.domain.user.entity.MemberRoleEnum;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,10 +9,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-@RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
 	private final Member member;
+
+	public UserDetailsImpl(Member member) {
+		this.member = member;
+	}
 
 	public Member getUser() { return member; }
 

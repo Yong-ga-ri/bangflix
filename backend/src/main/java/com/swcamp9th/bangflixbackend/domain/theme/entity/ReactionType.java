@@ -4,6 +4,4 @@ public enum ReactionType {
     LIKE,
     SCRAP,
     SCRAPLIKE;
-
-
 }

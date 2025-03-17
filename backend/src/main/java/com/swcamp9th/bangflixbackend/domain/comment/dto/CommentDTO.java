@@ -2,15 +2,12 @@ package com.swcamp9th.bangflixbackend.domain.comment.dto;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
 public class CommentDTO {
-
     private Integer commentCode;            // 댓글 코드
     private Boolean active;                 // 활성화 여부
     private String createdAt;               // 생성일시(작성일시)

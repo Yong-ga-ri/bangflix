@@ -6,6 +6,5 @@ public enum Activity {
     THREE,
     FOUR,
     FIVE
-
 }
 

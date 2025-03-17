@@ -1,8 +1,6 @@
-package com.swcamp9th.bangflixbackend.domain.communityPost.dto;
+package com.swcamp9th.bangflixbackend.domain.communitypost.dto;
 
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -10,7 +8,6 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 public class CommunityFileDTO {
-
     private Integer communityFileCode;
     private String url;
     private String createdAt;

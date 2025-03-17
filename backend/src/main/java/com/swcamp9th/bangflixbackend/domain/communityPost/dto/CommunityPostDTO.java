@@ -1,8 +1,7 @@
-package com.swcamp9th.bangflixbackend.domain.communityPost.dto;
+package com.swcamp9th.bangflixbackend.domain.communitypost.dto;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -11,7 +10,6 @@ import java.util.List;
 @Setter
 @ToString
 public class CommunityPostDTO {
-
     private Integer communityPostCode;      // 게시글 코드
     private String title;                   // 제목
     private String content;                 // 내용

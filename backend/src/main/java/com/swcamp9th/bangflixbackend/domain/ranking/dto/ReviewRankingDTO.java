@@ -30,7 +30,7 @@ public class ReviewRankingDTO {
     private Integer memberCode;
     private Integer themeCode;
     private List<String> imagePaths;
-    private Integer Likes;
+    private Integer likes;
     private String memberNickname;
     private String memberImage;
     private List<String> genres;

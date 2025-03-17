@@ -151,7 +151,7 @@ onMounted(async () => {
       userInfo.value = await $api.user.get('mypage');
       if (userInfo.value) {
         // 사용자가 업로드한 것인지, 더미데이터인지 확인 필요
-        if (!(userInfo.value.image.substr(0, 20) === 'https://drive.google')) {
+        if (userInfo.value.image && !(userInfo.value.image.substr(0, 20) === 'https://drive.google')) {
           userInfo.value.image = baseServerUrl + userInfo.value.image;
           console.log('userInfo.value: ', userInfo.value);
         }
